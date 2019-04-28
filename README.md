@@ -28,9 +28,13 @@ When a new node is created by mutation the id must be generated in the browser t
 ## TODO
 
 Documentation
+
 Fork [relay-examples](https://github.com/relayjs/relay-examples.git)
+
 Implementation of Refetch Container Offline
+
 Publish to npm or create a pull request to the Relay project (i must use flow type)
+
 
 ## License
 
