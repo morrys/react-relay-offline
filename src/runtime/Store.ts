@@ -1,12 +1,4 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
- import {Store, RecordSource} from 'relay-runtime'
+import {Store, RecordSource} from 'relay-runtime'
 
 import { Store as StoreRedux, Action } from 'redux';
 import { WRITE_ROOT_ACTION, NORMALIZED_ROOTS_KEY, RelayCache, writeThunk, } from './redux/Store';
