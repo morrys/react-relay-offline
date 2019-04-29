@@ -22,6 +22,9 @@ Then, just point your browser at `http://localhost:3000`.
 How to create the environment
 
 ```
+import { Network } from 'relay-runtime';
+import { OfflineStore, Store, Environment, RecordSource } from 'react-relay-offline';
+
 const network = Network.create(fetchQuery);
 const storeOffline = OfflineStore(network);
 const source = new RecordSource(storeOffline);
