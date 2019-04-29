@@ -5,6 +5,20 @@ React Relay Offline is a extension of [Relay](https://facebook.github.io/relay/)
 
 ## Example
 
+The [relay-offline-examples](https://github.com/morrys/relay-examples) repository is a fork of [relay-examples](https://github.com/relayjs/relay-examples) and contains an integration of react-relay-offline. To try it out:
+
+```
+git clone https://github.com/morrys/relay-examples.git
+cd relay-examples/todo
+yarn
+yarn build
+yarn start
+```
+
+Then, just point your browser at `http://localhost:3000`.
+
+
+
 How to create the environment
 
 ```
@@ -29,11 +43,9 @@ When a new node is created by mutation the id must be generated in the browser t
 
 Documentation
 
-Fork [relay-examples](https://github.com/relayjs/relay-examples.git)
-
 Implementation of Refetch Container Offline
 
-Publish to npm or create a pull request to the Relay project (i must use flow type)
+Create a pull request to the Relay project (i must use flow type)
 
 
 ## License
