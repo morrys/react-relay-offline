@@ -46,6 +46,28 @@ Change the renderer
 import {QueryRenderer} from 'react-relay-offline'; 
 ```
 
+## React Native
+How to create the environment
+
+```
+import { Network } from 'relay-runtime';
+import { OfflineStore, Store, Environment, RecordSource } from 'react-relay-offline';
+
+const network = Network.create(fetchQuery);
+const storeOffline = OfflineStore(network, {});
+const source = new RecordSource(storeOffline);
+const store = new Store(storeOffline, source);
+const modernEnvironment = new Environment({ network, store, dataFrom: "CACHE_FIRST" }, storeOffline);
+```
+
+Change the renderer 
+
+```
+import {QueryRenderer} from 'react-relay-offline'; 
+```
+
+In QueryRenderer you need to set the property LoadingComponent.
+
 ## Requirement
 
 * Version 3.0.0 or 4.0.0 of the react-relay library

@@ -75,21 +75,21 @@ const rootsReducer = () => ({
 
 
 const { detectNetwork } = defaultOfflineConfig;
-const persistDefaultOptions = typeof window !== 'undefined' ? {
-    key: NORMALIZED_ROOTS_KEY,
-    storage: createIdbStorage(),
-    serialize: false, // Data serialization is not required and helps allows DevTools to inspect storage value
 
-} : {
-        whitelist: [
-            NORMALIZED_CACHE_KEY,
-            NORMALIZED_ROOTS_KEY,
-            NORMALIZED_OFFLINE,
-        ]
-    }
-
-const newStore = (network, persistOptions= persistDefaultOptions, persistCallback = () => null,
+const newStore = (network, persistOptions, persistCallback = () => null,
     callback: OfflineCallback = () => { }, ): Store<RelayCache> => {
+
+    const persOption = persistOptions ? persistOptions : typeof window !== 'undefined' ? {
+        key: NORMALIZED_ROOTS_KEY,
+        storage: createIdbStorage(),
+        serialize: false,
+    } : {
+            whitelist: [
+                NORMALIZED_CACHE_KEY,
+                NORMALIZED_ROOTS_KEY,
+                NORMALIZED_OFFLINE,
+            ]
+        }
 
     const store = createStore(
         combineReducers({
@@ -113,7 +113,7 @@ const newStore = (network, persistOptions= persistDefaultOptions, persistCallbac
                 persistCallback: () => {
                     persistCallback();
                 },
-                persistOptions: persistOptions,
+                persistOptions: persOption,
                 effect: (effectPayload, action) => effect(
                     effectPayload,
                     action,
