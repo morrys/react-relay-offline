@@ -75,7 +75,7 @@ const rootsReducer = () => ({
 
 
 const { detectNetwork } = defaultOfflineConfig;
-const persistDefaultOptions = typeof window !== 'undefined' && true ? {
+const persistDefaultOptions = typeof window !== 'undefined' ? {
     key: NORMALIZED_ROOTS_KEY,
     storage: createIdbStorage(),
     serialize: false, // Data serialization is not required and helps allows DevTools to inspect storage value

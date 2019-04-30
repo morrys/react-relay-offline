@@ -2,6 +2,14 @@
 
 React Relay Offline is a extension of [Relay](https://facebook.github.io/relay/) for offline capabilities
 
+## Installation
+
+Install react-relay and react-relay-offline using yarn or npm:
+
+```
+yarn add react-relay relay-offline
+```
+
 
 ## Example
 
@@ -40,7 +48,8 @@ import {QueryRenderer} from 'react-relay-offline';
 
 ## Requirement
 
-When a new node is created by mutation the id must be generated in the browser to use it in the optimistic response
+* Version 3.0.0 or 4.0.0 of the react-relay library
+* When a new node is created by mutation the id must be generated in the browser to use it in the optimistic response
 
 ## TODO
 

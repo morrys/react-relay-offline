@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ReactRelayQueryFetcher from './ReactRelayQueryFetcher'
 import {  ReactRelayContext } from 'react-relay';
+import QueryFetcherOriginal from 'react-relay/lib/ReactRelayQueryFetcher';
 
 import {
   CacheConfig,
@@ -167,7 +168,7 @@ class QueryRenderer extends React.Component<Props, State> {
     // Re-initialize the ReactRelayQueryFetcher with callbacks.
     // If data has changed since constructions, this will re-render.
     if (this.props.query && !cached) {
-      queryFetcher.setOnDataChange(retryCallbacks.handleDataChange);
+      (queryFetcher as QueryFetcherOriginal).setOnDataChange(retryCallbacks.handleDataChange);
     }
   }
 
@@ -192,8 +193,8 @@ class QueryRenderer extends React.Component<Props, State> {
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
       const {query} = nextProps;
-      const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
-      prevState.queryFetcher.disposeRequest();
+      const prevSelectionReferences = (prevState.queryFetcher as QueryFetcherOriginal).getSelectionReferences();
+      (prevState.queryFetcher as QueryFetcherOriginal).disposeRequest();
 
       let queryFetcher;
       if (query) {
@@ -239,7 +240,7 @@ class QueryRenderer extends React.Component<Props, State> {
   }
 
   componentWillUnmount(): void {
-    this.state.queryFetcher.dispose();
+    (this.state.queryFetcher as QueryFetcherOriginal).dispose();
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -253,7 +254,7 @@ class QueryRenderer extends React.Component<Props, State> {
 
 function fetchQueryAndComputeStateFromProps(
   props: Props,
-  queryFetcher: ReactRelayQueryFetcher,
+  queryFetcher: QueryFetcherOriginal,
   retryCallbacks: RetryCallbacks,
   requestCacheKey: string,
 ): Partial<State> {
@@ -406,7 +407,7 @@ function getEmptyRenderProps(): RenderProps {
 function getRenderProps(
   error: Error,
   snapshot: Snapshot,
-  queryFetcher: ReactRelayQueryFetcher,
+  queryFetcher: QueryFetcherOriginal,
   retryCallbacks: RetryCallbacks,
 ): RenderProps {
   return {
