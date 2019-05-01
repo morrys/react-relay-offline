@@ -2,7 +2,7 @@ import { Store, Action } from 'redux';
 import {Record} from 'relay-runtime/lib/RelayCombinedEnvironmentTypes';
 import * as RelayRecordState from 'relay-runtime/lib/RelayRecordState';
 import {MutableRecordSource} from 'relay-runtime/lib/RelayStoreTypes';
-import { RelayCache, NORMALIZED_CACHE_KEY, writeThunk, WRITE_CACHE_ACTION } from "./redux/Store";
+import { RelayCache, NORMALIZED_CACHE_KEY, writeThunk, WRITE_CACHE_ACTION } from "./redux/OfflineStore";
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 

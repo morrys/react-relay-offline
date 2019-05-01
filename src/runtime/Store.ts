@@ -1,7 +1,7 @@
 import {Store, RecordSource} from 'relay-runtime'
 
 import { Store as StoreRedux, Action } from 'redux';
-import { WRITE_ROOT_ACTION, NORMALIZED_ROOTS_KEY, RelayCache, writeThunk, } from './redux/Store';
+import { WRITE_ROOT_ACTION, NORMALIZED_ROOTS_KEY, RelayCache, writeThunk, } from './redux/OfflineStore';
 import {
   MutableRecordSource,
   Scheduler,

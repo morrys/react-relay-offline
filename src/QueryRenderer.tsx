@@ -41,6 +41,7 @@ export type RenderProps = {
   error: Error,
   props: Object,
   retry: () => void,
+  cached?: boolean
 };
 
 export interface Props {
@@ -300,6 +301,7 @@ function fetchQueryAndComputeStateFromProps(
       }
     }
 
+    var cached = false;
     try {
       const dataFrom = props.dataFrom || genericEnvironment.getDataFrom();
       const storeSnapshot =
@@ -308,7 +310,9 @@ function fetchQueryAndComputeStateFromProps(
           offline
           ? queryFetcher.lookupInStore(genericEnvironment, operation)
           : null;
-      const cached = (offline || (dataFrom === CACHE_FIRST && storeSnapshot && !(storeSnapshot as any).expired));
+      cached = (
+        offline || //TODO to be evaluated ( offline && storeSnapshot)
+        (dataFrom === CACHE_FIRST && storeSnapshot && !(storeSnapshot as any).expired));
       if (!cached) {
         queryFetcher.resetCacheSelectionReference();
       }
@@ -335,7 +339,7 @@ function fetchQueryAndComputeStateFromProps(
         return {
           error: null,
           relayContext,
-          renderProps: getLoadingRenderProps(),
+          renderProps: {...getLoadingRenderProps(), cached},
           snapshot: null,
           requestCacheKey,
           cached
@@ -350,7 +354,8 @@ function fetchQueryAndComputeStateFromProps(
           null,
           snapshot,
           queryFetcher,
-          retryCallbacks
+          retryCallbacks,
+          cached
         ),
         cached,
         snapshot,
@@ -409,10 +414,12 @@ function getRenderProps(
   snapshot: Snapshot,
   queryFetcher: QueryFetcherOriginal,
   retryCallbacks: RetryCallbacks,
+  cached: boolean = false,
 ): RenderProps {
   return {
     error: error ? error : null,
     props: snapshot ? snapshot.data : null,
+    cached: cached,
     retry: () => {
       const syncSnapshot = queryFetcher.retry();
       if (
