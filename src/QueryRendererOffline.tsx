@@ -21,7 +21,7 @@ class QueryRendererOffline extends React.Component<OfflineProps, State> {
     if (!this.state.rehydratate) {
 
       const unsubscribe = this.props.environment.storeOffline.subscribe(() => {
-        if (this.props.environment.storeOffline.getState().rehydrated) {
+        if (this.props.environment.isRehydrated()) {
           this.setState({
             rehydratate: this.props.environment.isRehydrated()
           })

@@ -10,8 +10,12 @@ export type OfflineCallback = (err: any, success: any) => void;
 export const NORMALIZED_CACHE_KEY = 'relay';
 export const NORMALIZED_ROOTS_KEY = 'relay-roots';
 export const NORMALIZED_OFFLINE = 'offline';
+export const NORMALIZED_DETECTED = 'detected';
+export const NORMALIZED_REHYDRATED = 'rehydrated';
 export const WRITE_CACHE_ACTION = 'RELAY_WRITE_CACHE';
 export const WRITE_ROOT_ACTION = 'RELAY_WRITE_ROOT';
+export const WRITE_DETECTED_NETWORK = 'RELAY_DETECTED_NETWORK';
+
 const KEY_PREFIX_PERSIT = 'relayPersist:';
 
 type AppState = {
@@ -65,6 +69,14 @@ class StoreOffline {
                             return state;
                     }
                 },
+                detected: (state = false, action) => {
+                    switch (action.type) {
+                        case WRITE_DETECTED_NETWORK:
+                            return true;
+                        default:
+                            return state;
+                    }
+                },
                 ...storeOffline.cacheReducer(),
                 ...storeOffline.rootsReducer(),
             }),
@@ -73,6 +85,12 @@ class StoreOffline {
                 applyMiddleware(thunk),
                 offline({
                     ...defaultOfflineConfig,
+                    detectNetwork: callback => {
+                        detectNetwork(online => {
+                            callback(online);
+                            store.dispatch(writeThunk(WRITE_DETECTED_NETWORK, true) as any as Action);
+                        });
+                    },
                     retry: storeOffline.getEffectDelay,
                     persistCallback: () => {
                         persistCallback();

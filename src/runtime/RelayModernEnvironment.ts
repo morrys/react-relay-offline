@@ -6,6 +6,7 @@ import {
 } from 'relay-runtime/lib/RelayStoreTypes';
 
 import { v4 as uuid } from "uuid";
+import { NORMALIZED_OFFLINE, NORMALIZED_REHYDRATED, NORMALIZED_DETECTED } from './redux/OfflineStore';
 
 const actions = {
   ENQUEUE: 'ENQUEUE_OFFLINE_MUTATION',
@@ -24,11 +25,11 @@ class RelayModernEnvironment extends Environment {
   }
 
   public isRehydrated() {
-    return this.storeOffline.getState().rehydrated;
+    return this.storeOffline.getState()[NORMALIZED_REHYDRATED] && this.storeOffline.getState()[NORMALIZED_DETECTED];
   }
 
   public isOnline() {
-    return this.storeOffline.getState().offline.online;
+    return this.storeOffline.getState()[NORMALIZED_OFFLINE].online;
   }
 
   public getStoreOffline() {
