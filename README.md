@@ -7,7 +7,7 @@ React Relay Offline is a extension of [Relay](https://facebook.github.io/relay/)
 Install react-relay and react-relay-offline using yarn or npm:
 
 ```
-yarn add react-relay relay-offline
+yarn add react-relay react-relay-offline
 ```
 
 
