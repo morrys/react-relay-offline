@@ -198,7 +198,7 @@ class StoreOffline {
                 operation.node.params,
                 operation.variables,
                 { force: true },
-                null,
+                effect.request.uploadables,
             );
             return source;
         }

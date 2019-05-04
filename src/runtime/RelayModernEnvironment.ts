@@ -84,7 +84,8 @@ class RelayModernEnvironment extends Environment {
               effect: {
                 request: {
                   operation,
-                  optimisticResponse
+                  optimisticResponse,
+                  uploadables
                 },
                 fetchTime: fetchTime,
                 id: id
