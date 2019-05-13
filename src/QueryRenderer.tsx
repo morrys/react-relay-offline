@@ -194,9 +194,9 @@ class QueryRenderer extends React.Component<Props, State> {
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
       const {query} = nextProps;
-      const prevSelectionReferences = (prevState.queryFetcher as QueryFetcherOriginal).getSelectionReferences();
       (prevState.queryFetcher as QueryFetcherOriginal).disposeRequest();
-
+      const prevSelectionReferences = (prevState.queryFetcher as QueryFetcherOriginal).getSelectionReferences();
+      
       let queryFetcher;
       if (query) {
         const {getRequest} = nextProps.environment.unstable_internal;
