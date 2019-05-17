@@ -3,6 +3,7 @@ import {
   Disposable,
   IEnvironment,
   OperationDescriptor,
+  Snapshot
 } from 'relay-runtime/lib/RelayStoreTypes';
 
 class ReactRelayQueryFetcher extends QueryFetcherOriginal {
@@ -15,15 +16,33 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
   }
 
   resetCacheSelectionReference() {
-    super._cacheSelectionReference = null;
+    (this as QueryFetcherOriginal)._cacheSelectionReference = null;
   }
 
   _retainCachedOperation(
     environment: IEnvironment,
     operation: OperationDescriptor,
   ) {
-    super._disposeCacheSelectionReference();
-    super._cacheSelectionReference = environment.retain(operation.root, false);
+    (this as QueryFetcherOriginal)._disposeCacheSelectionReference();
+    (this as QueryFetcherOriginal)._cacheSelectionReference = environment.retain(operation.root, false);
+  }
+
+  lookupInStore(
+    environment: IEnvironment,
+    operation: OperationDescriptor,
+    dataFrom: any
+  ): Snapshot {
+    
+    if(dataFrom === 'CACHE_FIRST' ||
+        dataFrom === 'STORE_THEN_NETWORK' ||
+        !environment.isOnline() ||
+        dataFrom === 'store-or-network') {
+      if (environment.check(operation.root)) {
+        this._retainCachedOperation(environment, operation);
+        return environment.lookup(operation.fragment, operation);
+      }
+    }
+    return null;
   }
 
 }
