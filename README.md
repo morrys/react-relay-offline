@@ -104,6 +104,11 @@ It is possible to customize the offline store through these parameters:
         render={({ props, error, retry, cached }) => {
 ```
 
+## Hooks
+
+```
+const hooksProps = useQuery(props);
+```
 
 ## Requirement
 
