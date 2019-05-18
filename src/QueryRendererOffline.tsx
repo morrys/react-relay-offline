@@ -1,49 +1,28 @@
 import * as React from 'react';
-import QueryRenderer, { Props } from './QueryRenderer';
+import { useState, useEffect } from "react";
+import QueryRenderer, { Props } from './QueryRendererHook';
 
 export interface OfflineProps extends Props {
   LoadingComponent?: any,
 };
 
-interface State {
-  rehydratate: boolean,
-};
+const QueryRendererOffline = (props: OfflineProps) => {
 
-class QueryRendererOffline extends React.Component<OfflineProps, State> {
-  
-  state: State;
+  const [rehydratate, setRehydratate] = useState(props.environment.isRehydrated());
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      rehydratate: props.environment.isRehydrated()
-    }
-    if (!this.state.rehydratate) {
+  useEffect(() => {
+    const unsubscribe = props.environment.storeOffline.subscribe(() => {
+      if (props.environment.isRehydrated()) {
+        unsubscribe();
+        setRehydratate(props.environment.isRehydrated())
+        
+      }
+    });
+    return () => unsubscribe();
+  }, [props.environment.isRehydrated()]);
 
-      const unsubscribe = this.props.environment.storeOffline.subscribe(() => {
-        if (this.props.environment.isRehydrated()) {
-          this.setState({
-            rehydratate: this.props.environment.isRehydrated()
-          })
-          unsubscribe();
-        }
-      });
-    }
+  return rehydratate? <QueryRenderer {...props} /> : props.LoadingComponent ? props.LoadingComponent : <div>Loading...</div>;
 
-  }
-
-
-  render() {
-    const { rehydratate } = this.state;
-    const { LoadingComponent } = this.props;
-
-    if (!rehydratate) {
-      return LoadingComponent ? LoadingComponent : <div>Loading...</div>;
-    }
-    return <QueryRenderer {...this.props} />
-  }
-  
 }
-
 
 export default QueryRendererOffline;

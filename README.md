@@ -37,7 +37,7 @@ const network = Network.create(fetchQuery);
 const storeOffline = OfflineStore(network);
 const source = new RecordSource(storeOffline);
 const store = new Store(storeOffline, source);
-const modernEnvironment = new Environment({ network, store, dataFrom: "CACHE_FIRST" }, storeOffline);
+const modernEnvironment = new Environment({ network, store }, storeOffline);
 ```
 
 Change the renderer 
@@ -58,7 +58,7 @@ const network = Network.create(fetchQuery);
 const storeOffline = OfflineStore(network);
 const source = new RecordSource(storeOffline);
 const store = new Store(storeOffline, source);
-const modernEnvironment = new Environment({ network, store, dataFrom: "CACHE_FIRST" }, storeOffline);
+const modernEnvironment = new Environment({ network, store }, storeOffline);
 ```
 
 Change the renderer 
@@ -94,6 +94,7 @@ It is possible to customize the offline store through these parameters:
 
 * Add "LoadingComponent" property
 * Add "cached" property in render function
+* Add CACHE_FIRST in dataFrom, with this property the query is not executed on the network if it        finds valid results in the cache
 
 ```
 <QueryRenderer
@@ -104,6 +105,11 @@ It is possible to customize the offline store through these parameters:
         render={({ props, error, retry, cached }) => {
 ```
 
+## Hooks
+
+```
+const hooksProps = useQuery(props);
+```
 
 ## Requirement
 
