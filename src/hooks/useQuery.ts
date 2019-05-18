@@ -1,54 +1,16 @@
-import * as React from 'react';
 import ReactRelayQueryFetcher from '../ReactRelayQueryFetcher'
 import { useState, useEffect, useRef } from "react";
 
 import {
-    CacheConfig,
-    GraphQLTaggedNode,
     IEnvironment,
     RelayContext,
     Snapshot,
-    Variables,
 } from 'relay-runtime/lib/RelayStoreTypes';
 
 import * as areEqual from 'fbjs/lib/areEqual';
-
-const CACHE_FIRST = 'CACHE_FIRST';
-const NETWORK_ONLY = 'NETWORK_ONLY';
-const STORE_THEN_NETWORK = 'STORE_THEN_NETWORK';
-interface DataFromEnum {
-    NETWORK_ONLY: String,
-    STORE_THEN_NETWORK: String,
-    CACHE_FIRST: String,
-};
-type DataFrom = keyof DataFromEnum;
+import { UseQueryProps, HooksProps, OperationContextProps } from '../RelayOfflineTypes';
 
 
-export type RenderProps = {
-    error: Error,
-    props: Object,
-    retry: () => void,
-    cached?: boolean
-};
-
-export type HooksProps = {
-    renderProps: RenderProps,
-    relayContext: RelayContext,
-};
-
-export interface Props {
-    cacheConfig?: CacheConfig,
-    dataFrom?: DataFrom,
-    environment: IEnvironment,
-    query: GraphQLTaggedNode,
-    render: (renderProps: RenderProps) => React.ReactNode,
-    variables: Variables,
-};
-
-export type OperationContextProps = {
-    operation: any,
-    relayContext: RelayContext,
-};
 
 function usePrevious(value): any {
     const ref = useRef();
@@ -64,9 +26,9 @@ function usePrevious(value): any {
   }
 
 
-export default function (props: Props)  {
-    const {environment, query, variables, render } = props
-    const prev = usePrevious({environment, query, variables, render});
+export default function (props: UseQueryProps)  {
+    const {environment, query, variables } = props
+    const prev = usePrevious({environment, query, variables});
     const queryFetcher = prev.queryFetcher;
     const [hooksProps, setHooksProps] = useState<HooksProps>( { relayContext: {environment: props.environment, variables: props.variables} , 
         renderProps : {

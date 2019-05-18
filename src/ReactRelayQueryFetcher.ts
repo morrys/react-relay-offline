@@ -6,6 +6,7 @@ import {
   Snapshot,
   FetchOptions
 } from 'relay-runtime/lib/RelayStoreTypes';
+import { STORE_THEN_NETWORK, CACHE_FIRST } from './RelayOfflineTypes';
 
 class ReactRelayQueryFetcher extends QueryFetcherOriginal {
 
@@ -34,8 +35,8 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
   ): Snapshot {
     const offline = !environment.isOnline();
     this._cachedLookup = null;
-    if(dataFrom === 'CACHE_FIRST' ||
-        dataFrom === 'STORE_THEN_NETWORK' ||
+    if(dataFrom === CACHE_FIRST ||
+        dataFrom === STORE_THEN_NETWORK ||
         offline ||
         dataFrom === 'store-or-network') {
           
