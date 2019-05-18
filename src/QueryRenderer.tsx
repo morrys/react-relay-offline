@@ -313,9 +313,6 @@ function fetchQueryAndComputeStateFromProps(
       cached = (
         offline || //TODO to be evaluated ( offline && storeSnapshot)
         (dataFrom === CACHE_FIRST && storeSnapshot && !(storeSnapshot as any).expired));
-      if (!cached) {
-        queryFetcher.resetCacheSelectionReference();
-      }
       const querySnapshot = cached ? undefined :
         queryFetcher.fetch({
           cacheConfig: props.cacheConfig,

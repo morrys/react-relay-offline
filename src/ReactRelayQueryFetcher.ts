@@ -3,20 +3,20 @@ import {
   Disposable,
   IEnvironment,
   OperationDescriptor,
-  Snapshot
+  Snapshot,
+  FetchOptions
 } from 'relay-runtime/lib/RelayStoreTypes';
 
 class ReactRelayQueryFetcher extends QueryFetcherOriginal {
+
+  _cachedLookup: {snapshot?: Snapshot, offline?: boolean};
 
   constructor(args?: {
     cacheSelectionReference: Disposable,
     selectionReferences: Array<Disposable>,
   }) {
     super(args);
-  }
-
-  resetCacheSelectionReference() {
-    (this as QueryFetcherOriginal)._cacheSelectionReference = null;
+    this._cachedLookup = null;
   }
 
   _retainCachedOperation(
@@ -32,17 +32,39 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
     operation: OperationDescriptor,
     dataFrom: any
   ): Snapshot {
-    
+    const offline = !environment.isOnline();
+    this._cachedLookup = null;
     if(dataFrom === 'CACHE_FIRST' ||
         dataFrom === 'STORE_THEN_NETWORK' ||
-        !environment.isOnline() ||
+        offline ||
         dataFrom === 'store-or-network') {
+          
       if (environment.check(operation.root)) {
         this._retainCachedOperation(environment, operation);
-        return environment.lookup(operation.fragment, operation);
+        const snapshot:Snapshot = environment.lookup(operation.fragment, operation);
+        if(snapshot) {
+          this._cachedLookup = {
+            snapshot,
+            offline,
+          }
+        };
+        return snapshot;
       }
     }
+    
     return null;
+  }
+
+  isValidSnapshot(): boolean {
+    return this._cachedLookup && 
+      (this._cachedLookup.offline || 
+        this._cachedLookup.snapshot &&  !(this._cachedLookup.snapshot as any).expired);
+  }
+
+  fetch(fetchOptions: FetchOptions): Snapshot {
+    if (this.isValidSnapshot())
+        return null;
+    super.fetch(fetchOptions);
   }
 
 }

@@ -36,6 +36,7 @@ class RelayModernEnvironment extends Environment {
     return this.storeOffline;
   }
 
+  //TODO deprecate
   public getDataFrom() {
     return this.dataFrom;
   }

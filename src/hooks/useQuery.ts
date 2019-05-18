@@ -112,36 +112,28 @@ export default function (props: Props)  {
             setResult({empty: true, relayContext: operationContext.relayContext});
             return;
         }
-
-        const offline = !genericEnvironment.isOnline();
         try {
-            const dataFrom = props.dataFrom || genericEnvironment.getDataFrom();
-            const storeSnapshot = queryFetcher.lookupInStore(genericEnvironment, operation, dataFrom);
-            const cached = (
-                offline || //TODO to be evaluated ( offline && storeSnapshot)
-                (dataFrom === CACHE_FIRST && storeSnapshot && !(storeSnapshot as any).expired));
-            const querySnapshot = cached ? undefined :
-            queryFetcher.fetch({
+            const storeSnapshot = queryFetcher.lookupInStore(genericEnvironment, operation, props.dataFrom); //i need this
+            //const storeSnapshot = queryFetcher.lookupInStore(genericEnvironment, operation);
+            const querySnapshot = queryFetcher.fetch({
                     cacheConfig: props.cacheConfig,
-                    dataFrom: dataFrom,
+                    dataFrom: props.dataFrom,
                     environment: genericEnvironment,
                     onDataChange: !prev.environment || prev.environment === undefined ? (params: {
                         error?: Error,
                         snapshot?: Snapshot,
-                        cached?: boolean,
                     }): void => {
                         const error = params.error == null ? null : params.error;
                         const snapshot = params.snapshot == null ? null : params.snapshot;
-                        const cached = params.cached == null ? null : params.cached;
             
-                        setResult({ error, snapshot, cached, relayContext: operationContext.relayContext });
+                        setResult({ error, snapshot, cached: false, relayContext: operationContext.relayContext });
                     } : undefined,
                     operation,
                 });
 
             // Use network data first, since it may be fresher
             const snapshot = querySnapshot || storeSnapshot;
-            setResult({ error: null, snapshot, cached, relayContext: operationContext.relayContext }); //relayContext
+            setResult({ error: null, snapshot, cached: !querySnapshot, relayContext: operationContext.relayContext }); //relayContext
         } catch (error) {
             setResult({ error: error, snapshot: null, cached: false, relayContext: operationContext.relayContext }); //relayContext
         }
@@ -162,12 +154,13 @@ export default function (props: Props)  {
             renderProps.error = result.error ? result.error : null,
             renderProps.cached = result.cached || false,
             renderProps.retry = () => {
-                const syncSnapshot = queryFetcher.retry();
+                execute(props.environment, props.query, props.variables);
+                /*const syncSnapshot = queryFetcher.retry();
                 if ( syncSnapshot ) {
                     setResult({ error: null, snapshot: syncSnapshot, cached: false, relayContext: result.relayContext })
                 } else if ( result.error ) {
                     setResult({ error: result.error, snapshot: undefined, cached: false, relayContext: result.relayContext })
-                }
+                }*/
             }
         } 
         if(hooksProps.renderProps!==renderProps)
