@@ -118,11 +118,11 @@ const hooksProps = useQuery(props);
 
 ## TODO
 
-Documentation
+* Documentation
 
-Implementation of Refetch Container Offline
+* Implementation of Refetch Container Offline (The implementation of the refetchContainer involves the management of fetchPolicy (network-only and store-or-network). To make it homogeneous with the management of the "QueryRenderer" I have to add the cache-first and offline policy), for the moment it is usable only as specified by the Relay library.
 
-Create a pull request to the Relay project (i must use flow type)
+* Create a pull request to the Relay project (i must use flow type)
 
 
 ## License
