@@ -27,7 +27,7 @@ export type RenderProps = {
 
 export type HooksProps = {
     renderProps: RenderProps,
-    relayContext: RelayContext,
+    relay: RelayContext,
 };
 
 export interface UseQueryProps {
@@ -40,5 +40,5 @@ export interface UseQueryProps {
 
 export type OperationContextProps = {
     operation: any,
-    relayContext: RelayContext,
+    relay: RelayContext,
 };

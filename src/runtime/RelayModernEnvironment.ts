@@ -45,7 +45,7 @@ class RelayModernEnvironment extends Environment {
     return (this as any)._store.retain(selector, execute);
   }
 
-  public executeMutation({
+  /*public executeMutation({
     operation,
     optimisticResponse,
     optimisticUpdater,
@@ -102,6 +102,7 @@ class RelayModernEnvironment extends Environment {
     }
 
   }
+  */
 
 
 
