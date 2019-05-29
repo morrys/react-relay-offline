@@ -13,11 +13,11 @@ yarn add react-relay react-relay-offline
 
 ## React Web Example
 
-The [relay-offline-examples](https://github.com/morrys/relay-examples) repository is a fork of [relay-examples](https://github.com/relayjs/relay-examples) and contains an integration of react-relay-offline. To try it out:
+The [react-relay-offline-example](https://github.com/morrys/react-relay-offline-example) contains an integration of react-relay-offline. To try it out:
 
 ```
-git clone https://github.com/morrys/relay-examples.git
-cd relay-examples/todo
+git clone https://github.com/morrys/react-relay-offline-example.git
+cd react-relay-offline-example/todo
 yarn
 yarn build
 yarn start
@@ -29,7 +29,7 @@ Then, just point your browser at `http://localhost:3000`.
 
 How to create the environment
 
-```
+```ts
 import { Network } from 'relay-runtime';
 import { OfflineStore, Store, Environment, RecordSource } from 'react-relay-offline';
 
@@ -42,7 +42,7 @@ const modernEnvironment = new Environment({ network, store }, storeOffline);
 
 Change the renderer 
 
-```
+```ts
 import {QueryRenderer} from 'react-relay-offline'; 
 ```
 
@@ -50,7 +50,7 @@ import {QueryRenderer} from 'react-relay-offline';
 
 How to create the environment
 
-```
+```ts
 import { Network } from 'relay-runtime';
 import { OfflineStore, Store, Environment, RecordSource } from 'react-relay-offline';
 
@@ -63,7 +63,7 @@ const modernEnvironment = new Environment({ network, store }, storeOffline);
 
 Change the renderer 
 
-```
+```ts
 import {QueryRenderer} from 'react-relay-offline'; 
 ```
 
@@ -75,7 +75,7 @@ localStorage is used as the default react web persistence, while AsyncStorage is
 
 To use persistence via IndexedDB:
 
-```
+```ts
 import OfflineStore from 'react-relay-offline/lib/runtime/redux/OfflineStoreIDB'
 ```
 
@@ -96,7 +96,7 @@ It is possible to customize the offline store through these parameters:
 * Add "cached" property in render function
 * Add CACHE_FIRST in dataFrom, with this property the query is not executed on the network if it        finds valid results in the cache
 
-```
+```ts
 <QueryRenderer
         environment={environment}
         query={query}
@@ -105,10 +105,81 @@ It is possible to customize the offline store through these parameters:
         render={({ props, error, retry, cached }) => {
 ```
 
-## Hooks
+## Mutation
 
-```
-const hooksProps = useQuery(props);
+To allow offline modifications use the mutation of this library as follows:
+
+```ts
+import { commitMutation, graphql, Disposable, Environment } from 'react-relay-offline';
+const mutation = graphql`
+  mutation AddTodoMutation($input: AddTodoInput!) {
+    addTodo(input: $input) {
+      todoEdge {
+        __typename
+        cursor
+        node {
+          complete
+          id
+          text
+        }
+      }
+      user {
+        id
+        totalCount
+      }
+    }
+  }
+`;
+
+
+function commit(
+  environment: Environment,
+  text: string,
+  user: TodoApp_user,
+): Disposable {
+  const totalCount = user.totalCount + 1;
+  const idTot = totalCount+user.completedCount;
+  const clientMutationId = Buffer.from('Todo:' + idTot, 'utf8').toString('base64');
+  const input: AddTodoInput = {
+    text,
+    userId: user.userId,
+    clientMutationId: clientMutationId,
+  };
+  
+  return commitMutation(environment, {
+    mutation,
+    variables: {
+      input,
+    },
+    optimisticResponse: {
+      addTodo: {
+        todoEdge: {
+          node: {
+            id: clientMutationId, 
+            text: text,
+            complete: false
+          },
+          cursor: null,
+          __typename: "TodoEdge"
+        },
+        user: {
+          id: user.id,
+          totalCount: totalCount
+        }
+      }
+    },
+    configs: [{
+      type: 'RANGE_ADD',
+      parentID: user.id,
+      connectionInfo: [{
+        key: 'TodoList_todos',
+        rangeBehavior: 'append',
+      }],
+      edgeName: 'todoEdge',
+    }],
+  });
+}
+
 ```
 
 ## Requirement
