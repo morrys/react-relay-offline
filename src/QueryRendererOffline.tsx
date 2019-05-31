@@ -11,7 +11,12 @@ const QueryRendererOffline = (props: OfflineProps) => {
   const [rehydratate, setRehydratate] = useState(props.environment.isRehydrated());
 
   useEffect(() => {
-    const unsubscribe = props.environment.storeOffline.subscribe(() => {
+    if (!props.environment.isRestored()) {
+      props.environment.restore().then(restored => 
+        setRehydratate(props.environment.isRehydrated())
+      )
+    }
+    const unsubscribe = props.environment.getStoreOffline().subscribe(() => {
       if (props.environment.isRehydrated()) {
         unsubscribe();
         setRehydratate(props.environment.isRehydrated())

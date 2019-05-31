@@ -29,15 +29,13 @@ Then, just point your browser at `http://localhost:3000`.
 
 How to create the environment
 
-```
+```ts
 import { Network } from 'relay-runtime';
-import { OfflineStore, Store, Environment, RecordSource } from 'react-relay-offline';
+import { Store, Environment } from 'react-relay-offline';
 
 const network = Network.create(fetchQuery);
-const storeOffline = OfflineStore(network);
-const source = new RecordSource(storeOffline);
-const store = new Store(storeOffline, source);
-const modernEnvironment = new Environment({ network, store }, storeOffline);
+const store = new Store();
+const environment = new Environment({ network, store });
 ```
 
 Change the renderer 
@@ -50,15 +48,13 @@ import {QueryRenderer} from 'react-relay-offline';
 
 How to create the environment
 
-```
+```ts
 import { Network } from 'relay-runtime';
-import { OfflineStore, Store, Environment, RecordSource } from 'react-relay-offline';
+import { Store, Environment } from 'react-relay-offline';
 
 const network = Network.create(fetchQuery);
-const storeOffline = OfflineStore(network);
-const source = new RecordSource(storeOffline);
-const store = new Store(storeOffline, source);
-const modernEnvironment = new Environment({ network, store }, storeOffline);
+const store = new Store();
+const environment = new Environment({ network, store });
 ```
 
 Change the renderer 
@@ -75,8 +71,9 @@ localStorage is used as the default react web persistence, while AsyncStorage is
 
 To use persistence via IndexedDB:
 
-```
-import OfflineStore from 'react-relay-offline/lib/runtime/redux/OfflineStoreIDB'
+```ts
+import EnvironmentIDB from 'react-relay-offline/lib/runtime/EnvironmentIDB'
+const environment = EnvironmentIDB.create({ network });
 ```
 
 ## OfflineStore

@@ -1,4 +1,9 @@
-import { Environment, Observable as RelayObservable, GraphQLResponse } from 'relay-runtime/lib';
+import { Environment, Observable as RelayObservable, GraphQLResponse } from 'relay-runtime';
+
+import { EnvironmentConfig } from 'relay-runtime/lib/RelayModernEnvironment';
+
+import Store from './Store';
+import { Store as StoreRedux } from 'redux';
 
 import {
   NormalizationSelector,
@@ -6,7 +11,8 @@ import {
 } from 'relay-runtime/lib/RelayStoreTypes';
 
 import { v4 as uuid } from "uuid";
-import { NORMALIZED_OFFLINE, NORMALIZED_REHYDRATED, NORMALIZED_DETECTED } from './redux/OfflineStore';
+import StoreOffline, { NORMALIZED_OFFLINE, NORMALIZED_REHYDRATED, NORMALIZED_DETECTED, RelayCache, PersistOptions } from './redux/OfflineStore';
+
 
 const actions = {
   ENQUEUE: 'ENQUEUE_OFFLINE_MUTATION',
@@ -14,36 +20,77 @@ const actions = {
   ROLLBACK: 'ROLLBACK_OFFLINE_MUTATION',
 };
 
-class RelayModernEnvironment extends Environment {
-  private dataFrom = undefined;
-  private storeOffline = undefined;
+/*import Cache, { CacheStorage, CacheOptions } from "cache-persist";
+import IDBStorage from 'cache-persist/lib/idbstorage';
+import { Store } from '..';
 
-  constructor(config, storeOffline) {
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+type EnvironmentOfflineConfig = Omit<EnvironmentConfig, "store">; 
+type StoreOfflineConfigs= Omit<StoreOptions, "source">; 
+
+export interface PersistOptions {
+  cache?: CacheOptions, 
+  store?: StoreOfflineConfigs,
+}
+
+*/
+
+class RelayModernEnvironment extends Environment {
+  
+  private _isRestored: boolean;
+  private _storeOffline: StoreRedux<RelayCache>;
+
+  constructor(config: EnvironmentConfig, offlineOptions: PersistOptions= {}) {
     super(config);
-    this.dataFrom = config.dataFrom;
-    this.storeOffline = storeOffline;
+    this._storeOffline = StoreOffline.create(this, offlineOptions);
+  }
+
+  public restore(): Promise<boolean> {
+    return ((this as any)._store as Store).restore(this._storeOffline).then(result =>
+      this._isRestored = true
+    ).catch( error => {
+      this._isRestored = false;
+      throw error;
+    }
+    )
+  }
+
+  public isRestored():boolean {
+    return this._isRestored;
   }
 
   public isRehydrated() {
-    return this.storeOffline.getState()[NORMALIZED_REHYDRATED] && this.storeOffline.getState()[NORMALIZED_DETECTED];
+    return this._isRestored && this._storeOffline.getState()[NORMALIZED_REHYDRATED] && this._storeOffline.getState()[NORMALIZED_DETECTED];
   }
 
   public isOnline() {
-    return this.storeOffline.getState()[NORMALIZED_OFFLINE].online;
+    return this._storeOffline.getState()[NORMALIZED_OFFLINE].online;
   }
 
   public getStoreOffline() {
-    return this.storeOffline;
-  }
-
-  //TODO deprecate
-  public getDataFrom() {
-    return this.dataFrom;
+    return this._storeOffline;
   }
 
   public retain(selector: NormalizationSelector, execute: boolean = true): Disposable {
     return (this as any)._store.retain(selector, execute);
   }
+
+  public executeMutationOffline({
+    operation,
+    optimisticResponse,
+    optimisticUpdater,
+    updater,
+    uploadables,
+  }): RelayObservable<GraphQLResponse> {
+    return super.executeMutation({
+      operation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      uploadables,
+    });
+  }
+  
 
   public executeMutation({
     operation,
@@ -77,7 +124,7 @@ class RelayModernEnvironment extends Environment {
         }
         const fetchTime = Date.now();
         const id = uuid();
-        this.storeOffline.dispatch({
+        this._storeOffline.dispatch({
           type: actions.ENQUEUE,
           payload: { optimisticResponse },
           meta: {

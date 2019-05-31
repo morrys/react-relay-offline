@@ -1,38 +1,7 @@
-import { openDB, DBSchema } from 'idb';
+import { IDBPDatabase } from 'idb';
 import setImmediate from 'redux-persist/lib/utils/setImmediate';
 
-export default function createIdbStorage(options:any = {}) {
-  /** @var {Object} */
-  options = {
-    /** Database name */
-    name: 'RelayDB',
-    /** Store name */
-    storeName: 'relay',
-    /** Database version */
-    version: 1,
-    /** Upgrade callback. Useful when for example switching storeName */
-    upgradeCallback: upgradeDb => upgradeDb.createObjectStore(options.storeName),
-    /** Custom options */
-    ...options,
-  }
-
-  interface RelayDB extends DBSchema {
-    'relay': {
-        id: string,
-        key: string,
-        value: {
-            record: any,
-            id: string
-        },
-    },
-  }
-
-  /** @var {Promise} */
-  const dbPromise = openDB<RelayDB>(options.name, options.version, {
-    upgrade(dbPromise) {
-        dbPromise.createObjectStore(options.storeName);
-    }
-  })
+export default function createIdbStorage(dbPromise: IDBPDatabase<any>, storeName) {
 
   return {
     /**
@@ -42,7 +11,7 @@ export default function createIdbStorage(options:any = {}) {
      */
     async getItem(key, cb) {
         const db = await dbPromise;
-        const s = await db.get(options.storeName, key);
+        const s = await db.get(storeName, key);
         return new Promise((resolve, reject) => {
             try {
                 
@@ -65,7 +34,7 @@ export default function createIdbStorage(options:any = {}) {
      */
     async setItem(key, item, cb) {
         const db = await dbPromise;
-        await db.put(options.storeName, item , key);
+        await db.put(storeName, item , key);
         return new Promise((resolve, reject) => {
             try {
                 
@@ -86,7 +55,7 @@ export default function createIdbStorage(options:any = {}) {
      */
     async removeItem(key, cb) {
         const db = await dbPromise;
-        await db.delete(options.storeName ,key);
+        await db.delete(storeName ,key);
         return new Promise((resolve, reject) => {
             try {
                 
@@ -106,7 +75,7 @@ export default function createIdbStorage(options:any = {}) {
      */
     async getAllKeys(cb) {
         const db = await dbPromise;
-        const keys = await db.getAllKeys(options.storeName);
+        const keys = await db.getAllKeys(storeName);
         return new Promise((resolve, reject) => {
             try {
                 
@@ -127,7 +96,7 @@ export default function createIdbStorage(options:any = {}) {
      */
     async getAll() {
       const db = await dbPromise;
-      return db.getAll(options.storeName);
+      return db.getAll(storeName);
     },
 
     /**
@@ -136,7 +105,7 @@ export default function createIdbStorage(options:any = {}) {
      */
     async clear() {
       const db = await dbPromise;
-      return db.clear(options.storeName);
+      return db.clear(storeName);
     },
   }
 }
