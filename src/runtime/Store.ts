@@ -197,7 +197,7 @@ class RelayOfflineStore implements Store {
           this._operationLoader,
         );
       } else {
-        this._cache.remove(selRoot)
+        this._cache.remove(index)
       }
     });
     // Short-circuit if *nothing* is referenced

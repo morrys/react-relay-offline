@@ -11,7 +11,7 @@ import {
 } from 'relay-runtime/lib/RelayStoreTypes';
 
 import { v4 as uuid } from "uuid";
-import StoreOffline, { NORMALIZED_OFFLINE, NORMALIZED_REHYDRATED, NORMALIZED_DETECTED, RelayCache, PersistOptions } from './redux/OfflineStore';
+import StoreOffline, { NORMALIZED_OFFLINE, NORMALIZED_REHYDRATED, NORMALIZED_DETECTED, RelayCache, PersistOptions, OfflineCallback } from './redux/OfflineStore';
 
 
 const actions = {
@@ -40,9 +40,13 @@ class RelayModernEnvironment extends Environment {
   private _isRestored: boolean;
   private _storeOffline: StoreRedux<RelayCache>;
 
-  constructor(config: EnvironmentConfig, offlineOptions: PersistOptions= {}) {
+  constructor(config: EnvironmentConfig, 
+    callback: OfflineCallback = () => { },
+    persistOptions: PersistOptions= {},
+    persistCallback = () => null,
+  ) {
     super(config);
-    this._storeOffline = StoreOffline.create(this, offlineOptions);
+    this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
   }
 
   public restore(): Promise<boolean> {

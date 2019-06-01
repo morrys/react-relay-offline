@@ -34,8 +34,13 @@ import { Network } from 'relay-runtime';
 import { Store, Environment } from 'react-relay-offline';
 
 const network = Network.create(fetchQuery);
+function callbackOffline(type: string, payload: any, error: any) {
+  console.log("callbackoffline", type) //next, complete, error, discard
+  console.log("callbackoffline", payload)
+  console.log("callbackoffline", error)
+}
 const store = new Store();
-const environment = new Environment({ network, store });
+const environment = new Environment({ network, store }, callbackOffline);
 ```
 
 Change the renderer 
@@ -53,8 +58,13 @@ import { Network } from 'relay-runtime';
 import { Store, Environment } from 'react-relay-offline';
 
 const network = Network.create(fetchQuery);
+function callbackOffline(type: string, payload: any, error: any) {
+  console.log("callbackoffline", type)
+  console.log("callbackoffline", payload)
+  console.log("callbackoffline", error)
+}
 const store = new Store();
-const environment = new Environment({ network, store });
+const environment = new Environment({ network, store }, callbackOffline);
 ```
 
 Change the renderer 
@@ -72,8 +82,16 @@ localStorage is used as the default react web persistence, while AsyncStorage is
 To use persistence via IndexedDB:
 
 ```ts
-import EnvironmentIDB from 'react-relay-offline/lib/runtime/EnvironmentIDB'
-const environment = EnvironmentIDB.create({ network });
+import {Network} from 'relay-runtime';
+import EnvironmentIDB from 'react-relay-offline/lib/runtime/EnvironmentIDB';
+
+const network = Network.create(fetchQuery);
+function callbackOffline(type: string, payload: any, error: any) {
+  console.log("callbackoffline", type)
+  console.log("callbackoffline", payload)
+  console.log("callbackoffline", error)
+}
+const environment = EnvironmentIDB.create({ network }, callbackOffline);
 ```
 
 ## OfflineStore

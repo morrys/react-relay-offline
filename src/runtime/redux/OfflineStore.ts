@@ -5,15 +5,11 @@ import { PERSIST_REHYDRATE } from "@redux-offline/redux-offline/lib/constants";
 import thunk from 'redux-thunk';
 import { OfflineAction } from '@redux-offline/redux-offline/lib/types';
 import { ThunkAction } from "redux-thunk";
-import { Network } from 'relay-runtime/lib/RelayStoreTypes';
-import { Environment } from '../..';
 import RelayModernEnvironment from '../RelayModernEnvironment';
-export type OfflineCallback = (err: any, success: any) => void;
+export type OfflineCallback = (type: string, payload: any, error: any) => void;
 export const NORMALIZED_OFFLINE = 'offline';
 export const NORMALIZED_DETECTED = 'detected';
 export const NORMALIZED_REHYDRATED = 'rehydrated';
-export const WRITE_CACHE_ACTION = 'RELAY_WRITE_CACHE';
-export const WRITE_ROOT_ACTION = 'RELAY_WRITE_ROOT';
 export const WRITE_DETECTED_NETWORK = 'RELAY_DETECTED_NETWORK';
 
 const KEY_PREFIX_PERSIT = 'relayPersist:';
@@ -164,12 +160,33 @@ class StoreOffline {
             const uploadables = effect.request.uploadables;
             const optimisticResponse = effect.request.optimisticResponse;
             //TODO remove retry if present
+            const errors = [];
             const source = environment.executeMutationOffline({
                     operation,
                     optimisticResponse,
                     uploadables,
                   }
-            );
+            ).subscribe({
+                next: payload => {
+                  if (payload.errors) {
+                    errors.push(...payload.errors);
+                  }
+                  if(callback) {
+                    callback("next", payload, errors.length !== 0 ? errors : null);
+                  }
+                },
+                complete: () => {
+                  if (callback) {
+                    const snapshot = environment.lookup(operation.fragment, operation);
+                    callback(
+                        'complete',
+                      (snapshot.data as any),
+                      errors.length !== 0 ? errors : null,
+                    );
+                  }
+                },
+                error: (error, isUncaughtThrownError?: boolean) => callback('error', error, isUncaughtThrownError),
+              });
             return source;
         }
         return false;
@@ -181,7 +198,7 @@ class StoreOffline {
         if (discardResult) {
             if (typeof callback === 'function') {
                 this.tryFunctionOrLogError(() => {
-                    callback({ error }, null);
+                    callback('discard', { error }, null);
                 });
             }
         }

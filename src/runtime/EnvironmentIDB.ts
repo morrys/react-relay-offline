@@ -15,7 +15,7 @@ import {
     Snapshot,
   } from 'relay-runtime/lib/RelayStoreTypes';
 import RelayModernEnvironment from "./RelayModernEnvironment";
-import { PersistOptions } from "./redux/OfflineStore";
+import { PersistOptions, OfflineCallback } from "./redux/OfflineStore";
 
 interface StoreIDBOptions {
     serialize: boolean,
@@ -29,6 +29,8 @@ type EnvironmentOfflineConfig = Omit<EnvironmentConfig, "store">; // Equivalent 
 class EnvironmentIDB {
 
     public static create(config: EnvironmentOfflineConfig,
+        callback: OfflineCallback = () => { },
+        persistCallback = () => null,
         persistOptions: PersistOptions = {},
         gcScheduler?: Scheduler,
         operationLoader?: OperationLoader,
@@ -58,7 +60,7 @@ class EnvironmentIDB {
             }
         }
         const store = new Store(idbStore, idbRecords, gcScheduler, operationLoader, ttl);
-        return new RelayModernEnvironment({...config, store}, idbOffline)
+        return new RelayModernEnvironment({...config, store}, callback, idbOffline, persistCallback)
     }
 }
 
