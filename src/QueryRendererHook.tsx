@@ -19,7 +19,7 @@ export default function (props: Props)  {
     const {render, ...others} = props;
     const hooksProps = useQuery(others);
 
-    return <ReactRelayContext.Provider value={hooksProps.relayContext}>
+    return <ReactRelayContext.Provider value={hooksProps.relay}>
         {render(hooksProps.renderProps)}
     </ReactRelayContext.Provider>
 

@@ -25,12 +25,12 @@ function usePrevious(value): any {
     return ref.current;
   }
 
-
-export default function (props: UseQueryProps)  {
+//TODO Change relayContext con relay
+function useQuery(props: UseQueryProps)  {
     const {environment, query, variables } = props
     const prev = usePrevious({environment, query, variables});
     const queryFetcher = prev.queryFetcher;
-    const [hooksProps, setHooksProps] = useState<HooksProps>( { relayContext: {environment: props.environment, variables: props.variables} , 
+    const [hooksProps, setHooksProps] = useState<HooksProps>( { relay: {environment: props.environment, variables: props.variables} , 
         renderProps : {
         error: null,
         props: null, 
@@ -56,13 +56,13 @@ export default function (props: UseQueryProps)  {
         const genericEnvironment: IEnvironment = (environment);
         if (!query) {
             queryFetcher.dispose();
-            setOperationContext({ operation: null, relayContext: {environment, variables} });
+            setOperationContext({ operation: null, relay: {environment, variables} });
         } else {
             queryFetcher.disposeRequest();
             const { createOperationDescriptor, getRequest, } = genericEnvironment.unstable_internal;
             const request = getRequest(query);
             const operation = createOperationDescriptor(request, variables);
-            setOperationContext({ operation: operation, relayContext: {environment, variables: operation.variables} });
+            setOperationContext({ operation: operation, relay: {environment, variables: operation.variables} });
         }
     }
 
@@ -71,7 +71,7 @@ export default function (props: UseQueryProps)  {
         const genericEnvironment: IEnvironment = (environment);
         const operation = operationContext.operation;
         if (!operation) {
-            setResult({empty: true, relayContext: operationContext.relayContext});
+            setResult({empty: true, relay: operationContext.relay});
             return;
         }
         try {
@@ -88,20 +88,20 @@ export default function (props: UseQueryProps)  {
                         const error = params.error == null ? null : params.error;
                         const snapshot = params.snapshot == null ? null : params.snapshot;
             
-                        setResult({ error, snapshot, cached: false, relayContext: operationContext.relayContext });
+                        setResult({ error, snapshot, cached: false, relay: operationContext.relay });
                     } : undefined,
                     operation,
                 });
 
             // Use network data first, since it may be fresher
             const snapshot = querySnapshot || storeSnapshot;
-            setResult({ error: null, snapshot, cached: !querySnapshot, relayContext: operationContext.relayContext }); //relayContext
+            setResult({ error: null, snapshot, cached: !querySnapshot, relay: operationContext.relay }); //relay
         } catch (error) {
-            setResult({ error: error, snapshot: null, cached: false, relayContext: operationContext.relayContext }); //relayContext
+            setResult({ error: error, snapshot: null, cached: false, relay: operationContext.relay }); //relay
         }
     }
 
-    function setResult(result: {relayContext: RelayContext, empty?: boolean, error?: Error, snapshot?: Snapshot, cached?: boolean}) {
+    function setResult(result: {relay: RelayContext, empty?: boolean, error?: Error, snapshot?: Snapshot, cached?: boolean}) {
         if(!result) {
             return;
         }
@@ -119,14 +119,14 @@ export default function (props: UseQueryProps)  {
                 execute(props.environment, props.query, props.variables);
                 /*const syncSnapshot = queryFetcher.retry();
                 if ( syncSnapshot ) {
-                    setResult({ error: null, snapshot: syncSnapshot, cached: false, relayContext: result.relayContext })
+                    setResult({ error: null, snapshot: syncSnapshot, cached: false, relay: result.relay })
                 } else if ( result.error ) {
-                    setResult({ error: result.error, snapshot: undefined, cached: false, relayContext: result.relayContext })
+                    setResult({ error: result.error, snapshot: undefined, cached: false, relay: result.relay })
                 }*/
             }
         } 
         if(hooksProps.renderProps!==renderProps)
-            setHooksProps({renderProps, relayContext: result.relayContext});    
+            setHooksProps({renderProps, relay: result.relay});    
     }
 
    /*useMemo(() => {
@@ -136,3 +136,5 @@ export default function (props: UseQueryProps)  {
     return hooksProps;
 
 }
+
+export default useQuery;

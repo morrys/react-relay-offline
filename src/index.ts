@@ -1,7 +1,6 @@
 export {
   ReactRelayContext,
   applyOptimisticMutation,
-  commitMutation,
   commitLocalUpdate,
   createFragmentContainer,
   createPaginationContainer,
@@ -41,3 +40,5 @@ export {default as Environment} from './runtime/RelayModernEnvironment';
 export {default as Store} from './runtime/Store';
 export {default as RecordSource} from './runtime/RecordSource';
 export {default as OfflineStore} from './runtime/redux/OfflineStore';
+export {default as useMutation} from './hooks/useMutation';
+export {default as commitMutation} from './commitMutation';

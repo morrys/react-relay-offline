@@ -96,7 +96,7 @@ class RelayModernEnvironment extends Environment {
   }
   
 
-  public executeMutation({
+  /*public executeMutation({
     operation,
     optimisticResponse,
     optimisticUpdater,
@@ -152,7 +152,7 @@ class RelayModernEnvironment extends Environment {
       });
     }
 
-  }
+  }*/
 
 
 
