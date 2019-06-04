@@ -35,7 +35,7 @@ import { Store, Environment } from 'react-relay-offline';
 
 const network = Network.create(fetchQuery);
 function callbackOffline(type: string, payload: any, error: any) {
-  console.log("callbackoffline", type) //next, complete, error, discard
+  console.log("callbackoffline", type) //next, complete, error, discard, start
   console.log("callbackoffline", payload)
   console.log("callbackoffline", error)
 }
