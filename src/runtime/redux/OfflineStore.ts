@@ -5,15 +5,11 @@ import { PERSIST_REHYDRATE } from "@redux-offline/redux-offline/lib/constants";
 import thunk from 'redux-thunk';
 import { OfflineAction } from '@redux-offline/redux-offline/lib/types';
 import { ThunkAction } from "redux-thunk";
-import { Network } from 'relay-runtime/lib/RelayStoreTypes';
-export type OfflineCallback = (err: any, success: any) => void;
-export const NORMALIZED_CACHE_KEY = 'relay';
-export const NORMALIZED_ROOTS_KEY = 'relay-roots';
+import RelayModernEnvironment from '../RelayModernEnvironment';
+export type OfflineCallback = (type: string, payload: any, error: any) => void;
 export const NORMALIZED_OFFLINE = 'offline';
 export const NORMALIZED_DETECTED = 'detected';
 export const NORMALIZED_REHYDRATED = 'rehydrated';
-export const WRITE_CACHE_ACTION = 'RELAY_WRITE_CACHE';
-export const WRITE_ROOT_ACTION = 'RELAY_WRITE_ROOT';
 export const WRITE_DETECTED_NETWORK = 'RELAY_DETECTED_NETWORK';
 
 const KEY_PREFIX_PERSIT = 'relayPersist:';
@@ -34,8 +30,6 @@ export const writeThunk:
 
 export interface RelayCache extends AppState {
     rehydrated: boolean,
-    [NORMALIZED_CACHE_KEY]: any,
-    [NORMALIZED_ROOTS_KEY]: any,
 }
 
 export interface PersistOptions {
@@ -46,13 +40,15 @@ export interface PersistOptions {
     customReducers?: ReducersMapObject
 }
 
+
+
 class StoreOffline {
 
     private _base_time_ms = 100;
     private _factor = 100;
     private _max_delay = 5 * 60 * 1000;
 
-    public static create(network: Network, persistOptions: PersistOptions = {},
+    public static create(environment: RelayModernEnvironment, persistOptions: PersistOptions = {},
         persistCallback = () => null,
         callback: OfflineCallback = () => { }, ): Store<RelayCache> {
 
@@ -77,8 +73,6 @@ class StoreOffline {
                             return state;
                     }
                 },
-                ...storeOffline.cacheReducer(),
-                ...storeOffline.rootsReducer(),
             }),
             typeof window !== 'undefined' && (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__(),
             compose(
@@ -102,7 +96,7 @@ class StoreOffline {
                         effectPayload,
                         action,
                         store,
-                        network,
+                        environment,
                         callback,
                         detectNetwork
                     ),
@@ -140,8 +134,6 @@ class StoreOffline {
             keyPrefix: this._keyPrefix,
             serialize: this._serialize,
             whitelist: [
-                NORMALIZED_CACHE_KEY,
-                NORMALIZED_ROOTS_KEY,
                 NORMALIZED_OFFLINE,
             ].concat(this._whitelist)
         }
@@ -161,45 +153,52 @@ class StoreOffline {
         return delay <= this._max_delay ? delay : null;
     };
 
-    private cacheReducer = () => ({
-        [NORMALIZED_CACHE_KEY]: (state = {}, action) => {
-            const { type, payload: normCache } = action;
-            switch (type) {
-                case WRITE_CACHE_ACTION:
-                    return {
-                        ...normCache
-                    };
-                default:
-                    return state;
-            }
-        }
-    });
-
-    private rootsReducer = () => ({
-        [NORMALIZED_ROOTS_KEY]: (state = {}, action) => {
-            const { type, payload: normCache } = action;
-            switch (type) {
-                case WRITE_ROOT_ACTION:
-                    return {
-                        ...normCache
-                    };
-                default:
-                    return state;
-            }
-        }
-    });
-
-    public effect = async (effect, action: OfflineAction, store, network, callback, offlineStatusChangeCallbackCreator: any) => {
+    public effect = async (effect, action: OfflineAction, store, environment, callback, offlineStatusChangeCallbackCreator: any) => {
         if (action && action.type === 'ENQUEUE_OFFLINE_MUTATION') {
 
             const operation = effect.request.operation;
+            const uploadables = effect.request.uploadables;
+            const optimisticResponse = effect.request.optimisticResponse;
             //TODO remove retry if present
-            const source = await network.execute(
+            const errors = [];
+            const source = environment._network.execute(
                 operation.node.params,
                 operation.variables,
-                { force: true },
-                effect.request.uploadables,
-            );
+                {force: true},
+                uploadables,
+              ).subscribe({
+                complete: () => {
+                    if (callback) {
+                      const snapshot = environment.lookup(operation.fragment, operation);
+                      callback(
+                          'complete',
+                        (snapshot.data as any),
+                        errors.length !== 0 ? errors : null,
+                      );
+                    }
+                  },
+                error: (error, isUncaughtThrownError?: boolean) => callback('error', error, isUncaughtThrownError),
+                next: response => {
+                    if(callback) {
+                      callback("next", response, null);
+                    }
+                  },
+                start: subscription => callback(
+                    'start',
+                    subscription,
+                     null,
+                ),
+              });;
+            /*const source = environment.executeMutationOffline({
+                    operation,
+                    optimisticResponse,
+                    uploadables,
+                  }
+            ).subscribe({
+                
+                
+                
+              });*/
             return source;
         }
         return false;
@@ -211,7 +210,7 @@ class StoreOffline {
         if (discardResult) {
             if (typeof callback === 'function') {
                 this.tryFunctionOrLogError(() => {
-                    callback({ error }, null);
+                    callback('discard', { error }, null);
                 });
             }
         }
@@ -250,5 +249,4 @@ class StoreOffline {
 
 }
 
-//TODO da modificare a StoreOffline quando passo alla versione 1.0.0
-export default StoreOffline.create;
+export default StoreOffline;

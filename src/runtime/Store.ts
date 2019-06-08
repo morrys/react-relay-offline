@@ -1,7 +1,4 @@
-import {Store, RecordSource} from 'relay-runtime'
-
-import { Store as StoreRedux, Action } from 'redux';
-import { WRITE_ROOT_ACTION, NORMALIZED_ROOTS_KEY, RelayCache, writeThunk, } from './redux/OfflineStore';
+import { Store } from 'relay-runtime'
 import {
   MutableRecordSource,
   Scheduler,
@@ -11,10 +8,8 @@ import {
   OperationDescriptor,
   UpdatedRecords,
   Disposable,
-  Snapshot
+  Snapshot,
 } from 'relay-runtime/lib/RelayStoreTypes';
-
-
 
 
 import { UNPUBLISH_RECORD_SENTINEL } from 'relay-runtime/lib/RelayStoreUtils';
@@ -26,6 +21,10 @@ import * as RelayReferenceMarker from 'relay-runtime/lib/RelayReferenceMarker';
 import * as hasOverlappingIDs from 'relay-runtime/lib/hasOverlappingIDs';
 import * as recycleNodesInto from 'relay-runtime/lib/recycleNodesInto';
 import * as resolveImmediate from 'fbjs/lib/resolveImmediate';
+
+import { RelayCache } from "./redux/OfflineStore"
+
+//import * as defaultGetDataID from 'relay-runtime/lib/defaultGetDataID';
 type Subscription = {
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
@@ -42,25 +41,38 @@ type Subscription = {
  * records or clone existing records and modify the clones. Record immutability
  * is also enforced in development mode by freezing all records passed to a store.
  */
+export interface StoreOptions {
+  source: RecordSource,
+  gcScheduler?: Scheduler,
+  operationLoader?: OperationLoader,
+  //UNSTABLE_DO_NOT_USE_getDataID?: GetDataID, master branch
+  ttl?: number
+}
+
+import Cache, { CacheOptions } from "cache-persist";
+import { Store as StoreRedux } from 'redux';
+import RecordSource from './RecordSource';
+
 class RelayOfflineStore implements Store {
+
   private _gcScheduler: Scheduler;
   private _hasScheduledGC: boolean;
   private _operationLoader?: any;
-  private _recordSource: MutableRecordSource;
+  private _recordSource: RecordSource;
   private _subscriptions: Set<Subscription>;
   private _updatedRecordIDs: UpdatedRecords;
   private _gcHoldCounter: number;
   private _shouldScheduleGC: boolean;
   private _ttl?: number;
-  
-  store: StoreRedux<RelayCache>;
+  private _cache: Cache;
+  private _storeOffline: StoreRedux<RelayCache>;
 
   constructor(
-    store: StoreRedux<RelayCache>,
-    source: MutableRecordSource,
+    persistOptions: CacheOptions = {},
+    persistOptionsRecords: CacheOptions = {},
     gcScheduler: Scheduler = resolveImmediate,
     operationLoader: OperationLoader = null,
-    ttl: number = 10 * 60 * 1000
+    ttl: number = 10 * 60 * 1000,
   ) {
     /*if (__DEV__) {
       const storeIDs = source.getRecordIDs();
@@ -74,53 +86,90 @@ class RelayOfflineStore implements Store {
     this._gcScheduler = gcScheduler;
     this._hasScheduledGC = false;
     this._operationLoader = operationLoader;
-    this._recordSource = source;
     this._subscriptions = new Set();
     this._updatedRecordIDs = {};
     this._gcHoldCounter = 0;
     this._shouldScheduleGC = false;
     this._ttl = ttl;
+
+    const persistOptionsStore = {
+      prefix: 'relay-store',
+      serialize: true,
+      ...persistOptions,
+    };
+    const persistOptionsRecordSource = {
+      prefix: 'relay-records',
+      serialize: true,
+      ...persistOptions,
+      ...persistOptionsRecords,
+    }
+    /*const idbStorages: CacheStorage[] = IDBStorage.create("relay", ["roots", "cache"]);
+    const idb: CacheOptions = {
+      storage: idbStorages[0],
+      serialize: false,
+    }
     
-    this.store = store;
+    const idb1: CacheOptions = {
+      storage: idbStorages[1],
+      serialize: false,
+    }*/
+
+
+    const cacheRecordSource = new Cache(persistOptionsRecordSource);
+    const cache = new Cache(persistOptionsStore);
+
+
+    this._recordSource = new RecordSource(cacheRecordSource);
+
+    this._cache = cache;
+  }
+
+  public restore(storeOffline): Promise<Cache[]> {
+    this._storeOffline = storeOffline;
+    return Promise.all([this._cache.restore(), this._recordSource.restore()]);
   }
 
   public retain(selector: NormalizationSelector, execute?: boolean): Disposable {
     const name = selector.node.name + "." + JSON.stringify(selector.variables);
     const dispose = () => {
-      const roots = this.store.getState()[NORMALIZED_ROOTS_KEY];
-      if (roots[name]) {
-        roots[name].dispose = true;
-        this.store.dispatch(writeThunk(WRITE_ROOT_ACTION, roots) as any as Action);
+      const root = this._cache.get(name);
+      if (root) {
+        const newRoot = {
+          ...root,
+          dispose: true,
+        }
+        this._cache.set(name, newRoot);
+        //this.store.dispatch(writeThunk(WRITE_ROOT_ACTION, roots) as any as Action);
       }
       this._scheduleGC();
     };
-    const roots = this.store.getState()[NORMALIZED_ROOTS_KEY];
-    roots[name] = {
+    const root = this._cache.get(name);
+    const newRoot = {
       selector,
-      retainTime: execute || !roots[name] ? Date.now() : roots[name].retainTime,
+      retainTime: execute || !root ? Date.now() : root.retainTime,
       dispose: false,
       execute: execute
     }
-    this.store.dispatch(writeThunk(WRITE_ROOT_ACTION, roots) as any as Action);
+    this._cache.set(name, newRoot);
     return { dispose };
   }
 
-  
+
 
   public lookup(selector: ReaderSelector, owner?: OperationDescriptor): Snapshot {
     const snapshot = RelayReader.read(this._recordSource, selector, owner);
     const name = selector.node.name + "." + JSON.stringify(selector.variables);
-    const roots = this.store.getState()[NORMALIZED_ROOTS_KEY];
-    const expired: boolean = roots[name] ? !this.isCurrent(roots[name].retainTime, this._ttl) : false;
+    const root = this._cache.get(name);
+    const expired: boolean = root ? !this.isCurrent(root.retainTime, this._ttl) : false;
 
-    
+
     return {
       ...snapshot,
       expired
     };
   }
 
-  
+
 
   //TODO ADD for OFFLINE
   /*__expireAll(): void {
@@ -133,16 +182,14 @@ class RelayOfflineStore implements Store {
   }*/
 
   public __gc(): void {
-    if(!this.store.getState()['offline'].online) {
+    if (!this._storeOffline.getState()['offline'].online) {
       return;
     }
     const references = new Set();
-    const roots = this.store.getState()[NORMALIZED_ROOTS_KEY];
-    var deleted: boolean = false;
-    Object.keys(roots).forEach(index => {
-      const selRoot = roots[index];
+    this._cache.getAllKeys().forEach(index => {
+      const selRoot = this._cache.get(index);
       const expired: boolean = !this.isCurrent(selRoot.retainTime, this._ttl);
-      if (!roots[index].dispose || !expired) {
+      if (!selRoot.dispose || !expired) {
         RelayReferenceMarker.mark(
           this._recordSource,
           selRoot.selector,
@@ -150,13 +197,9 @@ class RelayOfflineStore implements Store {
           this._operationLoader,
         );
       } else {
-        delete roots[index];
-        deleted = true;
+        this._cache.remove(index)
       }
     });
-    if (deleted) {
-      this.store.dispatch(writeThunk(WRITE_ROOT_ACTION, roots) as any as Action);
-    }
     // Short-circuit if *nothing* is referenced
     if (!references.size) {
       this._recordSource.clear();
@@ -181,7 +224,7 @@ class RelayOfflineStore implements Store {
   }
 
   public check(selector: NormalizationSelector): boolean {
-     return DataChecker.check(
+    return DataChecker.check(
       this._recordSource,
       this._recordSource,
       selector,

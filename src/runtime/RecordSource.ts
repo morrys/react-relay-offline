@@ -1,47 +1,52 @@
-import { Store, Action } from 'redux';
 import {Record} from 'relay-runtime/lib/RelayCombinedEnvironmentTypes';
 import * as RelayRecordState from 'relay-runtime/lib/RelayRecordState';
 import {MutableRecordSource} from 'relay-runtime/lib/RelayStoreTypes';
-import { RelayCache, NORMALIZED_CACHE_KEY, writeThunk, WRITE_CACHE_ACTION } from "./redux/OfflineStore";
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
-export default class OfflineRecordSource implements MutableRecordSource {
+import Cache from "cache-persist";
+export interface MutableRecordSourceOffline extends MutableRecordSource {
+    restore(): Promise<Cache>
+  }
 
-    private store: Store<RelayCache>;
+export default class RecordSource implements MutableRecordSourceOffline {
 
-    constructor(store: Store<RelayCache>, records?: any ) {
-        this.store = store;
+    private _cache: Cache;
+
+    constructor(cache: Cache ) {
+        this._cache = cache;
+    }
+
+    public restore(): Promise<Cache> {
+        return this._cache.restore();
     }
 
     public clear(): void {
-        this.writeCache({});
+        this._cache.purge();
     }
 
     public delete(dataID: string): void {
-        const cache = this.getCacheState();
-        cache[dataID] = null;
-        this.writeCache(cache);
+        this._cache.delete(dataID);
     }
 
     public get(dataID: string): Record {
-        return this.getCacheState()[dataID];
+        return this._cache.get(dataID);
     }
 
     public getRecordIDs(): Array<string> {
-        return Object.keys(this.getCacheState());
+        return this._cache.getAllKeys();
     }
 
     public getStatus(dataID: string): RelayRecordState {
-        const cache = this.getCacheState();
-        if (!cache.hasOwnProperty(dataID)) {
+        const state = this._cache.getState();
+        if (!state.hasOwnProperty(dataID)) {
             return UNKNOWN;
         }
-        return cache[dataID] == null ? NONEXISTENT : EXISTENT;
+        return state[dataID] == null ? NONEXISTENT : EXISTENT;
     }
 
     public has(dataID: string): boolean {
-        return this.getCacheState().hasOwnProperty(dataID);
+        return this._cache.getState().hasOwnProperty(dataID);
     }
 
     public load(
@@ -52,33 +57,19 @@ export default class OfflineRecordSource implements MutableRecordSource {
     }
 
     public remove(dataID: string): void {
-        const cache = this.getCacheState();
-        delete cache[dataID];
-        this.writeCache(cache);
+        this._cache.remove(dataID);
     }
 
     public set(dataID: string, record: Record): void {
-        const cache = this.getCacheState();
-        cache[dataID] = record;
-        this.writeCache(cache);
+        this._cache.set(dataID, record);
     };
 
-    
-
     public size(): number {
-        return Object.keys(this.getCacheState()).length;
+        return this._cache.getAllKeys().length;
     }
 
     public toJSON(): any {
-        return this.getCacheState(); 
-    }
-
-    public getCacheState(): any {
-        return this.store.getState()[NORMALIZED_CACHE_KEY];
-    }
-
-    public writeCache(cache: any) {
-        this.store.dispatch(writeThunk(WRITE_CACHE_ACTION, cache) as any as Action);
+        return this._cache.getState(); 
     }
 
 }
