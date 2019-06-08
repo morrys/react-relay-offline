@@ -13,11 +13,11 @@ yarn add react-relay react-relay-offline
 
 ## React Web Example
 
-The [relay-offline-examples](https://github.com/morrys/relay-examples) repository is a fork of [relay-examples](https://github.com/relayjs/relay-examples) and contains an integration of react-relay-offline. To try it out:
+The [react-relay-offline-examples](https://github.com/morrys/react-relay-offline-example) repository contains an integration of react-relay-offline. To try it out:
 
 ```
-git clone https://github.com/morrys/relay-examples.git
-cd relay-examples/todo
+git clone https://github.com/morrys/react-relay-offline-example.git
+cd react-relay-offline-example/todo
 yarn
 yarn build
 yarn start
@@ -25,29 +25,19 @@ yarn start
 
 Then, just point your browser at `http://localhost:3000`.
 
+or
 
+```
+git clone https://github.com/morrys/react-relay-offline-example.git
+cd react-relay-offline-example/todo-updater
+yarn
+yarn build
+yarn start
+```
+
+Then, just point your browser at `http://localhost:3000`.
 
 How to create the environment
-
-```ts
-import { Network } from 'relay-runtime';
-import { Store, Environment } from 'react-relay-offline';
-
-const network = Network.create(fetchQuery);
-function callbackOffline(type: string, payload: any, error: any) {
-  console.log("callbackoffline", type) //next, complete, error, discard, start
-  console.log("callbackoffline", payload)
-  console.log("callbackoffline", error)
-}
-const store = new Store();
-const environment = new Environment({ network, store }, callbackOffline);
-```
-
-Change the renderer 
-
-```
-import {QueryRenderer} from 'react-relay-offline'; 
-```
 
 ## React Native Example
 
@@ -69,11 +59,27 @@ const environment = new Environment({ network, store }, callbackOffline);
 
 Change the renderer 
 
-```
+```ts
 import {QueryRenderer} from 'react-relay-offline'; 
 ```
 
 In QueryRenderer you need to set the property LoadingComponent.
+
+## Environment
+
+```ts
+import { Network } from 'relay-runtime';
+import { Store, Environment } from 'react-relay-offline';
+
+const network = Network.create(fetchQuery);
+function callbackOffline(type: string, payload: any, error: any) {
+  console.log("callbackoffline", type) //next, complete, error, discard, start
+  console.log("callbackoffline", payload)
+  console.log("callbackoffline", error)
+}
+const store = new Store();
+const environment = new Environment({ network, store }, callbackOffline);
+```
 
 ## IndexedDB
 
@@ -111,7 +117,9 @@ It is possible to customize the offline store through these parameters:
 * Add "cached" property in render function
 * Add CACHE_FIRST in dataFrom, with this property the query is not executed on the network if it        finds valid results in the cache
 
-```
+```ts
+import { QueryRenderer } from 'react-relay-offline'; 
+
 <QueryRenderer
         environment={environment}
         query={query}
@@ -120,10 +128,10 @@ It is possible to customize the offline store through these parameters:
         render={({ props, error, retry, cached }) => {
 ```
 
-## Hooks
+## Mutation
 
-```
-const hooksProps = useQuery(props);
+```ts
+import { commitMutation, graphql } from 'react-relay-offline';
 ```
 
 ## Requirement
