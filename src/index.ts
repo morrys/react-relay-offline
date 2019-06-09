@@ -42,3 +42,5 @@ export {default as RecordSource} from './runtime/RecordSource';
 export {default as OfflineStore} from './runtime/redux/OfflineStore';
 export {default as useMutation} from './hooks/useMutation';
 export {default as commitMutation} from './commitMutation';
+export {default as useNetInfo} from './detect/useNetInfo';
+export {default as useIsConnected} from './detect/useIsConnected';
