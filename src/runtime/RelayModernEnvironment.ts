@@ -5,7 +5,7 @@ import { EnvironmentConfig } from 'relay-runtime/lib/RelayModernEnvironment';
 import Store from './Store';
 import { Store as StoreRedux } from 'redux';
 
-import NetInfo from "../detect/NetInfo";
+import { NetInfo } from "@wora/detect-network";
 
 import {
   NormalizationSelector,

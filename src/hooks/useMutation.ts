@@ -208,6 +208,7 @@ export function executeOffline<T>(
             }
         }
     });
+    return { dispose: () => {} };
 }
 
 
@@ -250,12 +251,12 @@ function useMutation() {
     function mutate<T>(
         environment: Environment,
         config: MutationConfig<T>,
-    ) {
+    ): Disposable {
         const resolver = resolveMutation(environment, config);
         if (environment.isOnline()) {
-            executeOnline(environment, config, resolver);
+            return executeOnline(environment, config, resolver);
         } else {
-            executeOffline(environment, config, resolver);
+            return executeOffline(environment, config, resolver);
         }
     }
 

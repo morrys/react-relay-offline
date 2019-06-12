@@ -49,7 +49,7 @@ export interface StoreOptions {
   ttl?: number
 }
 
-import Cache, { CacheOptions } from "cache-persist";
+import Cache, { CacheOptions } from "@wora/cache-persist";
 import { Store as StoreRedux } from 'redux';
 import RecordSource from './RecordSource';
 
