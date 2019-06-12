@@ -4,7 +4,7 @@ import {MutableRecordSource} from 'relay-runtime/lib/RelayStoreTypes';
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
-import Cache from "cache-persist";
+import Cache from "@wora/cache-persist";
 export interface MutableRecordSourceOffline extends MutableRecordSource {
     restore(): Promise<Cache>
   }

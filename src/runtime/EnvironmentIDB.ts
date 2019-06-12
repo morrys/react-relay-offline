@@ -1,5 +1,5 @@
-import Cache, { CacheStorage, CacheOptions } from "cache-persist";
-import IDBStorage from 'cache-persist/lib/idbstorage';
+import Cache, { CacheStorage, CacheOptions } from "@wora/cache-persist";
+import IDBStorage from '@wora/cache-persist/lib/idbstorage';
 import { EnvironmentConfig } from 'relay-runtime/lib/RelayModernEnvironment';
 import Store from "./Store";
 import createIdbStorage from './redux/indexeddb/db';
