@@ -2,13 +2,25 @@
 
 React Relay Offline is a extension of [Relay](https://facebook.github.io/relay/) for offline capabilities
 
-## Installation
+## Installation React Web
 
 Install react-relay and react-relay-offline using yarn or npm:
 
 ```
 yarn add react-relay react-relay-offline
 ```
+
+## Installation React Native
+
+Install react-relay and react-relay-offline using yarn or npm:
+
+```
+yarn add @react-native-community/netinfo react-relay react-relay-offline
+```
+
+You then need to link the native parts of the library for the platforms you are using. The easiest way to link the library is using the CLI tool by running this command from the root of your project:
+
+`react-native link @react-native-community/netinfo`
 
 
 ## React Web Example
@@ -132,6 +144,13 @@ import { QueryRenderer } from 'react-relay-offline';
 
 ```ts
 import { commitMutation, graphql } from 'react-relay-offline';
+```
+
+## Detect Network
+
+```ts
+import { useIsConnected } from "react-relay-offline";
+import { useNetInfo } from "react-relay-offline";
 ```
 
 ## Requirement
