@@ -3,7 +3,7 @@ import { Environment, Observable as RelayObservable, GraphQLResponse } from 'rel
 import { EnvironmentConfig } from 'relay-runtime/lib/RelayModernEnvironment';
 
 import Store from './Store';
-import { Store as StoreRedux } from 'redux';
+import { CacheOptions } from "@wora/cache-persist";
 
 import { NetInfo } from "@wora/detect-network";
 
@@ -12,38 +12,41 @@ import {
   Disposable,
 } from 'relay-runtime/lib/RelayStoreTypes';
 
-import StoreOffline, { NORMALIZED_OFFLINE, NORMALIZED_REHYDRATED, NORMALIZED_DETECTED, RelayCache, PersistOptions, OfflineCallback } from './redux/OfflineStore';
+import StoreOffline from "./StoreOffline";
+
+export type OfflineCallback = (type: string, payload: any, error: any) => void;
 
 class RelayModernEnvironment extends Environment {
 
   private _isRestored: boolean;
-  private _storeOffline: StoreRedux<RelayCache>;
+  private _storeOffline: StoreOffline;
   private _isOnline: boolean;
 
   constructor(config: EnvironmentConfig,
     callback: OfflineCallback = () => { },
-    persistOptions: PersistOptions = {},
+    persistOptions: CacheOptions = {},
     persistCallback = () => null,
   ) {
     super(config);
-    this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
+    this._storeOffline = new StoreOffline(this, callback, persistOptions);
+    //this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
   }
 
   public restore(): Promise<boolean> {
     if (this._isRestored) {
       return Promise.resolve(true);
     }
-    NetInfo.isConnected.addEventListener('connectionChange', state => {
-      console.log("Connection state", state);
-      console.log("Connection type", state.type);
-      console.log("Is connected?", state.isConnected);
-      this._isOnline = state.isConnected;
+    NetInfo.isConnected.addEventListener('connectionChange', isConnected => {
+      this._isOnline = isConnected;
+      if(isConnected) {
+        this._storeOffline.execute();
+      }
     });
     ;
-    return Promise.all([((this as any)._store as Store).restore(this._storeOffline),
-    NetInfo.isConnected.fetch()]).then(result => {
-      console.log("Environment", result);
-      const isConnected = result[1];
+    return Promise.all([NetInfo.isConnected.fetch(), this._storeOffline.restore(),
+      ((this as any)._store as Store).restore(this),
+    ]).then(result => {
+      const isConnected = result[0];
       this._isOnline = isConnected;
       this._isRestored = true;
       return true;
@@ -58,7 +61,7 @@ class RelayModernEnvironment extends Environment {
   }
 
   public isRehydrated() {
-    return this._isRestored && this._storeOffline.getState()[NORMALIZED_REHYDRATED];
+    return this._isRestored;// && this._storeOffline.getState()[NORMALIZED_REHYDRATED];
   }
 
   public isOnline() {

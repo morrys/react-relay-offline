@@ -1,8 +1,7 @@
-import Cache, { CacheStorage, CacheOptions } from "@wora/cache-persist";
+import { CacheStorage, CacheOptions } from "@wora/cache-persist";
 import IDBStorage from '@wora/cache-persist/lib/idbstorage';
 import { EnvironmentConfig } from 'relay-runtime/lib/RelayModernEnvironment';
 import Store from "./Store";
-import createIdbStorage from './redux/indexeddb/db';
 import {
     MutableRecordSource,
     Scheduler,
@@ -14,13 +13,7 @@ import {
     Disposable,
     Snapshot,
   } from 'relay-runtime/lib/RelayStoreTypes';
-import RelayModernEnvironment from "./RelayModernEnvironment";
-import { PersistOptions, OfflineCallback } from "./redux/OfflineStore";
-
-interface StoreIDBOptions {
-    serialize: boolean,
-    name: string,
-}
+import RelayModernEnvironment, { OfflineCallback } from "./RelayModernEnvironment";
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type EnvironmentOfflineConfig = Omit<EnvironmentConfig, "store">; // Equivalent to: {b: number, c: boolean}
@@ -31,14 +24,14 @@ class EnvironmentIDB {
     public static create(config: EnvironmentOfflineConfig,
         callback: OfflineCallback = () => { },
         persistCallback = () => null,
-        persistOptions: PersistOptions = {},
+        persistOptions: CacheOptions = {},
         gcScheduler?: Scheduler,
         operationLoader?: OperationLoader,
         ttl?: number,
          ): RelayModernEnvironment {
         let idbStore: CacheOptions;  
         let idbRecords: CacheOptions; 
-        let idbOffline: PersistOptions;   
+        let idbOffline: CacheOptions;   
         const serialize: boolean = persistOptions.serialize; 
         if (typeof window !== 'undefined') {
             const idbStorages: CacheStorage[] = IDBStorage.create(name || "relay", ["store", "records", "redux"]);
@@ -55,7 +48,7 @@ class EnvironmentIDB {
             }
 
             idbOffline = {
-                storage: createIdbStorage(idbStorages[2].getStorage(), "redux"),
+                storage: idbStorages[2],
                 serialize: serialize || false,
             }
         }
@@ -65,25 +58,3 @@ class EnvironmentIDB {
 }
 
 export default EnvironmentIDB;
-/*
-import { Store } from 'redux';
-import { Network } from 'relay-runtime/lib/RelayStoreTypes';
-import createIdbStorage from './indexeddb/db';
-import StoreOffline, { PersistOptions, RelayCache, OfflineCallback } from './OfflineStore';
-import RelayModernEnvironment from '../RelayModernEnvironment';
-
-class StoreOfflineIDB {
-
-    public static create(environment: RelayModernEnvironment, persistOptions: PersistOptions = {},
-        persistCallback = () => null,
-        callback: OfflineCallback = () => { }, ): Store<RelayCache> {
-        if (typeof window !== 'undefined') {
-            persistOptions.storage = createIdbStorage();
-            persistOptions.serialize = false;
-        }
-        return StoreOffline.create(environment, persistOptions, persistCallback, callback);
-    }
-}
-
-//TODO da modificare a StoreOffline quando passo alla versione 1.0.0
-export default StoreOfflineIDB.create;*/

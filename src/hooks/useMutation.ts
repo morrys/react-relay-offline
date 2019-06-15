@@ -187,26 +187,12 @@ export function executeOffline<T>(
         }*/
     }
 
-    const fetchTime = Date.now();
-    const id = uuid();
+    //const fetchTime = Date.now();
+    //const id = uuid();
     environment.getStoreOffline().dispatch({
-        type: actions.ENQUEUE,
-        payload: { optimisticResponse },
-        meta: {
-            offline: {
-                effect: {
-                    request: {
-                        operation,
-                        optimisticResponse,
-                        uploadables
-                    },
-                    fetchTime: fetchTime,
-                    id: id
-                },
-                commit: { type: actions.COMMIT },
-                rollback: { type: actions.ROLLBACK },
-            }
-        }
+        operation,
+        optimisticResponse,
+        uploadables
     });
     return { dispose: () => {} };
 }
