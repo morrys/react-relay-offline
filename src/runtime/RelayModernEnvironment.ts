@@ -12,23 +12,24 @@ import {
   Disposable,
 } from 'relay-runtime/lib/RelayStoreTypes';
 
-import StoreOffline from "./StoreOffline";
+import StoreOffline, { OfflineOptions } from "./StoreOffline";
 
-export type OfflineCallback = (type: string, payload: any, error: any) => void;
+
 
 class RelayModernEnvironment extends Environment {
 
   private _isRestored: boolean;
   private _storeOffline: StoreOffline;
   private _isOnline: boolean;
+  private _manualExecution: boolean = false;
 
   constructor(config: EnvironmentConfig,
-    callback: OfflineCallback = () => { },
+    offlineOptions: OfflineOptions,
     persistOptions: CacheOptions = {},
-    persistCallback = () => null,
   ) {
     super(config);
-    this._storeOffline = new StoreOffline(this, callback, persistOptions);
+    this._manualExecution = offlineOptions && offlineOptions.manualExecution;
+    this._storeOffline = new StoreOffline(this, persistOptions, offlineOptions);
     //this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
   }
 
@@ -38,7 +39,7 @@ class RelayModernEnvironment extends Environment {
     }
     NetInfo.isConnected.addEventListener('connectionChange', isConnected => {
       this._isOnline = isConnected;
-      if(isConnected) {
+      if(isConnected && !this._manualExecution) {
         this._storeOffline.execute();
       }
     });
@@ -48,6 +49,9 @@ class RelayModernEnvironment extends Environment {
     ]).then(result => {
       const isConnected = result[0];
       this._isOnline = isConnected;
+      if(isConnected && !this._manualExecution) {
+        this._storeOffline.execute();
+      }
       this._isRestored = true;
       return true;
     }).catch(error => {

@@ -13,7 +13,8 @@ import {
     Disposable,
     Snapshot,
   } from 'relay-runtime/lib/RelayStoreTypes';
-import RelayModernEnvironment, { OfflineCallback } from "./RelayModernEnvironment";
+import RelayModernEnvironment from "./RelayModernEnvironment";
+import { OfflineOptions } from "./StoreOffline";
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type EnvironmentOfflineConfig = Omit<EnvironmentConfig, "store">; // Equivalent to: {b: number, c: boolean}
@@ -22,22 +23,28 @@ type EnvironmentOfflineConfig = Omit<EnvironmentConfig, "store">; // Equivalent 
 class EnvironmentIDB {
 
     public static create(config: EnvironmentOfflineConfig,
-        callback: OfflineCallback = () => { },
-        persistCallback = () => null,
-        persistOptions: CacheOptions = {},
-        gcScheduler?: Scheduler,
-        operationLoader?: OperationLoader,
-        ttl?: number,
+        offlineOptions: OfflineOptions,
+        storeOptions: {
+            persistOptions?: CacheOptions,
+            gcScheduler?: Scheduler,
+            operationLoader?: OperationLoader,
+            ttl?: number,
+        } = {},
          ): RelayModernEnvironment {
+
+        const persistOptions = {
+            ...storeOptions.persistOptions,
+
+        } 
         let idbStore: CacheOptions;  
         let idbRecords: CacheOptions; 
         let idbOffline: CacheOptions;   
         const serialize: boolean = persistOptions.serialize; 
+        const prefix: string = persistOptions.prefix; 
         if (typeof window !== 'undefined') {
-            const idbStorages: CacheStorage[] = IDBStorage.create(name || "relay", ["store", "records", "redux"]);
+            const idbStorages: CacheStorage[] = IDBStorage.create(prefix || "relay", ["store", "records", "redux"]);
 
             idbStore = {
-                ...persistOptions,
                 storage: idbStorages[0],
                 serialize: serialize || false,
             }
@@ -52,8 +59,8 @@ class EnvironmentIDB {
                 serialize: serialize || false,
             }
         }
-        const store = new Store(idbStore, idbRecords, gcScheduler, operationLoader, ttl);
-        return new RelayModernEnvironment({...config, store}, callback, idbOffline, persistCallback)
+        const store = new Store(idbStore, idbRecords, storeOptions.gcScheduler, storeOptions.operationLoader, storeOptions.ttl);
+        return new RelayModernEnvironment({...config, store}, offlineOptions, idbOffline);
     }
 }
 

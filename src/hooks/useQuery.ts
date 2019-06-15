@@ -81,7 +81,7 @@ function useQuery(props: UseQueryProps)  {
                     cacheConfig: props.cacheConfig,
                     dataFrom: props.dataFrom,
                     environment: genericEnvironment,
-                    onDataChange: !prev.environment || prev.environment === undefined ? (params: {
+                    onDataChange: !queryFetcher._fetchOptions ? (params: {
                         error?: Error,
                         snapshot?: Snapshot,
                     }): void => {

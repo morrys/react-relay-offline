@@ -42,5 +42,6 @@ export {default as RecordSource} from './runtime/RecordSource';
 export {default as OfflineStore} from './runtime/StoreOffline';
 export {default as useMutation} from './hooks/useMutation';
 export {default as commitMutation} from './commitMutation';
+export { NetInfo } from '@wora/detect-network';
 export { useNetInfo } from '@wora/detect-network';
 export { useIsConnected } from '@wora/detect-network';

@@ -49,33 +49,9 @@ yarn start
 
 Then, just point your browser at `http://localhost:3000`.
 
-How to create the environment
-
 ## React Native Example
 
-How to create the environment
-
-```ts
-import { Network } from 'relay-runtime';
-import { Store, Environment } from 'react-relay-offline';
-
-const network = Network.create(fetchQuery);
-function callbackOffline(type: string, payload: any, error: any) {
-  console.log("callbackoffline", type)
-  console.log("callbackoffline", payload)
-  console.log("callbackoffline", error)
-}
-const store = new Store();
-const environment = new Environment({ network, store }, callbackOffline);
-```
-
-Change the renderer 
-
-```ts
-import {QueryRenderer} from 'react-relay-offline'; 
-```
-
-In QueryRenderer you need to set the property LoadingComponent.
+The [react native offline example]https://github.com/morrys/react-relay-offline-example#react-native
 
 ## Environment
 
@@ -84,14 +60,47 @@ import { Network } from 'relay-runtime';
 import { Store, Environment } from 'react-relay-offline';
 
 const network = Network.create(fetchQuery);
-function callbackOffline(type: string, payload: any, error: any) {
-  console.log("callbackoffline", type) //next, complete, error, discard, start
-  console.log("callbackoffline", payload)
-  console.log("callbackoffline", error)
-}
 const store = new Store();
-const environment = new Environment({ network, store }, callbackOffline);
+const environment = new Environment({ network, store });
 ```
+
+## Environment with Offline Options
+
+```ts
+import { Network } from 'relay-runtime';
+import { Store, Environment } from 'react-relay-offline';
+
+const network = Network.create(fetchQuery);
+
+const networkOffline = Network.create(fetchQueryOffline);
+
+const offlineOptions = { 
+  manualExecution: false, //optional
+  network: networkOffline, //optional
+  onComplete: (options ) => { //optional
+    const { id, offlinePayload, snapshot } = options;
+    console.log("onComplete", options);
+    return true;
+  },
+  onDiscard: ( options ) => { //optional
+    const { id, offlinePayload , error } = options;
+    console.log("onDiscard", options);
+    return true;
+  }
+};
+const store = new Store();
+const environment = new Environment({ network, store }, offlineOptions);
+```
+
+* manualExecution: if set to true, mutations in the queue are no longer performed automatically as soon as you go back online. invoke manually: `environment.getStoreOffline().execute();`
+
+* network: it is possible to configure a different network for the execution of mutations in the queue
+
+* onComplete: function that is called once the mutation has been successfully completed. Only if the function returns the value true, the mutation is deleted from the queue.
+
+* onDiscard: function that is called when the mutation returns an error. Only if the function returns the value true, the mutation is deleted from the queue and the store is rollback
+
+
 
 ## IndexedDB
 
@@ -104,23 +113,30 @@ import {Network} from 'relay-runtime';
 import EnvironmentIDB from 'react-relay-offline/lib/runtime/EnvironmentIDB';
 
 const network = Network.create(fetchQuery);
-function callbackOffline(type: string, payload: any, error: any) {
-  console.log("callbackoffline", type)
-  console.log("callbackoffline", payload)
-  console.log("callbackoffline", error)
-}
-const environment = EnvironmentIDB.create({ network }, callbackOffline);
+const environment = EnvironmentIDB.create({ network });
 ```
 
-## OfflineStore
+## Environment with PersistOptions
 
-It is possible to customize the offline store through these parameters:
+```ts
+import { Network } from 'relay-runtime';
+import { Store, Environment } from 'react-relay-offline';
 
-* storage: any
-* keyPrefix: string
-* customWhitelist: string[]
-* serialize: boolean
-* customReducers: ReducersMapObject
+const network = Network.create(fetchQuery);
+
+const networkOffline = Network.create(fetchQueryOffline);
+
+const persistOptions = { 
+  prefix: "app-user1"
+};
+const store = new Store();
+const environment = new Environment({ network, store }, {}, persistOptions);
+```
+
+* storage?: CacheStorage;  custom storage
+* prefix?: string;  prefix key in storage 
+* serialize?: boolean;  if set to true, it performs JSON serialization
+* encryption?: boolean;  not yet implemented in @wora/cache-persist
 
 
 ## QueryRenderer
@@ -151,6 +167,7 @@ import { commitMutation, graphql } from 'react-relay-offline';
 ```ts
 import { useIsConnected } from "react-relay-offline";
 import { useNetInfo } from "react-relay-offline";
+import { NetInfo } from "react-relay-offline";
 ```
 
 ## Requirement
@@ -163,8 +180,6 @@ import { useNetInfo } from "react-relay-offline";
 * Documentation
 
 * Implementation of Refetch Container Offline (The implementation of the refetchContainer involves the management of fetchPolicy (network-only and store-or-network). To make it homogeneous with the management of the "QueryRenderer" I have to add the cache-first and offline policy), for the moment it is usable only as specified by the Relay library.
-
-* Create a pull request to the Relay project (i must use flow type)
 
 
 ## License
