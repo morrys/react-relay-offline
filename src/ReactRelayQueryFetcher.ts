@@ -34,7 +34,9 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
     dataFrom: any
   ): Snapshot {
     const offline = !environment.isOnline();
-    this._cachedLookup = null;
+    this._cachedLookup = {
+      offline
+    };
     if(dataFrom === CACHE_FIRST ||
         dataFrom === STORE_THEN_NETWORK ||
         offline ||

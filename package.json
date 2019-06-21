@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "0.5.0-rc.1",
+  "version": "0.5.0-a23",
   "keywords": [
     "graphql",
     "relay",
@@ -8,7 +8,7 @@
     "react"
   ],
   "main": "lib/index.js",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "description": "React Relay Offline",
   "author": {
     "name": "morrys"
