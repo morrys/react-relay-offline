@@ -25,11 +25,11 @@ class RelayModernEnvironment extends Environment {
 
   constructor(config: EnvironmentConfig,
     offlineOptions: OfflineOptions,
-    persistOptions: CacheOptions = {},
+    persistOfflineOptions: CacheOptions = {},
   ) {
     super(config);
     this._manualExecution = offlineOptions && offlineOptions.manualExecution;
-    this._storeOffline = new StoreOffline(this, persistOptions, offlineOptions);
+    this._storeOffline = new StoreOffline(this, persistOfflineOptions, offlineOptions);
     //this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
   }
 

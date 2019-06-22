@@ -116,27 +116,41 @@ const network = Network.create(fetchQuery);
 const environment = EnvironmentIDB.create({ network });
 ```
 
-## Environment with PersistOptions
+## Environment with PersistOfflineOptions
 
 ```ts
 import { Network } from 'relay-runtime';
 import { Store, Environment } from 'react-relay-offline';
+import { CacheOptions } from "@wora/cache-persist";
 
 const network = Network.create(fetchQuery);
 
 const networkOffline = Network.create(fetchQueryOffline);
 
-const persistOptions = { 
+const persistOfflineOptions: CacheOptions = { 
   prefix: "app-user1"
 };
 const store = new Store();
-const environment = new Environment({ network, store }, {}, persistOptions);
+const environment = new Environment({ network, store }, {}, persistOfflineOptions);
 ```
 
 * storage?: CacheStorage;  custom storage
 * prefix?: string;  prefix key in storage 
 * serialize?: boolean;  if set to true, it performs JSON serialization
 * encryption?: boolean;  not yet implemented in @wora/cache-persist
+
+## Store with custom options
+
+```ts
+import { Store } from 'react-relay-offline';
+import { CacheOptions } from "@wora/cache-persist";
+
+const ttl: number = 10 * 60 * 1000; // default
+const persistOptions: CacheOptions = {}; // default
+const persistOptionsRecords: CacheOptions = {}; // default
+const store = new Store(ttl, persistOptions, persistOptionsRecords);
+
+```
 
 
 ## QueryRenderer

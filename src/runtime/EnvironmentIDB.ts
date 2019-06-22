@@ -59,7 +59,7 @@ class EnvironmentIDB {
                 serialize: serialize || false,
             }
         }
-        const store = new Store(idbStore, idbRecords, storeOptions.gcScheduler, storeOptions.operationLoader, storeOptions.ttl);
+        const store = new Store(storeOptions.ttl, idbStore, idbRecords, storeOptions.gcScheduler, storeOptions.operationLoader);
         return new RelayModernEnvironment({...config, store}, offlineOptions, idbOffline);
     }
 }

@@ -66,11 +66,11 @@ class RelayStore implements Store {
   private _environment: RelayModernEnvironment;
 
   constructor(
+    ttl: number = 10 * 60 * 1000,
     persistOptions: CacheOptions = {},
     persistOptionsRecords: CacheOptions = {},
     gcScheduler: Scheduler = resolveImmediate,
     operationLoader: OperationLoader = null,
-    ttl: number = 10 * 60 * 1000,
   ) {
     /*if (__DEV__) {
       const storeIDs = source.getRecordIDs();
