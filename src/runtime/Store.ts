@@ -22,8 +22,6 @@ import * as hasOverlappingIDs from 'relay-runtime/lib/hasOverlappingIDs';
 import * as recycleNodesInto from 'relay-runtime/lib/recycleNodesInto';
 import * as resolveImmediate from 'fbjs/lib/resolveImmediate';
 
-import { RelayCache } from "./redux/OfflineStore"
-
 //import * as defaultGetDataID from 'relay-runtime/lib/defaultGetDataID';
 type Subscription = {
   callback: (snapshot: Snapshot) => void,
@@ -50,10 +48,10 @@ export interface StoreOptions {
 }
 
 import Cache, { CacheOptions } from "@wora/cache-persist";
-import { Store as StoreRedux } from 'redux';
+import RelayModernEnvironment from './RelayModernEnvironment';
 import RecordSource from './RecordSource';
 
-class RelayOfflineStore implements Store {
+class RelayStore implements Store {
 
   private _gcScheduler: Scheduler;
   private _hasScheduledGC: boolean;
@@ -65,14 +63,14 @@ class RelayOfflineStore implements Store {
   private _shouldScheduleGC: boolean;
   private _ttl?: number;
   private _cache: Cache;
-  private _storeOffline: StoreRedux<RelayCache>;
+  private _environment: RelayModernEnvironment;
 
   constructor(
+    ttl: number = 10 * 60 * 1000,
     persistOptions: CacheOptions = {},
     persistOptionsRecords: CacheOptions = {},
     gcScheduler: Scheduler = resolveImmediate,
     operationLoader: OperationLoader = null,
-    ttl: number = 10 * 60 * 1000,
   ) {
     /*if (__DEV__) {
       const storeIDs = source.getRecordIDs();
@@ -124,8 +122,8 @@ class RelayOfflineStore implements Store {
     this._cache = cache;
   }
 
-  public restore(storeOffline): Promise<Cache[]> {
-    this._storeOffline = storeOffline;
+  public restore(environment): Promise<Cache[]> {
+    this._environment = environment;
     return Promise.all([this._cache.restore(), this._recordSource.restore()]);
   }
 
@@ -182,7 +180,7 @@ class RelayOfflineStore implements Store {
   }*/
 
   public __gc(): void {
-    if (!this._storeOffline.getState()['offline'].online) {
+    if (!this._environment.isOnline()) {
       return;
     }
     const references = new Set();
@@ -365,4 +363,4 @@ function updateTargetFromSource(
 
 
 
-export default RelayOfflineStore;
+export default RelayStore;

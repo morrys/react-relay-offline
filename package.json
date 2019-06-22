@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "keywords": [
     "graphql",
     "relay",
@@ -8,7 +8,7 @@
     "react"
   ],
   "main": "lib/index.js",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "description": "React Relay Offline",
   "author": {
     "name": "morrys"
@@ -23,19 +23,15 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
-    "@redux-offline/redux-offline": "2.5.1",
     "@wora/detect-network": "0.1.0",
     "@wora/cache-persist": "0.4.1",
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.0",
-    "redux": "^3.7.2",
-    "redux-thunk": "^2.3.0",
-    "uuid": "3.3.2",
-    "array-find-index": "1.0.2"
+    "uuid": "3.3.2"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
-    "react-relay": "^3.0.0 || ^4.0.0"
+    "react-relay": ">=3.0.0"
   },
   "devDependencies": {
     "idb": "^4.0.0",

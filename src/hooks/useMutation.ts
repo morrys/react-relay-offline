@@ -31,6 +31,8 @@ import { GetDataID } from 'relay-runtime/lib/RelayResponseNormalizer';
 import * as ErrorUtils from 'fbjs/lib/ErrorUtils';
 import * as RelayRecordSourceMutator from 'relay-runtime/lib/RelayRecordSourceMutator';
 import * as RelayRecordSourceProxy from 'relay-runtime/lib/RelayRecordSourceProxy';
+import * as RelayReader from 'relay-runtime/lib/RelayReader';
+import * as normalizeRelayPayload from 'relay-runtime/lib/normalizeRelayPayload';
 
 export type MutationConfig<T> = {
     configs?: Array<DeclarativeMutationConfig>,
@@ -44,8 +46,6 @@ export type MutationConfig<T> = {
     updater?: SelectorStoreUpdater,
     //onOffline?
 };
-
-import { v4 as uuid } from "uuid";
 
 const actions = {
     ENQUEUE: 'ENQUEUE_OFFLINE_MUTATION',
@@ -135,18 +135,41 @@ export function executeOffline<T>(
         uploadables,
     } = resolver;
     const { configs } = config;
-    /*let optimisticUpdate;
-    
+
+
+    const backup = new RelayInMemoryRecordSource();
+    let sinkPublish = new RelayInMemoryRecordSource()
     if (optimisticResponse || optimisticUpdater) {
-        optimisticUpdate = {
-            operation: operation,
-            selectorStoreUpdater: optimisticUpdater,
-            response: optimisticResponse || null,
-        };
-    }*/
-
-
-
+        const sink = new RelayInMemoryRecordSource();
+        const mutator = new RelayRecordSourceMutator(
+            environment.getStore().getSource(),
+            sink,
+            backup
+        );
+        const store = new RelayRecordSourceProxy(mutator, environment._getDataID);
+        const response = optimisticResponse || null;
+        const selectorStoreUpdater = optimisticUpdater;
+        const selectorStore = store.commitPayload(operation, response);
+        // TODO: Fix commitPayload so we don't have to run normalize twice
+        let selectorData, source;
+        if (response) {
+            ({ source } = normalizeRelayPayload(
+                operation.root,
+                response,
+                null,
+                { getDataID: this._getDataID },
+            ));
+            selectorData = RelayReader.read(source, operation.fragment, operation).data;
+        }
+        selectorStoreUpdater &&
+            ErrorUtils.applyWithGuard(
+                selectorStoreUpdater,
+                null,
+                [selectorStore, selectorData],
+                null,
+                'RelayPublishQueue:applyUpdates',
+            );
+    }
     if (optimisticResponse) {
         var payload = normalizeResponse({ data: optimisticResponse },
             operation.root,
@@ -154,19 +177,22 @@ export function executeOffline<T>(
             [],
             environment._getDataID,
         );
+        const {fieldPayloads, source} = payload;
         // updater only for configs
-        environment._publishQueue.commitPayload(operation, payload, configs ? updater : null);
-        environment._publishQueue.run();
+        sinkPublish = environment._publishQueue._getSourceFromPayload({fieldPayloads, operation, source, updater});
+        //environment._publishQueue.commitPayload(operation, payload, configs ? updater : null);
+        //environment._publishQueue.run();
+
+
     }
     /*
     //environment.
     //environment.applyUpdate(optimisticUpdate);*/
 
     if (!configs && optimisticUpdater) {
-        const sink = new RelayInMemoryRecordSource();
         const mutator = new RelayRecordSourceMutator(
             environment.getStore().getSource(),
-            sink,
+            sinkPublish,
         );
         const store = new RelayRecordSourceProxy(mutator, environment._getDataID);
         ErrorUtils.applyWithGuard(
@@ -176,8 +202,6 @@ export function executeOffline<T>(
             null,
             'RelayPublishQueue:commitUpdaters',
         );
-        environment.getStore().publish(sink);
-        environment.getStore().notify()
         /*    
         if (optimisticUpdater != null) {
             optimisticUpdater(environment.getStore());
@@ -186,29 +210,20 @@ export function executeOffline<T>(
             updater(environment.getStore())
         }*/
     }
+    
+    environment.getStore().publish(sinkPublish);
+    environment.getStore().notify()
 
-    const fetchTime = Date.now();
-    const id = uuid();
+    //const fetchTime = Date.now();
+    //const id = uuid();
     environment.getStoreOffline().dispatch({
-        type: actions.ENQUEUE,
-        payload: { optimisticResponse },
-        meta: {
-            offline: {
-                effect: {
-                    request: {
-                        operation,
-                        optimisticResponse,
-                        uploadables
-                    },
-                    fetchTime: fetchTime,
-                    id: id
-                },
-                commit: { type: actions.COMMIT },
-                rollback: { type: actions.ROLLBACK },
-            }
-        }
+        operation,
+        optimisticResponse,
+        uploadables,
+        backup,
+        sinkPublish
     });
-    return { dispose: () => {} };
+    return { dispose: () => { } };
 }
 
 
