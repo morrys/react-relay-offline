@@ -22,6 +22,43 @@ You then need to link the native parts of the library for the platforms you are 
 
 `react-native link @react-native-community/netinfo`
 
+## Main Additional Features 
+
+* automatic persistence and rehydration of the store (AsyncStorage, localStorage, IndexedDB)
+
+* configuration of persistence
+
+  * custom storage
+
+  * different key prefix (multi user)
+
+  * serialization: JSON or none
+
+* fetchPolicy CACHE_FIRST (which in version 1.0.0 I will change to STORE_ONLY)
+
+* management and utilities for network detection
+
+* automatic use of the polity cache_first when the application is offline
+
+* optimization in store management and addition of TTL to queries in the store
+
+* offline mutation management
+
+  * backup of mutation changes
+
+  * update and publication of the mutation changes  in the store
+
+  * persistence of mutation information performed
+
+  * automatic execution of mutations persisted when the application returns online
+
+  * configurability of the offline mutation execution network
+
+  * onComplete callback of the mutation performed successfully
+
+  * onDiscard callback of the failed mutation
+
+  * automatic rollback management of the single failed mutation in the store
 
 ## React Web Example
 
