@@ -122,6 +122,10 @@ class RelayStore implements Store {
     this._cache = cache;
   }
 
+  public purge(): Promise<boolean[]> {
+    return Promise.all([this._cache.purge(), this._recordSource.purge()]);
+  }
+
   public restore(environment): Promise<Cache[]> {
     this._environment = environment;
     return Promise.all([this._cache.restore(), this._recordSource.restore()]);

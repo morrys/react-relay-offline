@@ -33,6 +33,15 @@ class RelayModernEnvironment extends Environment {
     //this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
   }
 
+  public purge(): Promise<boolean> {
+    return Promise.all([this._storeOffline.purge(),
+      ((this as any)._store as Store).purge(),
+    ]).then(result => {
+      return true;
+    });
+
+  }
+
   public restore(): Promise<boolean> {
     if (this._isRestored) {
       return Promise.resolve(true);
@@ -97,63 +106,21 @@ class RelayModernEnvironment extends Environment {
   }
 
 
-  /*public executeMutation({
-    operation,
-    optimisticResponse,
-    optimisticUpdater,
-    updater,
-    uploadables,
-  }): RelayObservable<GraphQLResponse> {
+  public executeMutation(mutationOptions): RelayObservable<GraphQLResponse> {
     if (this.isOnline()) {
-      return super.executeMutation({
-        operation,
-        optimisticResponse,
-        optimisticUpdater,
-        updater,
-        uploadables,
-      })
+      return super.executeMutation(mutationOptions)
     } else {
       return RelayObservable.create(sink => {
-        let optimisticUpdate;
-        if (optimisticResponse || optimisticUpdater) {
-          optimisticUpdate = {
-            operation: operation,
-            selectorStoreUpdater: optimisticUpdater,
-            response: optimisticResponse || null,
-          };
-        }
-        if (optimisticUpdate != null) {
-          //TODO fix type
-          (this as any)._publishQueue.applyUpdate(optimisticUpdate);
-          (this as any)._publishQueue.run();
-        }
-        const fetchTime = Date.now();
-        const id = uuid();
-        this._storeOffline.dispatch({
-          type: actions.ENQUEUE,
-          payload: { optimisticResponse },
-          meta: {
-            offline: {
-              effect: {
-                request: {
-                  operation,
-                  optimisticResponse,
-                  uploadables
-                },
-                fetchTime: fetchTime,
-                id: id
-              },
-              commit: { type: actions.COMMIT },
-              rollback: { type: actions.ROLLBACK },
-            }
-          }
-        });
-
-        return () => null
+          this._storeOffline.publish(this, mutationOptions).subscribe({
+            complete: () => sink.complete(),
+            error: error => sink.error(error),
+            next: response => sink.next(response)
+          });
+        return () => { };
       });
     }
 
-  }*/
+  }
 
 
 

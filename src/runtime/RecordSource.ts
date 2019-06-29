@@ -17,6 +17,10 @@ export default class RecordSource implements MutableRecordSourceOffline {
         this._cache = cache;
     }
 
+    public purge(): Promise<boolean> {
+        return this._cache.purge();
+      }
+
     public restore(): Promise<Cache> {
         return this._cache.restore();
     }
