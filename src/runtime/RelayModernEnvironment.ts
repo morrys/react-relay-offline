@@ -33,9 +33,8 @@ class RelayModernEnvironment extends Environment {
     //this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
   }
 
-  public purge(): Promise<boolean> {
-    return Promise.all([this._storeOffline.purge(),
-      ((this as any)._store as Store).purge(),
+  public clearCache(): Promise<boolean> {
+    return Promise.all([((this as any)._store as Store).purge(),
     ]).then(result => {
       return true;
     });

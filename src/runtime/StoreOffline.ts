@@ -270,10 +270,10 @@ class RelayStoreOffline {
                 backup,
                 sinkPublish
             };
-            this.notify();
             this._cache.set(id, { request, fetchTime }).then(() => {
                 environment.getStore().publish(sinkPublish);
                 environment.getStore().notify();
+                this.notify();
                 sink.next({
                     id,
                     request,
