@@ -25,6 +25,23 @@ type Subscription = {
     callback: (state) => void,
 };
 
+type Request = {
+    operation: any,
+    optimisticResponse?: any,
+    uploadables?: any,
+    backup?: RelayInMemoryRecordSource,
+    sinkPublish?: RelayInMemoryRecordSource,
+}
+
+export type OfflineRecordCache = {
+    id: string,
+    request: Request,
+    fetchTime: number,
+    state?: string,
+    retry?: number,
+    error?: any,
+}
+
 export type OfflineOptions = {
     manualExecution?: boolean;
     network?: Network;
@@ -49,8 +66,7 @@ class RelayStoreOffline {
             ...persistOptions,
         };
 
-        const cache = new Cache(persistOptionsStoreOffline);
-        this._cache = cache;
+        this._cache = new Cache(persistOptionsStoreOffline);
         this._environment = environment;
         this._offlineOptions = {
             network: this._environment._network,
@@ -94,14 +110,24 @@ class RelayStoreOffline {
     }
 
     public notify(): void {
+        const state = this.getListMutation();
         this._subscriptions.forEach(subscription => {
-            subscription.callback(this._cache.getState());
+            subscription.callback(state);
         });
     }
 
-    public getListMutation(): ReadonlyArray<any> {
-        const requests = Object.assign({}, this._cache.getState());
-        return Object.entries(requests).sort(([, v1], [, v2]) => v1.fetchTime - v2.fetchTime).map(item => { return { id: item[0], payload: requests[item[0]] } });
+    public getState() {
+        return Object.assign({}, this._cache.getState());
+    }
+
+    public remove(id: string) {
+        this._cache.remove(id);
+        this.notify();
+    }
+
+    public getListMutation(): ReadonlyArray<OfflineRecordCache> {
+        const requests = Object.assign({}, this.getState());
+        return Object.values<OfflineRecordCache>(requests).sort((v1, v2) => v1.fetchTime - v2.fetchTime);
     }
 
 
@@ -109,9 +135,10 @@ class RelayStoreOffline {
 
         if (!this._busy) {
             this._busy = true;
-            const requestOrderer: ReadonlyArray<any> = this.getListMutation();
-            for (const request of requestOrderer) {
-                this.executeMutation(request.id, request.payload)
+            const listMutation: ReadonlyArray<OfflineRecordCache> = this.getListMutation();
+            for (const mutation of listMutation) {
+                if (!mutation.state)
+                    this.executeMutation(mutation)
             }
             this._busy = false;
 
@@ -119,17 +146,18 @@ class RelayStoreOffline {
         }
     }
 
-    async discardMutation(id, payload) {
-        const { request } = payload;
+    async discardMutation(payload: OfflineRecordCache) {
+        const { request, id } = payload;
         const backup = request.backup;
         await this._cache.remove(id);
         this._environment.getStore().publish(backup);
         this._environment.getStore().notify();
+        this.notify();
     }
 
-    async executeMutation(id, payload) {
+    async executeMutation(payload: OfflineRecordCache) {
         const { network, onComplete, onDiscard } = this._offlineOptions;
-        const { request } = payload;
+        const { request, id } = payload;
         const operation = request.operation;
         const uploadables = request.uploadables;
         const source = network.execute(
@@ -139,25 +167,38 @@ class RelayStoreOffline {
             uploadables,
         ).subscribe({
             complete: () => {
-                const snapshot = this._environment.lookup(operation.fragment, operation);
+                const snapshot = this._environment.lookup(operation.fragment);
                 if (onComplete({ id, offlinePayload: payload, snapshot: (snapshot.data as any) })) {
-                    this._cache.remove(id);
+                    this.remove(id);
+                    this.notify();
+                } else {
+                    payload.state = 'complete';
+                    payload.error = undefined;
+                    this._cache.set(id, { ...payload });
+                    this.notify();
                 }
             },
             error: (error, isUncaughtThrownError?: boolean) => {
-                if (onDiscard({ id, offlinePayload: payload, error }))
-                    this.discardMutation(id, payload);
+                if (onDiscard({ id, offlinePayload: payload, error })) {
+                    this.discardMutation(payload);
+                } else {
+                    payload.error = error;
+                    this._cache.set(id, { ...payload });
+                    this.notify();
+                }
             },
             /*next: response => {
                 if (this._callback) {
                     this._callback("next", response, null);
                 }
+            },*/
+            start: subscription => {
+                payload.state = 'start';
+                payload.error = undefined;
+                payload.retry = payload.retry ? payload.retry + 1 : 0;
+                this._cache.set(id, { ...payload });
+                this.notify();
             },
-            start: subscription => this._callback(
-                'start',
-                subscription,
-                null,
-            ),*/
         });
         /*const source = environment.executeMutationOffline({
                 operation,
@@ -257,9 +298,6 @@ class RelayStoreOffline {
                 }*/
             }
 
-            
-
-
             //const { onDispatch } = this._offlineOptions;
             const fetchTime = Date.now();
             const id = uuid();
@@ -270,15 +308,12 @@ class RelayStoreOffline {
                 backup,
                 sinkPublish
             };
-            this._cache.set(id, { request, fetchTime }).then(() => {
+            const offlineRecord: OfflineRecordCache = { id, request, fetchTime };
+            this._cache.set(id, offlineRecord).then(() => {
                 environment.getStore().publish(sinkPublish);
                 environment.getStore().notify();
                 this.notify();
-                sink.next({
-                    id,
-                    request,
-                    fetchTime
-                });
+                sink.next(offlineRecord);
                 sink.complete();
             }).catch(error => {
                 sink.error(error, true)
