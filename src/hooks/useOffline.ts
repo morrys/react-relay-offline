@@ -12,7 +12,7 @@ function useOffline() {
     const [state, setState] = useState<ReadonlyArray<OfflineRecordCache>>(environment.getStoreOffline().getListMutation());
 
     useEffect(() => {
-        const dispose = environment.getStoreOffline().subscribe(nextState => {
+        const dispose = environment.getStoreOffline().subscribe((message, nextState) => {
             if (!areEqual(ref.current, nextState)) {
                 ref.current = nextState;
                 setState(nextState);

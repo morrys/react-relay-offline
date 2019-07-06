@@ -5,31 +5,27 @@ import { EnvironmentConfig } from 'relay-runtime/lib/RelayModernEnvironment';
 import Store from './Store';
 import { CacheOptions } from "@wora/cache-persist";
 
-import { NetInfo } from "@wora/detect-network";
-
 import {
   NormalizationSelector,
   Disposable,
 } from 'relay-runtime/lib/RelayStoreTypes';
 
-import StoreOffline, { OfflineOptions } from "./StoreOffline";
+import StoreOffline, { OfflineOptions, Payload, publish } from "./OfflineFirstRelay";
+import OfflineFirst from '@wora/offline-first';
 
 
 
 class RelayModernEnvironment extends Environment {
 
   private _isRestored: boolean;
-  private _storeOffline: StoreOffline;
-  private _isOnline: boolean;
-  private _manualExecution: boolean = false;
+  private _storeOffline: OfflineFirst<Payload>;
 
   constructor(config: EnvironmentConfig,
     offlineOptions: OfflineOptions,
     persistOfflineOptions: CacheOptions = {},
   ) {
     super(config);
-    this._manualExecution = offlineOptions && offlineOptions.manualExecution;
-    this._storeOffline = new StoreOffline(this, persistOfflineOptions, offlineOptions);
+    this._storeOffline = StoreOffline.create(this, persistOfflineOptions, offlineOptions);
     //this._storeOffline = StoreOffline.create(this, persistOptions, persistCallback, callback);
   }
 
@@ -45,21 +41,9 @@ class RelayModernEnvironment extends Environment {
     if (this._isRestored) {
       return Promise.resolve(true);
     }
-    NetInfo.isConnected.addEventListener('connectionChange', isConnected => {
-      this._isOnline = isConnected;
-      if(isConnected && !this._manualExecution) {
-        this._storeOffline.execute();
-      }
-    });
-    ;
-    return Promise.all([NetInfo.isConnected.fetch(), this._storeOffline.restore(),
+    return Promise.all([this._storeOffline.restore(),
       ((this as any)._store as Store).restore(this),
     ]).then(result => {
-      const isConnected = result[0];
-      this._isOnline = isConnected;
-      if(isConnected && !this._manualExecution) {
-        this._storeOffline.execute();
-      }
       this._isRestored = true;
       return true;
     }).catch(error => {
@@ -77,10 +61,10 @@ class RelayModernEnvironment extends Environment {
   }
 
   public isOnline() {
-    return this._isOnline;
+    return this._storeOffline.isOnline();
   }
 
-  public getStoreOffline() {
+  public getStoreOffline(): OfflineFirst<Payload> {
     return this._storeOffline;
   }
 
@@ -110,7 +94,7 @@ class RelayModernEnvironment extends Environment {
       return super.executeMutation(mutationOptions)
     } else {
       return RelayObservable.create(sink => {
-          this._storeOffline.publish(this, mutationOptions).subscribe({
+          publish(this, mutationOptions).subscribe({
             complete: () => sink.complete(),
             error: error => sink.error(error),
             next: response => sink.next(response)
