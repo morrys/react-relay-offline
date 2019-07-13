@@ -1,6 +1,7 @@
 export {
   ReactRelayContext,
   applyOptimisticMutation,
+  commitMutation,
   commitLocalUpdate,
   createFragmentContainer,
   createPaginationContainer,
@@ -9,7 +10,6 @@ export {
   graphql,
   requestSubscription,
 } from 'react-relay';
-
 export {
   $FragmentRef,
   RelayFragmentContainer,
@@ -39,9 +39,8 @@ export {default as QueryRenderer} from "./QueryRendererOffline";
 export {default as Environment} from './runtime/RelayModernEnvironment';
 export {default as Store} from './runtime/Store';
 export {default as RecordSource} from './runtime/RecordSource';
-export {default as OfflineStore} from './runtime/StoreOffline';
-export {default as useMutation} from './hooks/useMutation';
-export {default as commitMutation} from './commitMutation';
+export {default as OfflineStore} from './runtime/OfflineFirstRelay';
+export {default as useOffline} from './hooks/useOffline';
 export { NetInfo } from '@wora/detect-network';
 export { useNetInfo } from '@wora/detect-network';
 export { useIsConnected } from '@wora/detect-network';
