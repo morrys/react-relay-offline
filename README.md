@@ -73,19 +73,26 @@ import { Store, Environment } from 'react-relay-offline';
 const network = Network.create(fetchQuery);
 
 const networkOffline = Network.create(fetchQueryOffline);
+const manualExecution = false;
 
-const offlineOptions = { 
-  manualExecution: false, //optional
+const offlineOptions = {
+  manualExecution, //optional
   network: networkOffline, //optional
+  finish: (isSuccess, mutations) => { //optional
+    console.log("finish offline", isSuccess, mutations)
+  },
   onComplete: (options ) => { //optional
     const { id, offlinePayload, snapshot } = options;
-    console.log("onComplete", options);
     return true;
   },
   onDiscard: ( options ) => { //optional
     const { id, offlinePayload , error } = options;
-    console.log("onDiscard", options);
     return true;
+  },
+  onPublish: (offlinePayload) => { //optional
+    const rand = Math.floor(Math.random() * 4) + 1  
+    offlinePayload.serial = rand===1;
+    return offlinePayload
   }
 };
 const store = new Store();
@@ -96,9 +103,13 @@ const environment = new Environment({ network, store }, offlineOptions);
 
 * network: it is possible to configure a different network for the execution of mutations in the queue
 
-* onComplete: function that is called once the mutation has been successfully completed. Only if the function returns the value true, the mutation is deleted from the queue.
+* finish: function that is called once the request queue has been processed.
 
-* onDiscard: function that is called when the mutation returns an error. Only if the function returns the value true, the mutation is deleted from the queue and the store is rollback
+* onPublish: function that is called before saving the mutation in the store
+
+* onComplete: function that is called once the request has been successfully completed. Only if the function returns the value true, the request is deleted from the queue.
+
+* onDiscard: function that is called when the request returns an error. Only if the function returns the value true, the mutation is deleted from the queue
 
 
 
@@ -186,7 +197,7 @@ import { NetInfo } from "react-relay-offline";
 
 ## Requirement
 
-* Version 3.0.0 or 4.0.0 of the react-relay library
+* Version >=3.0.0 of the react-relay library
 * When a new node is created by mutation the id must be generated in the browser to use it in the optimistic response
 
 ## TODO

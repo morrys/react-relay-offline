@@ -14,7 +14,7 @@ import {
     Snapshot,
   } from 'relay-runtime/lib/RelayStoreTypes';
 import RelayModernEnvironment from "./RelayModernEnvironment";
-import { OfflineOptions } from "./StoreOffline";
+import { OfflineOptions, Payload } from "./OfflineFirstRelay";
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type EnvironmentOfflineConfig = Omit<EnvironmentConfig, "store">; // Equivalent to: {b: number, c: boolean}
@@ -23,7 +23,7 @@ type EnvironmentOfflineConfig = Omit<EnvironmentConfig, "store">; // Equivalent 
 class EnvironmentIDB {
 
     public static create(config: EnvironmentOfflineConfig,
-        offlineOptions: OfflineOptions,
+        offlineOptions: OfflineOptions<Payload>,
         storeOptions: {
             persistOptions?: CacheOptions,
             gcScheduler?: Scheduler,

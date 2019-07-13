@@ -21,7 +21,7 @@ class RelayModernEnvironment extends Environment {
   private _storeOffline: OfflineFirst<Payload>;
 
   constructor(config: EnvironmentConfig,
-    offlineOptions: OfflineOptions,
+    offlineOptions: OfflineOptions<Payload>,
     persistOfflineOptions: CacheOptions = {},
   ) {
     super(config);

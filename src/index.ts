@@ -39,7 +39,7 @@ export {default as QueryRenderer} from "./QueryRendererOffline";
 export {default as Environment} from './runtime/RelayModernEnvironment';
 export {default as Store} from './runtime/Store';
 export {default as RecordSource} from './runtime/RecordSource';
-export {default as OfflineStore} from './runtime/StoreOffline';
+export {default as OfflineStore} from './runtime/OfflineFirstRelay';
 export {default as useOffline} from './hooks/useOffline';
 export { NetInfo } from '@wora/detect-network';
 export { useNetInfo } from '@wora/detect-network';

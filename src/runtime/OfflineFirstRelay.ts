@@ -28,13 +28,10 @@ export type Payload = {
     uploadables?: any,
 }
 
-
-export type OfflineOptions = {
-    manualExecution?: boolean;
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+export type OfflineOptions<T> = Omit<OfflineFirstOptions<T>, "execute"> & {
     network?: Network;
-    onComplete?: (options: { id: string, offlinePayload: any, snapshot: any, response: any }) => boolean;
-    onDiscard?: (options: { id: string, offlinePayload: any, error: any }) => boolean;
-}
+};
 
 
 class RelayStoreOffline {
@@ -42,21 +39,33 @@ class RelayStoreOffline {
     
     public static create<Payload>(environment: RelayModernEnvironment, 
         persistOptions: CacheOptions = {}, 
-        offlineOptions: OfflineOptions = {},): OfflineFirst<Payload> {
+        offlineOptions: OfflineOptions<Payload> = {},): OfflineFirst<Payload> {
             const persistOptionsStoreOffline = {
                 prefix: 'relay-offline',
                 serialize: true,
                 ...persistOptions,
             };
 
-            const { onComplete, onDiscard, network, manualExecution } = offlineOptions;
+            const { 
+                onComplete, 
+                onDiscard, 
+                network, 
+                manualExecution, 
+                finish,
+                onPublish
+             } = offlineOptions;
     
             const options: OfflineFirstOptions<Payload> = {
                 manualExecution,
                 execute: (offlineRecord: any) => executeMutation(environment, network, offlineRecord),
                 onComplete: (options: any) => complete(environment, onComplete, options),
                 onDiscard: (options: any) => discard(environment, onDiscard, options),
-                //onDispatch: (request: any) => undefined,
+            }
+            if(onPublish) {
+                options.onPublish = onPublish;
+            }
+            if(finish) {
+                options.finish = finish;
             }
             return new OfflineFirst(options, persistOptionsStoreOffline);    
     }
