@@ -2,14 +2,15 @@ import { useState, useEffect, useRef, useContext } from "react";
 import { ReactRelayContext } from 'react-relay';
 import { RelayContext } from 'relay-runtime/lib/RelayStoreTypes';
 import * as areEqual from 'fbjs/lib/areEqual';
-import { OfflineRecordCache } from "../runtime/StoreOffline";
+import { OfflineRecordCache } from "@wora/offline-first";
+import { Payload } from "../runtime/OfflineFirstRelay";
 
 
 function useOffline() {
 
     const ref = useRef();
     const { environment }: RelayContext = useContext(ReactRelayContext);
-    const [state, setState] = useState<ReadonlyArray<OfflineRecordCache>>(environment.getStoreOffline().getListMutation());
+    const [state, setState] = useState<ReadonlyArray<OfflineRecordCache<Payload>>>(environment.getStoreOffline().getListMutation());
 
     useEffect(() => {
         const dispose = environment.getStoreOffline().subscribe((message, nextState) => {
