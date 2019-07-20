@@ -36,10 +36,10 @@ export {
 } from 'relay-runtime';
 
 export {default as QueryRenderer} from "./QueryRendererOffline";
-export {default as Environment} from './runtime/RelayModernEnvironment';
-export {default as Store} from './runtime/Store';
-export {default as RecordSource} from './runtime/RecordSource';
-export {default as OfflineStore} from './runtime/OfflineFirstRelay';
+export { Environment } from '@wora/relay-offline';
+export { Store } from '@wora/relay-store';
+export { RecordSource } from '@wora/relay-store';
+export { OfflineStore } from '@wora/relay-offline';
 export { NetInfo } from '@wora/detect-network';
 export { useNetInfo } from '@wora/detect-network';
 export { useIsConnected } from '@wora/detect-network';

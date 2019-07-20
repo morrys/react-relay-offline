@@ -3,7 +3,7 @@ import { ReactRelayContext } from 'react-relay';
 import { RelayContext } from 'relay-runtime/lib/RelayStoreTypes';
 import * as areEqual from 'fbjs/lib/areEqual';
 import { OfflineRecordCache } from "@wora/offline-first";
-import { Payload } from "../runtime/OfflineFirstRelay";
+import { Payload } from "@wora/relay-offline/lib/OfflineFirstRelay";
 
 
 function useOffline() {
