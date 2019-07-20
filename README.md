@@ -138,7 +138,7 @@ const environment = new Environment({ network, store }, offlineOptions);
 
 * manualExecution: if set to true, mutations in the queue are no longer performed automatically as soon as you go back online. invoke manually: `environment.getStoreOffline().execute();`
 
-* network: it is possible to configure a different network for the execution of mutations in the queue
+* network: it is possible to configure a different network for the execution of mutations in the queue; all the information of the mutation saved in the offline store are inserted into the "metadata" field of the CacheConfig so that they can be used during communication with the server.
 
 * finish: function that is called once the request queue has been processed.
 
@@ -206,6 +206,7 @@ const store = new Store(ttl, persistOptions, persistOptionsRecords);
 * Add "LoadingComponent" property
 * Add "cached" property in render function
 * Add CACHE_FIRST in dataFrom, with this property the query is not executed on the network if it        finds valid results in the cache
+* Add "ttl" property in order to change default ttl in store
 
 ```ts
 import { QueryRenderer } from 'react-relay-offline'; 
@@ -214,6 +215,7 @@ import { QueryRenderer } from 'react-relay-offline';
         environment={environment}
         query={query}
         variables={{}}
+        ttl={100000}
         LoadingComponent={<Loading />}
         render={({ props, error, retry, cached }) => {
 ```
