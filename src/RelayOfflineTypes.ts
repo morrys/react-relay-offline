@@ -36,6 +36,7 @@ export interface UseQueryProps {
     environment: IEnvironment,
     query: GraphQLTaggedNode,
     variables: Variables,
+    ttl?: number
 };
 
 export type OperationContextProps = {

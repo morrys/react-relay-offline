@@ -23,15 +23,16 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
   _retainCachedOperation(
     environment: IEnvironment,
     operation: OperationDescriptor,
+    ttl: number
   ) {
     (this as QueryFetcherOriginal)._disposeCacheSelectionReference();
-    (this as QueryFetcherOriginal)._cacheSelectionReference = environment.retain(operation.root, false);
+    (this as QueryFetcherOriginal)._cacheSelectionReference = environment.retain(operation.root, { execute: false, ttl });
   }
 
   lookupInStore(
     environment: IEnvironment,
     operation: OperationDescriptor,
-    dataFrom: any
+    dataFrom: any, ttl: number
   ): Snapshot {
     const offline = !environment.isOnline();
     this._cachedLookup = {
@@ -43,7 +44,7 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
         dataFrom === 'store-or-network') {
           
       if (environment.check(operation.root)) {
-        this._retainCachedOperation(environment, operation);
+        this._retainCachedOperation(environment, operation, ttl);
         const snapshot:Snapshot = environment.lookup(operation.fragment, operation);
         if(snapshot) {
           this._cachedLookup = {
@@ -51,6 +52,9 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
             offline,
           }
         };
+        if(!this.isValidSnapshot()) {
+          (this as QueryFetcherOriginal)._cacheSelectionReference = null; // avoid dispose when call network
+        }
         return snapshot;
       }
     }
@@ -61,7 +65,7 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
   isValidSnapshot(): boolean {
     return this._cachedLookup && 
       (this._cachedLookup.offline || 
-        this._cachedLookup.snapshot &&  !(this._cachedLookup.snapshot as any).expired);
+        this._cachedLookup.snapshot);
   }
 
   fetch(fetchOptions: FetchOptions): Snapshot {

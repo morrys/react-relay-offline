@@ -70,7 +70,7 @@ function useQuery(props: UseQueryProps)  {
             return getResult({empty: true, relay: operationContext.relay});
         }
         try {
-            const storeSnapshot = queryFetcher.lookupInStore(genericEnvironment, operation, props.dataFrom); //i need this
+            const storeSnapshot = queryFetcher.lookupInStore(genericEnvironment, operation, props.dataFrom, props.ttl); //i need this
             //const storeSnapshot = queryFetcher.lookupInStore(genericEnvironment, operation);
             const querySnapshot = queryFetcher.fetch({
                     cacheConfig: props.cacheConfig,
