@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "0.7.0",
+  "version": "0.8.0-a1",
   "keywords": [
     "graphql",
     "relay",
@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
-    "@wora/relay-offline": "0.0.8",
-    "@wora/detect-network": "1.0.0",
+    "@wora/relay-offline": "^0.1.0",
+    "@wora/detect-network": "^1.1.0",
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2"
