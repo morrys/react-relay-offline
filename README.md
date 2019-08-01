@@ -70,6 +70,9 @@ You then need to link the native parts of the library for the platforms you are 
 
 * **Please sponsor me** and recommend me at [github sponsorship](https://docs.google.com/forms/d/e/1FAIpQLSdE8nL7U-d7CBTWp9X7XOoezQD06wCzCAS9VpoUW6lJ03KU7w/viewform), so that i can use it
 
+### Sponsors
+
+<a href="https://memorangapp.com" target="_blank"><img height=40px src="https://github.com/morrys/react-relay-offline/blob/master/docs/assets/memorang-logo.png" alt="Memorang">
 
 ## React Web Example
 
