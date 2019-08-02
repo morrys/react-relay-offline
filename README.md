@@ -34,7 +34,7 @@ You then need to link the native parts of the library for the platforms you are 
 
   * serialization: JSON or none
 
-* fetchPolicy CACHE_FIRST (which in version 1.0.0 I will change to STORE_ONLY)
+* fetchPolicy CACHE_FIRST (which in version 1.0.0 I will change to STORE_OR_NETWORK)
 
 * management and utilities for network detection
 
