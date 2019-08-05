@@ -2,3 +2,5 @@ src/
 *.tgz
 tsconfig.json
 cache-persist/
+website/
+docs/
