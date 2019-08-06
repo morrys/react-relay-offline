@@ -5,23 +5,8 @@
     "previous": "Previous",
     "tagline": "Collection of libraries usable for the web, react and react-native.",
     "docs": {
-      "relay-hooks": {
+      "react-relay-offline": {
         "title": "Getting Started"
-      },
-      "use-fragment": {
-        "title": "useFragment"
-      },
-      "use-mutation": {
-        "title": "useMutation"
-      },
-      "use-oss-fragment": {
-        "title": "useOssFragment"
-      },
-      "use-pagination": {
-        "title": "usePagination"
-      },
-      "use-refetch": {
-        "title": "useRefetch"
       }
     },
     "links": {
@@ -29,8 +14,7 @@
       "GitHub": "GitHub"
     },
     "categories": {
-      "Relay Hooks": "Relay Hooks",
-      "API Reference": "API Reference"
+      "React Relay Offline": "React Relay Offline"
     }
   },
   "pages-strings": {
