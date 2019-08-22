@@ -10,7 +10,7 @@ import { STORE_THEN_NETWORK, CACHE_FIRST } from './RelayOfflineTypes';
 
 class ReactRelayQueryFetcher extends QueryFetcherOriginal {
 
-  _cachedLookup: {snapshot?: Snapshot, offline?: boolean};
+  _cachedLookup: { isValid: boolean };
 
   constructor(args?: {
     cacheSelectionReference: Disposable,
@@ -36,7 +36,7 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
   ): Snapshot {
     const offline = !environment.isOnline();
     this._cachedLookup = {
-      offline
+      isValid: offline
     };
     if(dataFrom === CACHE_FIRST ||
         dataFrom === STORE_THEN_NETWORK ||
@@ -46,12 +46,9 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
       if (environment.check(operation.root)) {
         this._retainCachedOperation(environment, operation, ttl);
         const snapshot:Snapshot = environment.lookup(operation.fragment, operation);
-        if(snapshot) {
           this._cachedLookup = {
-            snapshot,
-            offline,
+            isValid: offline || (dataFrom === CACHE_FIRST && !!snapshot)
           }
-        };
         if(!this.isValidSnapshot()) {
           (this as QueryFetcherOriginal)._cacheSelectionReference = null; // avoid dispose when call network
         }
@@ -63,9 +60,7 @@ class ReactRelayQueryFetcher extends QueryFetcherOriginal {
   }
 
   isValidSnapshot(): boolean {
-    return this._cachedLookup && 
-      (this._cachedLookup.offline || 
-        this._cachedLookup.snapshot);
+    return this._cachedLookup && this._cachedLookup.isValid;
   }
 
   fetch(fetchOptions: FetchOptions): Snapshot {

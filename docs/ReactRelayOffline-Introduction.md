@@ -239,6 +239,20 @@ import { QueryRenderer } from 'react-relay-offline';
         render={({ props, error, retry, cached }) => {
 ```
 
+## useRestore
+
+the **useRestore** hook allows you to manage the restore of data persisted in the storage.
+**To be used if relay components are used outside of the QueryRenderer**
+
+```ts
+const rehydratate = useRestore(environment);
+```
+
+## fetchQuery
+
+Restore the store if `fetchQuery` is used before the QueryRenderer. See `useRestore`.
+
+
 ## Mutation
 
 ```ts

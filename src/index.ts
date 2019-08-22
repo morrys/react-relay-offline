@@ -36,6 +36,7 @@ export {
 } from 'relay-runtime';
 
 export {default as QueryRenderer} from "./QueryRendererOffline";
+export { default as useRestore } from "./hooks/useRestore"
 export { Environment } from '@wora/relay-offline';
 export { Store } from '@wora/relay-store';
 export { RecordSource } from '@wora/relay-store';
