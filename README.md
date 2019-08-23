@@ -245,7 +245,9 @@ const rehydratate = useRestore(environment);
 
 ## fetchQuery
 
-Restore the store if `fetchQuery` is used before the QueryRenderer. See `useRestore`.
+```ts
+import { fetchQuery } from 'react-relay-offline';
+```
 
 ## Mutation
 
