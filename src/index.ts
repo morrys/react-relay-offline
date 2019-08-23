@@ -6,7 +6,6 @@ export {
   createFragmentContainer,
   createPaginationContainer,
   createRefetchContainer,
-  fetchQuery,
   graphql,
   requestSubscription,
 } from 'react-relay';
@@ -37,6 +36,7 @@ export {
 
 export {default as QueryRenderer} from "./QueryRendererOffline";
 export { default as useRestore } from "./hooks/useRestore"
+export { default as fetchQuery} from "./runtime/fetchQuery";
 export { Environment } from '@wora/relay-offline';
 export { Store } from '@wora/relay-store';
 export { RecordSource } from '@wora/relay-store';
