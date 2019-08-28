@@ -115,6 +115,16 @@ const store = new Store();
 const environment = new Environment({ network, store });
 ```
 
+* add `clearCache(): Promise<boolean>` function to delete the persisted data 
+
+* add `restore(): Promise<boolean>` function to restore the store
+
+* add `isRestored(): boolean` function to know if the store has been restored
+
+* add `isOnline() : boolean` function to know the network status
+
+* add `getStoreOffline(): OfflineFirst<Payload>` function to recover the offline store
+
 ## Environment with Offline Options
 
 ```ts
