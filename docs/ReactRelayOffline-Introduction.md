@@ -77,7 +77,7 @@ You then need to link the native parts of the library for the platforms you are 
 
 ### Sponsors
 
-<a href="https://memorangapp.com" target="_blank"><img height=40px src="https://github.com/morrys/react-relay-offline/blob/master/docs/assets/memorang-logo.png" alt="Memorang">
+<a href="https://memorangapp.com" target="_blank"><img height=40px src="https://github.com/morrys/react-relay-offline/raw/master/docs/assets/memorang-logo.png" alt="Memorang">
 
 ## React Web Example
 

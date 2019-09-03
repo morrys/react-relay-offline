@@ -1,5 +1,5 @@
 const siteConfig = {
-  title: 'Morrys Website',
+  title: 'Morrys Repositories',
   tagline: 'Collection of libraries usable for the web, react and react-native.',
   url: 'https://morrys.github.io',
   baseUrl: '/react-relay-offline/',
@@ -21,6 +21,15 @@ const siteConfig = {
   colors: {
     primaryColor: '#008ed8',
     secondaryColor: '#17afff',
+  },
+
+  algolia: {
+    apiKey: '87a72e28932891cac536490e275e834e',
+    indexName: 'morrys',
+    placeholder: 'Search',
+    algoliaOptions: {
+      facetFilters: [ ["tags: react-relay-offline", "tags: wora"] ]
+    }
   },
 
   /* Custom fonts for website */
