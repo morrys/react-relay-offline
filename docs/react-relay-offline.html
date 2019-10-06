@@ -96,7 +96,7 @@
 <li><p>offline mutation management</p>
 <ul>
 <li><p>backup of mutation changes</p></li>
-<li><p>update and publication of the mutation changes  in the store</p></li>
+<li><p>update and publication of the mutation changes in the store</p></li>
 <li><p>persistence of mutation information performed</p></li>
 <li><p>automatic execution of mutations persisted when the application returns online</p></li>
 <li><p>configurability of the offline mutation execution network</p></li>
@@ -134,16 +134,17 @@ yarn <span class="hljs-literal">start</span>
 <h2><a class="anchor" aria-hidden="true" id="react-native-example"></a><a href="#react-native-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>React Native Example</h2>
 <p>The [react native offline example]<a href="https://github.com/morrys/react-relay-offline-example#react-native">https://github.com/morrys/react-relay-offline-example#react-native</a></p>
 <h2><a class="anchor" aria-hidden="true" id="environment"></a><a href="#environment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment</h2>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Network } <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
-<span class="hljs-keyword">import</span> { Store, Environment } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>;
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Network } <span class="hljs-keyword">from</span> <span class="hljs-string">"relay-runtime"</span>;
+<span class="hljs-keyword">import</span> { RecordSource, Store, Environment } <span class="hljs-keyword">from</span> <span class="hljs-string">"react-relay-offline"</span>;
 
 <span class="hljs-keyword">const</span> network = Network.create(fetchQuery);
-<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store();
+<span class="hljs-keyword">const</span> recordSource = <span class="hljs-keyword">new</span> RecordSource();
+<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(recordSource);
 <span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({ network, store });
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="environment-with-offline-options"></a><a href="#environment-with-offline-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment with Offline Options</h2>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Network } <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
-<span class="hljs-keyword">import</span> { Store, Environment } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>;
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Network } <span class="hljs-keyword">from</span> <span class="hljs-string">"relay-runtime"</span>;
+<span class="hljs-keyword">import</span> { RecordSource, Store, Environment } <span class="hljs-keyword">from</span> <span class="hljs-string">"react-relay-offline"</span>;
 
 <span class="hljs-keyword">const</span> network = Network.create(fetchQuery);
 
@@ -153,24 +154,29 @@ yarn <span class="hljs-literal">start</span>
 <span class="hljs-keyword">const</span> offlineOptions = {
   manualExecution, <span class="hljs-comment">//optional</span>
   network: networkOffline, <span class="hljs-comment">//optional</span>
-  finish: <span class="hljs-function">(<span class="hljs-params">isSuccess, mutations</span>) =&gt;</span> { <span class="hljs-comment">//optional</span>
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"finish offline"</span>, isSuccess, mutations)
+  finish: <span class="hljs-function">(<span class="hljs-params">isSuccess, mutations</span>) =&gt;</span> {
+    <span class="hljs-comment">//optional</span>
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"finish offline"</span>, isSuccess, mutations);
   },
-  onComplete: <span class="hljs-function">(<span class="hljs-params">options </span>) =&gt;</span> { <span class="hljs-comment">//optional</span>
+  onComplete: <span class="hljs-function"><span class="hljs-params">options</span> =&gt;</span> {
+    <span class="hljs-comment">//optional</span>
     <span class="hljs-keyword">const</span> { id, offlinePayload, snapshot } = options;
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
   },
-  onDiscard: <span class="hljs-function">(<span class="hljs-params"> options </span>) =&gt;</span> { <span class="hljs-comment">//optional</span>
-    <span class="hljs-keyword">const</span> { id, offlinePayload , error } = options;
+  onDiscard: <span class="hljs-function"><span class="hljs-params">options</span> =&gt;</span> {
+    <span class="hljs-comment">//optional</span>
+    <span class="hljs-keyword">const</span> { id, offlinePayload, error } = options;
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
   },
-  onPublish: <span class="hljs-function">(<span class="hljs-params">offlinePayload</span>) =&gt;</span> { <span class="hljs-comment">//optional</span>
-    <span class="hljs-keyword">const</span> rand = <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * <span class="hljs-number">4</span>) + <span class="hljs-number">1</span>  
-    offlinePayload.serial = rand===<span class="hljs-number">1</span>;
-    <span class="hljs-keyword">return</span> offlinePayload
+  onPublish: <span class="hljs-function"><span class="hljs-params">offlinePayload</span> =&gt;</span> {
+    <span class="hljs-comment">//optional</span>
+    <span class="hljs-keyword">const</span> rand = <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * <span class="hljs-number">4</span>) + <span class="hljs-number">1</span>;
+    offlinePayload.serial = rand === <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">return</span> offlinePayload;
   }
 };
-<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store();
+<span class="hljs-keyword">const</span> recordSource = <span class="hljs-keyword">new</span> RecordSource();
+<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(recordSource);
 <span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({ network, store }, offlineOptions);
 </code></pre>
 <ul>
@@ -184,51 +190,57 @@ yarn <span class="hljs-literal">start</span>
 <h2><a class="anchor" aria-hidden="true" id="indexeddb"></a><a href="#indexeddb" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>IndexedDB</h2>
 <p>localStorage is used as the default react web persistence, while AsyncStorage is used for react-native.</p>
 <p>To use persistence via IndexedDB:</p>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> {Network} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
-<span class="hljs-keyword">import</span> EnvironmentIDB <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline/lib/runtime/EnvironmentIDB'</span>;
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Network } <span class="hljs-keyword">from</span> <span class="hljs-string">"relay-runtime"</span>;
+<span class="hljs-keyword">import</span> EnvironmentIDB <span class="hljs-keyword">from</span> <span class="hljs-string">"@wora/relay-offline/lib/EnvironmentIDB"</span>;
 
 <span class="hljs-keyword">const</span> network = Network.create(fetchQuery);
 <span class="hljs-keyword">const</span> environment = EnvironmentIDB.create({ network });
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="environment-with-persistofflineoptions"></a><a href="#environment-with-persistofflineoptions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment with PersistOfflineOptions</h2>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Network } <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
-<span class="hljs-keyword">import</span> { Store, Environment } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>;
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Network } <span class="hljs-keyword">from</span> <span class="hljs-string">"relay-runtime"</span>;
+<span class="hljs-keyword">import</span> { RecordSource, Store, Environment } <span class="hljs-keyword">from</span> <span class="hljs-string">"react-relay-offline"</span>;
 <span class="hljs-keyword">import</span> { CacheOptions } <span class="hljs-keyword">from</span> <span class="hljs-string">"@wora/cache-persist"</span>;
 
 <span class="hljs-keyword">const</span> network = Network.create(fetchQuery);
 
 <span class="hljs-keyword">const</span> networkOffline = Network.create(fetchQueryOffline);
 
-<span class="hljs-keyword">const</span> persistOfflineOptions: CacheOptions = { 
+<span class="hljs-keyword">const</span> persistOfflineOptions: CacheOptions = {
   prefix: <span class="hljs-string">"app-user1"</span>
 };
-<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store();
-<span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({ network, store }, {}, persistOfflineOptions);
+<span class="hljs-keyword">const</span> recordSource = <span class="hljs-keyword">new</span> RecordSource();
+<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(recordSource);
+<span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment(
+  { network, store },
+  {},
+  persistOfflineOptions
+);
 </code></pre>
 <ul>
-<li>storage?: CacheStorage;  custom storage</li>
-<li>prefix?: string;  prefix key in storage</li>
-<li>serialize?: boolean;  if set to true, it performs JSON serialization</li>
-<li>encryption?: boolean;  not yet implemented in @wora/cache-persist</li>
+<li>storage?: CacheStorage; custom storage</li>
+<li>prefix?: string; prefix key in storage</li>
+<li>serialize?: boolean; if set to true, it performs JSON serialization</li>
+<li>encryption?: boolean; not yet implemented in @wora/cache-persist</li>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="store-with-custom-options"></a><a href="#store-with-custom-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Store with custom options</h2>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Store } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>;
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { Store } <span class="hljs-keyword">from</span> <span class="hljs-string">"react-relay-offline"</span>;
 <span class="hljs-keyword">import</span> { CacheOptions } <span class="hljs-keyword">from</span> <span class="hljs-string">"@wora/cache-persist"</span>;
+<span class="hljs-keyword">import</span> { CacheOptionsStore } <span class="hljs-keyword">from</span> <span class="hljs-string">"@wora/relay-store"</span>;
 
-<span class="hljs-keyword">const</span> ttl: <span class="hljs-built_in">number</span> = <span class="hljs-number">10</span> * <span class="hljs-number">60</span> * <span class="hljs-number">1000</span>; <span class="hljs-comment">// default</span>
-<span class="hljs-keyword">const</span> persistOptions: CacheOptions = {}; <span class="hljs-comment">// default</span>
+<span class="hljs-keyword">const</span> persistOptionsStore: CacheOptionsStore = { defaultTTL: <span class="hljs-number">10</span> * <span class="hljs-number">60</span> * <span class="hljs-number">1000</span> }; <span class="hljs-comment">// default</span>
 <span class="hljs-keyword">const</span> persistOptionsRecords: CacheOptions = {}; <span class="hljs-comment">// default</span>
-<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(ttl, persistOptions, persistOptionsRecords);
-
+<span class="hljs-keyword">const</span> recordSource = <span class="hljs-keyword">new</span> RecordSource(persistOptionsRecords);
+<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(recordSource, persistOptionsStore);
+<span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({ network, store }, offlineOptions);
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="queryrenderer"></a><a href="#queryrenderer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>QueryRenderer</h2>
 <ul>
 <li>Add &quot;LoadingComponent&quot; property</li>
 <li>Add &quot;cached&quot; property in render function</li>
-<li>Add CACHE_FIRST in dataFrom, with this property the query is not executed on the network if it        finds valid results in the cache</li>
+<li>Add CACHE_FIRST in dataFrom, with this property the query is not executed on the network if it finds valid results in the cache</li>
 <li>Add &quot;ttl&quot; property in order to change default ttl in store</li>
 </ul>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { QueryRenderer } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>; 
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { QueryRenderer } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>;
 
 &lt;QueryRenderer
         environment={environment}
@@ -244,10 +256,10 @@ yarn <span class="hljs-literal">start</span>
 <pre><code class="hljs css language-ts"><span class="hljs-keyword">const</span> rehydratate = useRestore(environment);
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="fetchquery"></a><a href="#fetchquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>fetchQuery</h2>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { fetchQuery } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>;
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { fetchQuery } <span class="hljs-keyword">from</span> <span class="hljs-string">"react-relay-offline"</span>;
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="mutation"></a><a href="#mutation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mutation</h2>
-<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { commitMutation, graphql } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay-offline'</span>;
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { commitMutation, graphql } <span class="hljs-keyword">from</span> <span class="hljs-string">"react-relay-offline"</span>;
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="detect-network"></a><a href="#detect-network" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detect Network</h2>
 <pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { useIsConnected } <span class="hljs-keyword">from</span> <span class="hljs-string">"react-relay-offline"</span>;
@@ -266,7 +278,7 @@ yarn <span class="hljs-literal">start</span>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="license"></a><a href="#license" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p>React Relay Offline is <a href="./LICENSE">MIT licensed</a>.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2019-9-3 by lorenzo.digiacomo</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#installation-react-web">Installation React Web</a></li><li><a href="#installation-react-native">Installation React Native</a></li><li><a href="#main-additional-features">Main Additional Features</a></li><li><a href="#contributing">Contributing</a><ul class="toc-headings"><li><a href="#sponsors">Sponsors</a></li></ul></li><li><a href="#react-web-example">React Web Example</a></li><li><a href="#react-native-example">React Native Example</a></li><li><a href="#environment">Environment</a></li><li><a href="#environment-with-offline-options">Environment with Offline Options</a></li><li><a href="#indexeddb">IndexedDB</a></li><li><a href="#environment-with-persistofflineoptions">Environment with PersistOfflineOptions</a></li><li><a href="#store-with-custom-options">Store with custom options</a></li><li><a href="#queryrenderer">QueryRenderer</a></li><li><a href="#userestore">useRestore</a></li><li><a href="#fetchquery">fetchQuery</a></li><li><a href="#mutation">Mutation</a></li><li><a href="#detect-network">Detect Network</a></li><li><a href="#requirement">Requirement</a></li><li><a href="#todo">TODO</a></li><li><a href="#license">License</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/react-relay-offline/" class="nav-home"><img src="/react-relay-offline/img/favicon.ico" alt="Morrys Repositories" width="66" height="58"/></a><div><h5>Docs</h5><a href="/react-relay-offline/docs/en/relay-hooks.html">about relay-hooks</a></div><div><h5>Community</h5><a href="/react-relay-offline/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/morrys/wora">GitHub</a><a class="github-button" href="https://github.com/morrys/react-relay-offline" data-icon="octicon-star" data-count-href="https://github.com/morrys/wora/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><div class="social"><a href="https://twitter.com/m0rrys" class="twitter-follow-button">Follow @m0rrys</a></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/react-relay-offline/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 Lorenzo Di Giacomo</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>window.twttr=(function(d,s, id){var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};if(d.getElementById(id))return t;js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js, fjs);t._e = [];t.ready = function(f) {t._e.push(f);};return t;}(document, 'script', 'twitter-wjs'));</script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2019-10-6 by morrys</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#installation-react-web">Installation React Web</a></li><li><a href="#installation-react-native">Installation React Native</a></li><li><a href="#main-additional-features">Main Additional Features</a></li><li><a href="#contributing">Contributing</a><ul class="toc-headings"><li><a href="#sponsors">Sponsors</a></li></ul></li><li><a href="#react-web-example">React Web Example</a></li><li><a href="#react-native-example">React Native Example</a></li><li><a href="#environment">Environment</a></li><li><a href="#environment-with-offline-options">Environment with Offline Options</a></li><li><a href="#indexeddb">IndexedDB</a></li><li><a href="#environment-with-persistofflineoptions">Environment with PersistOfflineOptions</a></li><li><a href="#store-with-custom-options">Store with custom options</a></li><li><a href="#queryrenderer">QueryRenderer</a></li><li><a href="#userestore">useRestore</a></li><li><a href="#fetchquery">fetchQuery</a></li><li><a href="#mutation">Mutation</a></li><li><a href="#detect-network">Detect Network</a></li><li><a href="#requirement">Requirement</a></li><li><a href="#todo">TODO</a></li><li><a href="#license">License</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/react-relay-offline/" class="nav-home"><img src="/react-relay-offline/img/favicon.ico" alt="Morrys Repositories" width="66" height="58"/></a><div><h5>Docs</h5><a href="/react-relay-offline/docs/en/relay-hooks.html">about relay-hooks</a></div><div><h5>Community</h5><a href="/react-relay-offline/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/morrys/wora">GitHub</a><a class="github-button" href="https://github.com/morrys/react-relay-offline" data-icon="octicon-star" data-count-href="https://github.com/morrys/wora/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><div class="social"><a href="https://twitter.com/m0rrys" class="twitter-follow-button">Follow @m0rrys</a></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/react-relay-offline/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 Lorenzo Di Giacomo</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>window.twttr=(function(d,s, id){var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};if(d.getElementById(id))return t;js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js, fjs);t._e = [];t.ready = function(f) {t._e.push(f);};return t;}(document, 'script', 'twitter-wjs'));</script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
