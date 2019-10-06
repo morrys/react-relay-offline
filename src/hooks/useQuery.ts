@@ -90,7 +90,7 @@ function useQuery(props: UseQueryProps)  {
 
             // Use network data first, since it may be fresher
             const snapshot = querySnapshot || storeSnapshot;
-            return getResult({ error: null, snapshot, cached: !!storeSnapshot, relay: operationContext.relay }); //relay
+            return getResult({ error: null, snapshot, cached: !!storeSnapshot || !environment.isOnline(), relay: operationContext.relay }); //relay
         } catch (error) {
             return getResult({ error: error, snapshot: null, cached: false, relay: operationContext.relay }); //relay
         }
