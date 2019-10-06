@@ -124,7 +124,7 @@ const environment = new Environment({ network, store });
 
 ```ts
 import { Network } from "relay-runtime";
-import { Store, Environment } from "react-relay-offline";
+import { RecordSource, Store, Environment } from "react-relay-offline";
 
 const network = Network.create(fetchQuery);
 
@@ -155,7 +155,8 @@ const offlineOptions = {
     return offlinePayload;
   }
 };
-const store = new Store();
+const recordSource = new RecordSource();
+const store = new Store(recordSource);
 const environment = new Environment({ network, store }, offlineOptions);
 ```
 
@@ -189,7 +190,7 @@ const environment = EnvironmentIDB.create({ network });
 
 ```ts
 import { Network } from "relay-runtime";
-import { Store, Environment } from "react-relay-offline";
+import { RecordSource, Store, Environment } from "react-relay-offline";
 import { CacheOptions } from "@wora/cache-persist";
 
 const network = Network.create(fetchQuery);
@@ -217,11 +218,13 @@ const environment = new Environment(
 ```ts
 import { Store } from "react-relay-offline";
 import { CacheOptions } from "@wora/cache-persist";
+import { CacheOptionsStore } from "@wora/relay-store";
 
-const ttl: number = 10 * 60 * 1000; // default
-const persistOptions: CacheOptions = {}; // default
+const persistOptionsStore: CacheOptionsStore = { defaultTTL: 10 * 60 * 1000 }; // default
 const persistOptionsRecords: CacheOptions = {}; // default
-const store = new Store(ttl, persistOptions, persistOptionsRecords);
+const recordSource = new RecordSource(persistOptionsRecords);
+const store = new Store(recordSource, persistOptionsStore);
+const environment = new Environment({ network, store }, offlineOptions);
 ```
 
 ## QueryRenderer
