@@ -113,10 +113,11 @@ The [react native offline example]https://github.com/morrys/react-relay-offline-
 
 ```ts
 import { Network } from "relay-runtime";
-import { Store, Environment } from "react-relay-offline";
+import { RecordSource, Store, Environment } from "react-relay-offline";
 
 const network = Network.create(fetchQuery);
-const store = new Store();
+const recordSource = new RecordSource();
+const store = new Store(recordSource);
 const environment = new Environment({ network, store });
 ```
 
@@ -200,7 +201,8 @@ const networkOffline = Network.create(fetchQueryOffline);
 const persistOfflineOptions: CacheOptions = {
   prefix: "app-user1"
 };
-const store = new Store();
+const recordSource = new RecordSource();
+const store = new Store(recordSource);
 const environment = new Environment(
   { network, store },
   {},
