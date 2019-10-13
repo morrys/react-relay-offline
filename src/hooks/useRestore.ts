@@ -1,24 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 function useRestore(environment) {
-const [rehydratate, setRehydratate] = useState(environment.isRehydrated());
+  const [rehydratate, setRehydratate] = useState(environment.isRehydrated());
 
-  useEffect(() => {
-    if (!environment.isRestored()) {
-      environment.restore().then(restored => 
-        setRehydratate(environment.isRehydrated())
-      )
-    }
-    const unsubscribe = environment.getStoreOffline().subscribe(() => {
-      if (environment.isRehydrated()) {
-        unsubscribe();
-        setRehydratate(environment.isRehydrated())
-        
-      }
-    });
-    return () => unsubscribe();
-  }, [environment.isRehydrated()]);
-
+  if (!rehydratate) {
+    environment
+      .restore()
+      .then(() => setRehydratate(environment.isRehydrated()));
+  }
   return rehydratate;
 }
 
