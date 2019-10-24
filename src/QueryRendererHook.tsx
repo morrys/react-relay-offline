@@ -1,18 +1,13 @@
 import * as React from "react";
-import { useQuery, useRelayEnvironment } from "relay-hooks";
-import { UseQueryProps } from "./RelayOfflineTypes";
-import { STORE_ONLY, RenderProps } from "relay-hooks/lib/RelayHooksType";
+import { QueryRendererProps } from "./RelayOfflineTypes";
+import useQueryOffline from "./hooks/useQueryOffline";
 
-export interface Props<T> extends UseQueryProps<T> {
-  render: (renderProps: RenderProps<T>) => React.ReactNode;
-}
-
-const QueryRendererHook = <T extends {}>(props: Props<T>) => {
-  const environment = useRelayEnvironment();
-  const { render, fetchPolicy, query, variables, cacheConfig } = props;
-  const hooksProps = useQuery(query, variables, {
+const QueryRendererHook = <T extends {}>(props: QueryRendererProps<T>) => {
+  const { render, fetchPolicy, query, variables, cacheConfig, ttl } = props;
+  const hooksProps = useQueryOffline(query, variables, {
     networkCacheConfig: cacheConfig,
-    fetchPolicy: environment.isOnline() ? fetchPolicy : STORE_ONLY
+    fetchPolicy,
+    ttl
   });
 
   return <React.Fragment>{render(hooksProps)}</React.Fragment>;

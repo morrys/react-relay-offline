@@ -7,8 +7,8 @@ export {
   createPaginationContainer,
   createRefetchContainer,
   graphql,
-  requestSubscription,
-} from 'react-relay';
+  requestSubscription
+} from "react-relay";
 export {
   $FragmentRef,
   RelayFragmentContainer,
@@ -16,8 +16,8 @@ export {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchContainer,
-  RelayRefetchProp,
-} from 'react-relay/lib/ReactRelayTypes';
+  RelayRefetchProp
+} from "react-relay/lib/ReactRelayTypes";
 
 export {
   DataID,
@@ -31,16 +31,24 @@ export {
   ReaderSelector,
   RelayContext,
   Snapshot,
-  Variables,
-} from 'relay-runtime';
+  Variables
+} from "relay-runtime";
 
-export {default as QueryRenderer} from "./QueryRendererOffline";
-export { default as useRestore } from "./hooks/useRestore"
-export { default as fetchQuery} from "./runtime/fetchQuery";
-export { Environment } from '@wora/relay-offline';
-export { Store } from '@wora/relay-store';
-export { RecordSource } from '@wora/relay-store';
-export { OfflineStore } from '@wora/relay-offline';
-export { NetInfo } from '@wora/detect-network';
-export { useNetInfo } from '@wora/detect-network';
-export { useIsConnected } from '@wora/detect-network';
+export {
+  NETWORK_ONLY,
+  STORE_THEN_NETWORK,
+  STORE_OR_NETWORK,
+  STORE_ONLY,
+  FetchPolicy
+} from "relay-hooks/lib/RelayHooksType";
+
+export { default as QueryRenderer } from "./QueryRendererOffline";
+export { default as useRestore } from "./hooks/useRestore";
+export { default as fetchQuery } from "./runtime/fetchQuery";
+export { Environment } from "@wora/relay-offline";
+export { Store } from "@wora/relay-store";
+export { RecordSource } from "@wora/relay-store";
+export { OfflineStore } from "@wora/relay-offline";
+export { NetInfo } from "@wora/detect-network";
+export { useNetInfo } from "@wora/detect-network";
+export { useIsConnected } from "@wora/detect-network";
