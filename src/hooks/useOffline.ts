@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { ReactRelayContext } from "react-relay";
-import { RelayContext } from "relay-runtime/lib/RelayStoreTypes";
+import { RelayContext } from "relay-runtime";
 import * as areEqual from "fbjs/lib/areEqual";
 import { OfflineRecordCache } from "@wora/offline-first";
 import { Payload } from "@wora/relay-offline/lib/OfflineFirstRelay";

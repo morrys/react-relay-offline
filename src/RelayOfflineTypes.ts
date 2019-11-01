@@ -1,5 +1,4 @@
-import { GraphQLTaggedNode } from "relay-runtime/lib/RelayStoreTypes";
-import { OperationType, CacheConfig } from "relay-runtime";
+import { OperationType, CacheConfig, GraphQLTaggedNode } from "relay-runtime";
 import { FetchPolicy, RenderProps } from "relay-hooks/lib/RelayHooksType";
 
 export interface QueryRendererProps<T> extends QueryProps<T> {

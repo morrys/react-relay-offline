@@ -28,11 +28,11 @@
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "2.0.0-rc.1"
+    "relay-hooks": "2.0.0-rc.4"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
-    "react-relay": ">=3.0.0"
+    "react-relay": ">=5.0.0"
   },
   "devDependencies": {
     "idb": "^4.0.0",
@@ -40,7 +40,7 @@
     "react": "16.8.6",
     "@types/react": "16.8.14",
     "@types/react-dom": "16.8.4",
-    "react-relay": "^4.0.0",
+    "react-relay": "^7.0.0",
     "react-native": "0.59.9",
     "@react-native-community/netinfo": "3.2.1"
   }
