@@ -5,7 +5,7 @@ function useRestore(environment) {
 
   if (!rehydratate) {
     environment
-      .restore()
+      .hydrate()
       .then(() => setRehydratate(environment.isRehydrated()));
   }
   return rehydratate;

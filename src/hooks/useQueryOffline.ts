@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useQuery, useRelayEnvironment, useQueryFetcher } from "relay-hooks";
+import { useRelayEnvironment, useQueryFetcher } from "relay-hooks";
 import { OperationType, GraphQLTaggedNode } from "relay-runtime";
 import { STORE_ONLY, FetchPolicy } from "relay-hooks/lib//RelayHooksType";
 import { CacheConfig } from "relay-runtime";
@@ -16,23 +16,23 @@ const useQueryOffline = function<TOperationType extends OperationType>(
   } = {}
 ): OfflineRenderProps<TOperationType> {
   const environment = useRelayEnvironment();
-  const ref = useRef<{ rehydratate: boolean; error: Error; props: any }>({
-    rehydratate: environment.isRehydrated(),
+  const ref = useRef<{ rehydrated: boolean; error: Error; props: any }>({
+    rehydrated: environment.isRehydrated(),
     error: null,
     props: null
   });
 
   const [, forceUpdate] = useState(null);
 
-  const { rehydratate } = ref.current;
+  const { rehydrated } = ref.current;
 
-  if (!rehydratate) {
+  if (!rehydrated) {
     environment
-      .restore()
+      .hydrate()
       .then(() => {
         const current = {
           ...ref.current,
-          rehydratate: true,
+          rehydrated: true,
           error: null
         };
         const { props } = ref.current;
@@ -42,7 +42,7 @@ const useQueryOffline = function<TOperationType extends OperationType>(
       .catch(error => {
         const current = {
           ...ref.current,
-          rehydratate: false,
+          rehydrated: false,
           error
         };
         ref.current = current;
@@ -66,8 +66,7 @@ const useQueryOffline = function<TOperationType extends OperationType>(
 
   const { props, error, ...others } = queryFetcher.execute(environment, query, {
     networkCacheConfig,
-    fetchPolicy:
-      rehydratate || environment.isOnline() ? fetchPolicy : STORE_ONLY
+    fetchPolicy: rehydrated || environment.isOnline() ? fetchPolicy : STORE_ONLY
   });
 
   const current = {

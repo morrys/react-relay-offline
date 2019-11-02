@@ -1,4 +1,4 @@
-import { fetchQuery as relayFetchQuery } from 'react-relay'
+import { fetchQuery as relayFetchQuery } from "react-relay";
 
 /**
  * https://github.com/facebook/relay/commit/c925281a609db199986bc9625d958f516642e95d#diff-391b381e9c777ee38b225619a38e1c1d
@@ -6,13 +6,13 @@ import { fetchQuery as relayFetchQuery } from 'react-relay'
  */
 
 async function fetchQuery(...args) {
-    const [environment] = args
+  const [environment] = args;
 
-    if (!environment.isRestored()) {
-        await environment.restore()
-    }
+  if (!environment.isRehydrated()) {
+    await environment.hydrate();
+  }
 
-    return relayFetchQuery(...args)
+  return relayFetchQuery(...args);
 }
 
 export default fetchQuery;

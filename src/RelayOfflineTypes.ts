@@ -10,7 +10,7 @@ export interface QueryRendererOfflineProps<T> extends QueryRendererProps<T> {
 }
 
 export interface OfflineRenderProps<T> extends RenderProps<T> {
-  rehydratate: boolean;
+  rehydrated: boolean;
 }
 export interface QueryProps<T extends OperationType> {
   cacheConfig?: CacheConfig;
