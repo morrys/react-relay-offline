@@ -37,7 +37,7 @@ const useQueryOffline = function<TOperationType extends OperationType>(
         };
         const { props } = ref.current;
         ref.current = current;
-        if (props) forceUpdate(current);
+        if (!props) forceUpdate(current);
       })
       .catch(error => {
         const current = {

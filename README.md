@@ -196,7 +196,7 @@ To use persistence via IndexedDB:
 
 ```ts
 import { Network } from "relay-runtime";
-import EnvironmentIDB from "@wora/relay-offline/lib/EnvironmentIDB";
+import EnvironmentIDB from "react-relay-offline/lib/runtime/EnvironmentIDB";
 
 const network = Network.create(fetchQuery);
 const environment = EnvironmentIDB.create({ network });
