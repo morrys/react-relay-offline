@@ -40,13 +40,7 @@ const useQueryOffline = function<TOperationType extends OperationType>(
         if (!props) forceUpdate(current);
       })
       .catch(error => {
-        const current = {
-          ...ref.current,
-          rehydrated: false,
-          error
-        };
-        ref.current = current;
-        forceUpdate(current);
+        throw error; //
       });
   }
 
