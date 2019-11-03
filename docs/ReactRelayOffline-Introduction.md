@@ -285,13 +285,13 @@ import { useNetInfo } from "react-relay-offline";
 import { NetInfo } from "react-relay-offline";
 ```
 
-## Hooks & useQueryOffline
+## Hooks & useQuery
 
 Now you can use hooks from [relay-hooks](https://github.com/relay-tools/relay-hooks)
 
 ```ts
-import { useQueryOffline } from "react-relay-offline";
-const hooksProps = useQueryOffline(query, variables, {
+import { useQuery } from "react-relay-offline";
+const hooksProps = useQuery(query, variables, {
   networkCacheConfig: cacheConfig,
   fetchPolicy,
   ttl
