@@ -42,8 +42,18 @@ export {
   FetchPolicy
 } from "relay-hooks/lib/RelayHooksType";
 
+export {
+  useFragment,
+  useMutation,
+  useOssFragment,
+  usePagination,
+  useRefetch,
+  RelayEnvironmentProvider
+} from "relay-hooks";
+
 export { default as QueryRenderer } from "./QueryRendererOffline";
 export { default as useRestore } from "./hooks/useRestore";
+export { default as useQuery } from "./hooks/useQueryOffline";
 export { default as fetchQuery } from "./runtime/fetchQuery";
 export { Environment } from "@wora/relay-offline";
 export { Store } from "@wora/relay-store";
