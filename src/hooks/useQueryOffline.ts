@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useRelayEnvironment, useQueryFetcher } from "relay-hooks";
 import { OperationType, GraphQLTaggedNode } from "relay-runtime";
 import { STORE_ONLY, FetchPolicy } from "relay-hooks/lib//RelayHooksType";
@@ -50,18 +50,16 @@ const useQueryOffline = function<TOperationType extends OperationType>(
 
   const { fetchPolicy, networkCacheConfig, ttl } = options;
 
-  useEffect(() => {
-    // TODO create new directive for ttl
-    const disposable = environment.retain(query.root, { ttl });
-    return () => {
-      disposable.dispose();
-    };
-  }, [environment, query]);
-
-  const { props, error, ...others } = queryFetcher.execute(environment, query, {
-    networkCacheConfig,
-    fetchPolicy: rehydrated || environment.isOnline() ? fetchPolicy : STORE_ONLY
-  });
+  const { props, error, ...others } = queryFetcher.execute(
+    environment,
+    query,
+    {
+      networkCacheConfig,
+      fetchPolicy:
+        rehydrated || environment.isOnline() ? fetchPolicy : STORE_ONLY
+    },
+    (environment, query) => environment.retain(query.root, { ttl }) // TODO new directive
+  );
 
   const current = {
     ...others,
