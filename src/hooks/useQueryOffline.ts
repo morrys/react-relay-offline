@@ -56,7 +56,7 @@ const useQueryOffline = function<TOperationType extends OperationType>(
     {
       networkCacheConfig,
       fetchPolicy:
-        rehydrated || environment.isOnline() ? fetchPolicy : STORE_ONLY
+        rehydrated && environment.isOnline() ? fetchPolicy : STORE_ONLY
     },
     (environment, query) => environment.retain(query.root, { ttl }) // TODO new directive
   );
