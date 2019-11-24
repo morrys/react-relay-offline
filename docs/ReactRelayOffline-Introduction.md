@@ -241,9 +241,11 @@ const environment = new Environment({ network, store });
 
 - Add "cached" property in render function
 - Add "ttl" property in order to change default ttl in store
-- changed dataFrom property in fetchPolicy
-- Add store-or-network, with this property the query is not executed on the network if it finds valid results in the cache
-- Add store-only in fetchPolicy, with this property the query finds results in the cache
+- `fetchPolicy` determine whether it should use data cached in the Relay store and whether to send a network request. The options are:
+  - `store-or-network` (default): Reuse data cached in the store; if the whole query is cached, skip the network request
+  - `store-and-network`: Reuse data cached in the store; always send a network request.
+  - `network-only`: Don't reuse data cached in the store; always send a network request. (This is the default behavior of Relay's existing `QueryRenderer`.)
+  - `store-only`: Reuse data cached in the store; never send a network request.
 
 ```ts
 import { QueryRenderer } from 'react-relay-offline';
@@ -252,6 +254,7 @@ import { QueryRenderer } from 'react-relay-offline';
         environment={environment}
         query={query}
         variables={{}}
+        fetchPolicy='store-or-network'
         ttl={100000}
         render={({ props, error, retry, cached }) => {
 ```
@@ -287,7 +290,9 @@ import { NetInfo } from "react-relay-offline";
 
 ## Hooks & useQuery
 
-Now you can use hooks from [relay-hooks](https://github.com/relay-tools/relay-hooks)
+Now you can use hooks (useFragment, usePagination, useRefetch) from [relay-hooks](https://github.com/relay-tools/relay-hooks)
+
+while it is necessary to use `useQuery` of react-relay-offline to manage the offline.
 
 ```ts
 import { useQuery } from "react-relay-offline";
