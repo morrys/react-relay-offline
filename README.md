@@ -290,7 +290,9 @@ import { NetInfo } from "react-relay-offline";
 
 ## Hooks & useQuery
 
-Now you can use hooks from [relay-hooks](https://github.com/relay-tools/relay-hooks)
+Now you can use hooks (useFragment, usePagination, useRefetch) from [relay-hooks](https://github.com/relay-tools/relay-hooks)
+
+while it is necessary to use `useQuery` of react-relay-offline to manage the offline.
 
 ```ts
 import { useQuery } from "react-relay-offline";
