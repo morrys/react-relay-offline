@@ -1,18 +1,16 @@
-import * as React from 'react';
-import QueryRenderer, { Props } from './QueryRendererHook';
-import useRestore from './hooks/useRestore';
-import Loading from "./Loading";
+import * as React from "react";
+import QueryRenderer from "./QueryRendererHook";
+import { RelayEnvironmentProvider } from "relay-hooks";
+import { QueryRendererOfflineProps } from "./RelayOfflineTypes";
 
-export interface OfflineProps extends Props {
-  LoadingComponent?: any,
+const QueryRendererOffline = function<T>(props: QueryRendererOfflineProps<T>) {
+  const { environment } = props;
+
+  return (
+    <RelayEnvironmentProvider environment={environment}>
+      <QueryRenderer {...props} />
+    </RelayEnvironmentProvider>
+  );
 };
-
-const QueryRendererOffline = (props: OfflineProps) => {
-  const { LoadingComponent = Loading } = props;
-  const rehydratate = useRestore(props.environment);
-
-  return rehydratate ? <QueryRenderer {...props} /> : LoadingComponent;
-
-}
 
 export default QueryRendererOffline;

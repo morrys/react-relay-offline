@@ -39,13 +39,13 @@ You then need to link the native parts of the library for the platforms you are 
 
   - serialization: JSON or none
 
-- fetchPolicy CACHE_FIRST (which in version 1.0.0 I will change to STORE_OR_NETWORK)
+- fetchPolicy network-only, store-and-network, store-or-network, store-only
 
 - management and utilities for network detection
 
-- automatic use of the polity cache_first when the application is offline
+- automatic use of the polity **store-only** when the application is offline
 
-- optimization in store management and addition of TTL to queries in the store
+- optimization in store management and addition of **TTL** to queries in the store
 
 - offline mutation management
 
@@ -63,8 +63,6 @@ You then need to link the native parts of the library for the platforms you are 
 
   - onDiscard callback of the failed mutation
 
-  - automatic rollback management of the single failed mutation in the store
-
 ## Contributing
 
 - **Give a star** to the repository and **share it**, you will **help** the **project** and the **people** who will find it useful
@@ -73,7 +71,7 @@ You then need to link the native parts of the library for the platforms you are 
 
 - **PRs are welcome**, but it is always **better to open the issue first** so as to **help** me and other people **evaluating it**
 
-- **Please sponsor me** and recommend me at [github sponsorship](https://docs.google.com/forms/d/e/1FAIpQLSdE8nL7U-d7CBTWp9X7XOoezQD06wCzCAS9VpoUW6lJ03KU7w/viewform), so that i can use it
+- **Please sponsor me**
 
 ### Sponsors
 
@@ -105,9 +103,13 @@ yarn start
 
 Then, just point your browser at `http://localhost:3000`.
 
+## React NextJS Offline SSR Example
+
+The [React NextJS Offline SSR Example](https://github.com/morrys/offline-examples/tree/master/relay/nextjs)
+
 ## React Native Example
 
-The [react native offline example]https://github.com/morrys/react-relay-offline-example#react-native
+The [react native offline example](https://github.com/morrys/offline-examples#react-native)
 
 ## Environment
 
@@ -132,46 +134,59 @@ const network = Network.create(fetchQuery);
 const networkOffline = Network.create(fetchQueryOffline);
 const manualExecution = false;
 
-const offlineOptions = {
-  manualExecution, //optional
-  network: networkOffline, //optional
-  finish: (isSuccess, mutations) => {
-    //optional
-    console.log("finish offline", isSuccess, mutations);
-  },
-  onComplete: options => {
-    //optional
-    const { id, offlinePayload, snapshot } = options;
-    return true;
-  },
-  onDiscard: options => {
-    //optional
-    const { id, offlinePayload, error } = options;
-    return true;
-  },
-  onPublish: offlinePayload => {
-    //optional
-    const rand = Math.floor(Math.random() * 4) + 1;
-    offlinePayload.serial = rand === 1;
-    return offlinePayload;
-  }
-};
 const recordSource = new RecordSource();
 const store = new Store(recordSource);
-const environment = new Environment({ network, store }, offlineOptions);
+const environment = new Environment({ network, store });
+environment.setOfflineOptions({
+  manualExecution, //optional
+  network: networkOffline, //optional
+  start: async mutations => {
+    //optional
+    console.log("start offline", mutations);
+    return mutations;
+  },
+  finish: async (mutations, error) => {
+    //optional
+    console.log("finish offline", error, mutations);
+  },
+  onExecute: async mutation => {
+    //optional
+    console.log("onExecute offline", mutation);
+    return mutation;
+  },
+  onComplete: async options => {
+    //optional
+    console.log("onComplete offline", options);
+    return true;
+  },
+  onDiscard: async options => {
+    //optional
+    console.log("onDiscard offline", options);
+    return true;
+  },
+  onPublish: async offlinePayload => {
+    //optional
+    console.log("offlinePayload", offlinePayload);
+    return offlinePayload;
+  }
+});
 ```
 
 - manualExecution: if set to true, mutations in the queue are no longer performed automatically as soon as you go back online. invoke manually: `environment.getStoreOffline().execute();`
 
 - network: it is possible to configure a different network for the execution of mutations in the queue; all the information of the mutation saved in the offline store are inserted into the "metadata" field of the CacheConfig so that they can be used during communication with the server.
 
-- finish: function that is called once the request queue has been processed.
+* start: function that is called once the request queue has been started.
 
-- onPublish: function that is called before saving the mutation in the store
+* finish: function that is called once the request queue has been processed.
 
-- onComplete: function that is called once the request has been successfully completed. Only if the function returns the value true, the request is deleted from the queue.
+* onExecute: function that is called before the request is sent to the network.
 
-- onDiscard: function that is called when the request returns an error. Only if the function returns the value true, the mutation is deleted from the queue
+* onPublish: function that is called before saving the mutation in the store
+
+* onComplete: function that is called once the request has been successfully completed. Only if the function returns the value true, the request is deleted from the queue.
+
+* onDiscard: function that is called when the request returns an error. Only if the function returns the value true, the mutation is deleted from the queue
 
 ## IndexedDB
 
@@ -181,7 +196,7 @@ To use persistence via IndexedDB:
 
 ```ts
 import { Network } from "relay-runtime";
-import EnvironmentIDB from "@wora/relay-offline/lib/EnvironmentIDB";
+import EnvironmentIDB from "react-relay-offline/lib/runtime/EnvironmentIDB";
 
 const network = Network.create(fetchQuery);
 const environment = EnvironmentIDB.create({ network });
@@ -203,17 +218,10 @@ const persistOfflineOptions: CacheOptions = {
 };
 const recordSource = new RecordSource();
 const store = new Store(recordSource);
-const environment = new Environment(
-  { network, store },
-  {},
-  persistOfflineOptions
-);
+const environment = new Environment({ network, store }, persistOfflineOptions);
 ```
 
-- storage?: CacheStorage; custom storage
-- prefix?: string; prefix key in storage
-- serialize?: boolean; if set to true, it performs JSON serialization
-- encryption?: boolean; not yet implemented in @wora/cache-persist
+[CacheOptions](https://morrys.github.io/wora/docs/cache-persist.html#cache-options)
 
 ## Store with custom options
 
@@ -226,15 +234,16 @@ const persistOptionsStore: CacheOptionsStore = { defaultTTL: 10 * 60 * 1000 }; /
 const persistOptionsRecords: CacheOptions = {}; // default
 const recordSource = new RecordSource(persistOptionsRecords);
 const store = new Store(recordSource, persistOptionsStore);
-const environment = new Environment({ network, store }, offlineOptions);
+const environment = new Environment({ network, store });
 ```
 
 ## QueryRenderer
 
-- Add "LoadingComponent" property
 - Add "cached" property in render function
-- Add CACHE_FIRST in dataFrom, with this property the query is not executed on the network if it finds valid results in the cache
 - Add "ttl" property in order to change default ttl in store
+- changed dataFrom property in fetchPolicy
+- Add store-or-network, with this property the query is not executed on the network if it finds valid results in the cache
+- Add store-only in fetchPolicy, with this property the query finds results in the cache
 
 ```ts
 import { QueryRenderer } from 'react-relay-offline';
@@ -244,7 +253,6 @@ import { QueryRenderer } from 'react-relay-offline';
         query={query}
         variables={{}}
         ttl={100000}
-        LoadingComponent={<Loading />}
         render={({ props, error, retry, cached }) => {
 ```
 
@@ -277,16 +285,23 @@ import { useNetInfo } from "react-relay-offline";
 import { NetInfo } from "react-relay-offline";
 ```
 
+## Hooks & useQuery
+
+Now you can use hooks from [relay-hooks](https://github.com/relay-tools/relay-hooks)
+
+```ts
+import { useQuery } from "react-relay-offline";
+const hooksProps = useQuery(query, variables, {
+  networkCacheConfig: cacheConfig,
+  fetchPolicy,
+  ttl
+});
+```
+
 ## Requirement
 
-- Version >=3.0.0 of the react-relay library
+- Version >=6.0.0 of the react-relay library
 - When a new node is created by mutation the id must be generated in the browser to use it in the optimistic response
-
-## TODO
-
-- Documentation
-
-- Implementation of Refetch Container Offline (The implementation of the refetchContainer involves the management of fetchPolicy (network-only and store-or-network). To make it homogeneous with the management of the "QueryRenderer" I have to add the cache-first and offline policy), for the moment it is usable only as specified by the Relay library.
 
 ## License
 

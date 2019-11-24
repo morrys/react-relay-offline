@@ -1,6 +1,7 @@
 src/
 *.tgz
 tsconfig.json
+.DS_Store
 cache-persist/
 website/
 docs/
