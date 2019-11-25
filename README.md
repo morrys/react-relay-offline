@@ -268,6 +268,19 @@ the **useRestore** hook allows you to manage the restore of data persisted in th
 const rehydratate = useRestore(environment);
 ```
 
+## Loading
+
+Removed the Loading management in the QueryRenderer, now for **web applications without SSR** & **react-native** it is necessary to use the useRestore hook before the QueryRenderer:
+
+```
+const isRehydrated = useRestore(environment);
+   if (!isRehydrated) {
+     return <Loading />;
+   }
+```
+
+For SSR web applications there is a native management in the QueryRenderer to correctly manage the DOM returned by the server and restore the environment
+
 ## fetchQuery
 
 ```ts
