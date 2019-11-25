@@ -259,18 +259,10 @@ import { QueryRenderer } from 'react-relay-offline';
         render={({ props, error, retry, cached }) => {
 ```
 
-## useRestore
+## useRestore & loading
 
 the **useRestore** hook allows you to manage the restore of data persisted in the storage.
-**To be used if relay components are used outside of the QueryRenderer**
-
-```ts
-const rehydratate = useRestore(environment);
-```
-
-## Loading
-
-Removed the Loading management in the QueryRenderer, now for **web applications without SSR** & **react-native** it is necessary to use the useRestore hook before the QueryRenderer:
+**To be used if relay components are used outside of the QueryRenderer** or **for web applications without SSR & react-native** (
 
 ```
 const isRehydrated = useRestore(environment);
@@ -279,7 +271,8 @@ const isRehydrated = useRestore(environment);
    }
 ```
 
-For SSR web applications there is a native management in the QueryRenderer to correctly manage the DOM returned by the server and restore the environment
+**For SSR web applications there is a native management in the QueryRenderer to correctly manage the DOM returned by the server and restore the environment**
+
 
 ## fetchQuery
 
