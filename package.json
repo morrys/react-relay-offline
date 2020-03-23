@@ -20,11 +20,12 @@
   },
   "scripts": {
     "clean": "rimraf lib/*",
-    "prepare": "npm run build",
-    "build": "npm run clean && tsc",
+    "compile": "npm run clean && tsc",
+    "build": "npm run compile && npm run test",
     "format": "prettier --write \"src/**/*.{j,t}s*\"",
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
