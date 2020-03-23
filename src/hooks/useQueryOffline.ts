@@ -59,8 +59,7 @@ const useQueryOffline = function <TOperationType extends OperationType>(
         },
         (environment, query) => environment.retain(query.root, { ttl }), // TODO new directive
     );
-    
-    
+
     const current = {
         ...others,
         ...ref.current,
