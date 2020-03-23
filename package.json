@@ -31,6 +31,9 @@
     "@babel/runtime": "^7.0.0",
     "@wora/relay-offline": "^2.1.0",
     "@wora/detect-network": "^1.3.0",
+    "@wora/cache-persist": "^2.0.4",
+    "@wora/offline-first": "^2.0.4",
+    "@wora/relay-store": "^2.0.3",
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
@@ -38,12 +41,10 @@
   },
   "peerDependencies": {
     "react": ">=16.9.0",
-    "react-relay": ">=7.0.0"
+    "react-relay": ">=7.0.0",
+    "relay-runtime": "^7.0.0"
   },
   "devDependencies": {
-    "@wora/cache-persist": "^2.0.4",
-    "@wora/offline-first": "^2.0.4",
-    "@wora/relay-store": "^2.0.3",
     "@react-native-community/netinfo": "3.2.1",
     "@types/jest": "24.0.18",
     "@types/node": "13.9.3",
