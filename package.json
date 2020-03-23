@@ -41,6 +41,9 @@
     "react-relay": ">=7.0.0"
   },
   "devDependencies": {
+    "@wora/cache-persist": "^2.0.4",
+    "@wora/offline-first": "^2.0.4",
+    "@wora/relay-store": "^2.0.3",
     "@react-native-community/netinfo": "3.2.1",
     "@types/jest": "24.0.18",
     "@types/node": "13.9.3",
@@ -69,6 +72,7 @@
     "react": "16.10.2",
     "react-native": "0.59.9",
     "react-relay": "^7.1.0",
+    "relay-runtime": "^7.1.0",
     "react-test-renderer": "16.10.2",
     "relay-test-utils-internal": "7.1.0",
     "relay-test-utils": "7.1.0",
