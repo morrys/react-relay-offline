@@ -57,12 +57,14 @@ const QueryRendererHook = props => {
     query,
     variables,
     cacheConfig,
-    fetchKey
+        fetchKey,
+        skip
   } = props;
   const { cached, ...relays } = useQuery(query, variables, {
     networkCacheConfig: cacheConfig,
     fetchPolicy,
-    //fetchKey
+        fetchKey,
+        skip
   });
 
   return <React.Fragment>{render(relays)}</React.Fragment>;
@@ -154,6 +156,58 @@ describe("ReactRelayQueryRenderer", () => {
   });
 
   describe("when initialized", () => {
+
+
+
+        it("skip", () => {
+            const renderer = ReactTestRenderer.create(
+                <PropsSetter>
+                    <ReactRelayQueryRenderer
+                        query={TestQuery}
+                        cacheConfig={cacheConfig}
+                        environment={environment}
+                        render={render}
+                        variables={variables}
+                        skip={true}
+                    />
+                </PropsSetter>
+            );
+            expect(environment.execute.mock.calls.length).toBe(0);
+            environment.mockClear();
+            render.mockClear();
+
+            renderer.getInstance().setProps({
+                environment,
+                query: TestQuery,
+                render,
+                variables,
+                skip: false
+            });
+
+            expect(environment.execute.mock.calls.length).toBe(1);
+            render.mockClear();
+            environment.mock.resolve(TestQuery, response);
+            const owner = createOperationDescriptor(TestQuery, variables);
+            expect({
+                error: null,
+                props: {
+                    node: {
+                        id: '4',
+
+                        __fragments: {
+                            TestFragment: {},
+                        },
+
+                        __fragmentOwner: owner.request,
+                        __id: '4',
+                    },
+                },
+                rehydrated: true,
+                retry: expect.any(Function),
+            }).toBeRendered();
+
+        });
+
     it("fetches the query", () => {
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
@@ -844,16 +898,24 @@ describe("ReactRelayQueryRenderer", () => {
       render.mockClear();
 
       // Update with a different query
-      TestQuery = { ...TestQuery };
+                const { NextQuery } = generateAndCompile(`
+      query NextQuery($id: ID!) {
+        node(id: $id) {
+          ... on User {
+            name
+          }
+        }
+      }
+    `);
       renderer.getInstance().setProps({
         cacheConfig,
         environment,
-        query: TestQuery,
+                    query: NextQuery,
         render,
         variables
       });
       expect(
-        environment.mock.isLoading(TestQuery, variables, cacheConfig)
+                    environment.mock.isLoading(NextQuery, variables, cacheConfig)
       ).toBe(true);
       expect({
         error: null,
@@ -1134,11 +1196,11 @@ describe("ReactRelayQueryRenderer", () => {
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
       environment.mock.resolve(NextQuery, response);
-      expect(environment.retain.mock.calls[0][0].dataID).toBe("client:root"); 
-      expect(environment.retain.mock.calls[0][0].node).toBe(
+            expect(environment.retain.mock.calls[0][0].root.dataID).toBe("client:root");
+            expect(environment.retain.mock.calls[0][0].root.node).toBe(
         NextQuery.operation
       );
-      expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
+            expect(environment.retain.mock.calls[0][0].root.variables).toEqual(variables);
     });
 
     it("renders a pending state", () => {
@@ -1212,11 +1274,11 @@ describe("ReactRelayQueryRenderer", () => {
         }
       });
       expect(environment.retain.mock.calls.length).toBe(1);
-      expect(environment.retain.mock.calls[0][0].dataID).toBe("client:root");
-      expect(environment.retain.mock.calls[0][0].node).toBe(
+            expect(environment.retain.mock.calls[0][0].root.dataID).toBe("client:root");
+            expect(environment.retain.mock.calls[0][0].root.node).toBe(
         NextQuery.operation
       );
-      expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
+            expect(environment.retain.mock.calls[0][0].root.variables).toEqual(variables);
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });
 
@@ -1309,11 +1371,11 @@ describe("ReactRelayQueryRenderer", () => {
         }
       });
       expect(environment.retain).toBeCalled();
-      expect(environment.retain.mock.calls[0][0].dataID).toBe("client:root");
-      expect(environment.retain.mock.calls[0][0].node).toBe(
+            expect(environment.retain.mock.calls[0][0].root.dataID).toBe("client:root");
+            expect(environment.retain.mock.calls[0][0].root.node).toBe(
         NextQuery.operation
       );
-      expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
+            expect(environment.retain.mock.calls[0][0].root.variables).toEqual(variables);
       expect(prevDispose).toBeCalled();
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });

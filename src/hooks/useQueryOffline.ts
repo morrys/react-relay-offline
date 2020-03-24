@@ -13,6 +13,8 @@ const useQueryOffline = function <TOperationType extends OperationType>(
         fetchPolicy?: FetchPolicy;
         networkCacheConfig?: CacheConfig;
         ttl?: number;
+        skip?: boolean;
+        fetchKey?: string | number;
     } = {},
 ): OfflineRenderProps<TOperationType> {
     const environment = useRelayEnvironment();
@@ -42,7 +44,7 @@ const useQueryOffline = function <TOperationType extends OperationType>(
 
     const queryFetcher = useQueryFetcher();
 
-    const { fetchPolicy, networkCacheConfig, ttl } = options;
+    const { fetchPolicy, networkCacheConfig, ttl, skip, fetchKey } = options;
 
     const { props, error, ...others } = queryFetcher.execute(
         environment,
@@ -50,8 +52,9 @@ const useQueryOffline = function <TOperationType extends OperationType>(
         {
             networkCacheConfig,
             fetchPolicy: rehydrated && environment.isOnline() ? fetchPolicy : STORE_ONLY,
+            skip, fetchKey
         },
-        (environment, query) => environment.retain(query.root, { ttl }), // TODO new directive
+        (environment, query) => environment.retain(query, { ttl }), // TODO new directive
     );
     ref.current = {
         haveProps: !!props,

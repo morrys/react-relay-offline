@@ -48,12 +48,13 @@ const QueryRendererUseRestore = (props): any => {
     </RelayEnvironmentProvider>
 };
 
-function runAllTimersDelay(ttl) {
+function unmount(unmount, ttl) {
     const realDate = Date.now;
     const date = Date.now();
     Date.now = jest.fn(() => date + ttl);
-    jest.runAllTimers();
+    unmount();
     Date.now = realDate;
+    jest.runAllTimers();
 }
 
 describe("ReactRelayQueryRenderer", () => {
@@ -173,9 +174,8 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             const dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceA.unmount();
+            unmount(instanceA.unmount, 1);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(1);
 
             render.mockClear();
             environment.mockClear();
@@ -215,8 +215,7 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             let dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceA.unmount();
-            runAllTimersDelay(1);
+            unmount(instanceA.unmount, 1);
             expect(dispose).toBeCalled();
 
             render.mockClear();
@@ -241,9 +240,9 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceB.unmount();
+            unmount(instanceB.unmount, 200);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(200);
+            //runAllTimersDelay(200);
 
             render.mockClear();
             environment.mockClear();
@@ -286,7 +285,7 @@ describe("ReactRelayQueryRenderer", () => {
             let dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
             instanceA.unmount();
-            runAllTimersDelay(1);
+            unmount(instanceA.unmount, 1);
             expect(dispose).toBeCalled();
 
             render.mockClear();
@@ -312,9 +311,9 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceB.unmount();
+            unmount(instanceB.unmount, 200);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(200);
+            //runAllTimersDelay(200);
 
             render.mockClear();
             environment.mockClear();
@@ -340,9 +339,9 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceC.unmount();
+            unmount(instanceC.unmount, 500);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(500);
+            //runAllTimersDelay(500);
 
             render.mockClear();
             environment.mockClear();
