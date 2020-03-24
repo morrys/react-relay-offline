@@ -1,8 +1,14 @@
 src/
 *.tgz
 tsconfig.json
-.DS_Store
-cache-persist/
+examples/
 website/
 docs/
-.github/
+scripts
+coverage
+__tests__
+__mocks__
+.github
+.eslintrc.js
+.prettierrc
+jest.config.js
