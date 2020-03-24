@@ -321,7 +321,6 @@ describe("ReactRelayQueryRenderer", () => {
             });
 
             it("without useRestore", () => {
-                console.log("inizio")
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -332,13 +331,10 @@ describe("ReactRelayQueryRenderer", () => {
                     />
                 );
                 expect(propsInitialState(owner, false)).toBeRendered();
-                
-                console.log("inizio state")
 
                 render.mockClear();
                 jest.runAllTimers();
                 
-                console.log("timer")
                 expect(propsRestoredState(owner)).toBeRendered();
             });
         });

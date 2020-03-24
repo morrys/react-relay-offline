@@ -172,7 +172,6 @@ describe("ReactRelayQueryRenderer", () => {
       describe("when store does not have snapshot and fetch does not return snapshot", () => {
         it("fetches the query only once, renders loading state", () => {
           environment.mockClear();
-          console.log("inizio 1")
           function Child(props) {
             // NOTE the unstable_yield method will move to the static renderer.
             // When React sync runs we need to update this.
@@ -217,7 +216,6 @@ describe("ReactRelayQueryRenderer", () => {
 
           // Interrupt with higher priority updates
           renderer.unstable_flushSync(() => {
-            console.log("flush sync")
             renderer.update(<Example />);
           });
           expect(environment.execute.mock.calls.length).toBe(1);
@@ -231,7 +229,6 @@ describe("ReactRelayQueryRenderer", () => {
 
       describe("when store has a snapshot", () => {
         it("fetches the query only once, renders snapshot from store", () => {
-          console.log("inizio 2")
           environment.mockClear();
           environment.applyUpdate({
             storeUpdater: _store => {
