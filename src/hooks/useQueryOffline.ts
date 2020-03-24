@@ -16,28 +16,22 @@ const useQueryOffline = function <TOperationType extends OperationType>(
     } = {},
 ): OfflineRenderProps<TOperationType> {
     const environment = useRelayEnvironment();
-    const ref = useRef<{ rehydrated: boolean; error: Error; props: any }>({
-        rehydrated: environment.isRehydrated(),
-        error: null,
-        props: null,
+    const ref = useRef<{ haveProps: boolean }>({
+        haveProps: false,
     });
 
-    const [, forceUpdate] = useState(null);
+    const rehydrated = environment.isRehydrated();
 
-    const { rehydrated } = ref.current;
+    const [, forceUpdate] = useState(null);
 
     if (!rehydrated) {
         environment
             .hydrate()
             .then(() => {
-                const current = {
-                    ...ref.current,
-                    rehydrated: true,
-                    error: null,
-                };
-                const { props } = ref.current;
-                ref.current = current;
-                if (!props) forceUpdate(current);
+                const { haveProps } = ref.current;
+                if (!haveProps) {
+                    forceUpdate(ref.current);
+                }
             })
             .catch((error) => {
                 throw error; //
@@ -59,15 +53,15 @@ const useQueryOffline = function <TOperationType extends OperationType>(
         },
         (environment, query) => environment.retain(query.root, { ttl }), // TODO new directive
     );
-
-    const current = {
+    ref.current = {
+        haveProps: !!props,
+    };
+    return {
         ...others,
-        ...ref.current,
         props,
+        rehydrated,
         error: error,
     };
-    ref.current = current;
-    return current;
 };
 
 export default useQueryOffline;

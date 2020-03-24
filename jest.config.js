@@ -17,7 +17,7 @@ module.exports = {
 
     moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
     testURL: 'http://localhost',
-    testEnvironment: 'node',
+    testEnvironment: 'jsdom',
 
     testMatch: ['<rootDir>/__tests__/*-test.tsx'],
     testPathIgnorePatterns: ['./node_modules/', '/node_modules/', '/lib/', '<rootDir>/lib/', '<rootDir>/node_modules/'],

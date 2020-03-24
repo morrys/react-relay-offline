@@ -325,14 +325,14 @@ describe("ReactRelayQueryRenderer", () => {
         });
       });
   describe("when fetch returns a response synchronously first time", () => {
-    it("fetches the query once, always renders snapshot returned by fetch", () => {
+    it("fetches the query once, always renders snapshot returned by fetch", async () => {
       const fetch = jest.fn().mockReturnValueOnce(response);
       store = new Store(new RecordSource({ storage: createPersistedStorage()}), {storage: createPersistedStorage(), defaultTTL: -1})
       environment = new Environment({
         network: Network.create(fetch),
         store
       });
-
+      await environment.hydrate();
       function Child(props) {
         // NOTE the unstable_yieldValue method will move to the static renderer.
         // When React sync runs we need to update this.
@@ -412,8 +412,9 @@ describe("ReactRelayQueryRenderer", () => {
     });
   });
     describe('when variables change before first result has completed', () => {
-      it('correctly renders data for new variables', () => {
+      it('correctly renders data for new variables', async () => {
         environment = createMockEnvironment();
+        await environment.hydrate();
         let pendingRequests = [];
         jest.spyOn(environment, 'execute').mockImplementation(request => {
           const nextRequest = {request};
@@ -601,13 +602,14 @@ describe("ReactRelayQueryRenderer", () => {
     });
 
 
-    it('skip loading state when request could be resolved synchronously', () => {
+    it('skip loading state when request could be resolved synchronously', async () => {
       const fetch = () => response;
       store = new Store(new RecordSource({ storage: createPersistedStorage()}), {storage: createPersistedStorage(), defaultTTL: -1})
       environment = new Environment({
         network: Network.create(fetch),
         store,
       });
+      await environment.hydrate();
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           query={TestQuery}
@@ -637,7 +639,7 @@ describe("ReactRelayQueryRenderer", () => {
       }).toBeRendered();
     });
 
-    it('skip loading state when request failed synchronously', () => {
+    it('skip loading state when request failed synchronously', async () => {
       const error = new Error('Mock Network Error');
       const fetch = () => error;
       store = new Store(new RecordSource({ storage: createPersistedStorage()}), {storage: createPersistedStorage(), defaultTTL: -1})
@@ -645,6 +647,7 @@ describe("ReactRelayQueryRenderer", () => {
         network: Network.create(fetch),
         store,
       });
+      await environment.hydrate();
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           query={TestQuery}
@@ -747,7 +750,7 @@ describe("ReactRelayQueryRenderer", () => {
       expect(environment.execute).not.toBeCalled();
     });
 
-    it("refetches if the `environment` prop changes", () => {
+    it("refetches if the `environment` prop changes", async () => {
       expect.assertions(4);
       environment.mock.resolve(TestQuery, {
         data: {
@@ -759,6 +762,7 @@ describe("ReactRelayQueryRenderer", () => {
       // Update with a different environment
       environment.mockClear();
       environment = createMockEnvironment();
+      await environment.hydrate();
       renderer.getInstance().setProps({
         environment,
         query: TestQuery,
