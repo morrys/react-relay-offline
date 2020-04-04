@@ -1,30 +1,22 @@
 jest.useFakeTimers();
 
-jest.mock("scheduler", () => require.requireActual("scheduler/unstable_mock"));
+jest.mock('scheduler', () => require.requireActual('scheduler/unstable_mock'));
 
 import * as React from 'react';
 //import * as Scheduler from 'scheduler';
-const Scheduler = require('scheduler')
+const Scheduler = require('scheduler');
 
 //import { ReactRelayContext } from "react-relay";
 
-import { useQuery, RelayEnvironmentProvider, NETWORK_ONLY, Store, RecordSource, Environment, useRestore } from "../src";
+import { useQuery, RelayEnvironmentProvider, NETWORK_ONLY, Store, RecordSource, Environment, useRestore } from '../src';
 
-import ReactTestRenderer from "react-test-renderer";
+import * as ReactTestRenderer from 'react-test-renderer';
 
 //import readContext from "react-relay/lib/readContext";
 
-import {
-    createOperationDescriptor,
-    Network,
-    Observable,
-    REF_KEY, ROOT_ID, ROOT_TYPE
-} from "relay-runtime";
+import { createOperationDescriptor, Network, Observable, REF_KEY, ROOT_ID, ROOT_TYPE } from 'relay-runtime';
 
-import {
-    generateAndCompile,
-    simpleClone
-} from "relay-test-utils-internal";
+import { generateAndCompile, simpleClone } from 'relay-test-utils-internal';
 import { createMockEnvironment } from './RelayModernEnvironmentMock';
 import { createPersistedStorage } from './Utils';
 /*
@@ -38,14 +30,8 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }*/
 
-const QueryRendererHook = props => {
-    const {
-        render,
-        query,
-        variables,
-        cacheConfig,
-        fetchKey
-    } = props;
+const QueryRendererHook = (props) => {
+    const { render, query, variables, cacheConfig, fetchKey } = props;
     const { cached, ...relays } = useQuery(query, variables, {
         networkCacheConfig: cacheConfig,
         //fetchKey
@@ -54,31 +40,32 @@ const QueryRendererHook = props => {
     return <React.Fragment>{render(relays)}</React.Fragment>;
 };
 
-const ReactRelayQueryRenderer = props => (
+const ReactRelayQueryRenderer = (props) => (
     <RelayEnvironmentProvider environment={props.environment}>
         <QueryRendererHook {...props} />
     </RelayEnvironmentProvider>
 );
 
-const NOT_REHYDRATED = "NOT_REHYDRATED";
+const NOT_REHYDRATED = 'NOT_REHYDRATED';
 
 const QueryRendererUseRestore = (props): any => {
-
     const rehydrated = useRestore(props.environment);
     if (!rehydrated) {
         return NOT_REHYDRATED;
     }
 
-    return <RelayEnvironmentProvider environment={props.environment}>
-        <QueryRendererHook {...props} />
-    </RelayEnvironmentProvider>
+    return (
+        <RelayEnvironmentProvider environment={props.environment}>
+            <QueryRendererHook {...props} />
+        </RelayEnvironmentProvider>
+    );
 };
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe("ReactRelayQueryRenderer", () => {
+describe('ReactRelayQueryRenderer', () => {
     let TestQuery;
 
     let cacheConfig;
@@ -89,7 +76,7 @@ describe("ReactRelayQueryRenderer", () => {
     let initialData;
     let owner;
     let onlineGetter;
-    const variables = { id: "4" };
+    const variables = { id: '4' };
     const restoredState = {
         '4': {
             __id: '4',
@@ -108,40 +95,41 @@ describe("ReactRelayQueryRenderer", () => {
             error: null,
             props: {
                 node: {
-                    id: "4",
-                    name: "Zuck",
+                    id: '4',
+                    name: 'Zuck',
 
                     __fragments: {
-                        TestFragment: {}
+                        TestFragment: {},
                     },
 
                     __fragmentOwner: owner.request,
-                    __id: "4"
-                }
+                    __id: '4',
+                },
             },
             rehydrated,
             retry: expect.any(Function),
-        }
-    }
+        };
+    };
     const propsRestoredState = (owner) => {
         return {
             error: null,
             props: {
                 node: {
-                    id: "4",
-                    name: "ZUCK",
+                    id: '4',
+                    name: 'ZUCK',
 
                     __fragments: {
-                        TestFragment: {}
+                        TestFragment: {},
                     },
 
                     __fragmentOwner: owner.request,
-                    __id: "4"
-                }
-            }, rehydrated: true,
+                    __id: '4',
+                },
+            },
+            rehydrated: true,
             retry: expect.any(Function),
-        }
-    }
+        };
+    };
 
     const loadingStateRehydrated = {
         error: null,
@@ -184,7 +172,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(calls.length).toBe(1);
                 expect(calls[0][0]).toEqual(readyState);
                 return { message: '', pass: true };
-            }
+            },
         });
         data = {
             '4': {
@@ -208,17 +196,17 @@ describe("ReactRelayQueryRenderer", () => {
         await Promise.resolve();
     });
 
-    describe("rehydrate the environment when online", () => {
-
-        describe("no initial state", () => {
-
+    describe('rehydrate the environment when online', () => {
+        describe('no initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage() }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(new RecordSource({ storage: createPersistedStorage() }), {
+                    storage: createPersistedStorage(),
+                    defaultTTL: -1,
+                });
                 environment = createMockEnvironment({ store });
             });
 
-
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -226,7 +214,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
@@ -235,7 +223,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(loadingStateRehydrated).toBeRendered();
             });
 
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -243,7 +231,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(loadingStateNotRehydrated).toBeRendered();
 
@@ -252,14 +240,16 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(loadingStateRehydrated).toBeRendered();
             });
         });
-        describe("initial state", () => {
-
+        describe('initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), {
+                    storage: createPersistedStorage(),
+                    defaultTTL: -1,
+                });
                 environment = createMockEnvironment({ store });
             });
 
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -267,7 +257,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
@@ -276,7 +266,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(propsInitialState(owner, true)).toBeRendered();
             });
 
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -284,7 +274,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(propsInitialState(owner, false)).toBeRendered();
 
@@ -295,16 +285,19 @@ describe("ReactRelayQueryRenderer", () => {
             });
         });
 
-        describe("initial state is different from restored state", () => {
-
+        describe('initial state is different from restored state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({
-                    storage: createPersistedStorage(restoredState), initialState: { ...data },
-                }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(
+                    new RecordSource({
+                        storage: createPersistedStorage(restoredState),
+                        initialState: { ...data },
+                    }),
+                    { storage: createPersistedStorage(), defaultTTL: -1 },
+                );
                 environment = createMockEnvironment({ store });
             });
 
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -312,7 +305,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
                 render.mockClear();
@@ -320,7 +313,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(propsRestoredState(owner)).toBeRendered();
             });
 
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -328,26 +321,27 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(propsInitialState(owner, false)).toBeRendered();
 
                 render.mockClear();
                 jest.runAllTimers();
-                
+
                 expect(propsRestoredState(owner)).toBeRendered();
             });
         });
 
-
-        describe(" no initial state, with restored state", () => {
-
+        describe(' no initial state, with restored state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState) }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState) }), {
+                    storage: createPersistedStorage(),
+                    defaultTTL: -1,
+                });
                 environment = createMockEnvironment({ store });
             });
 
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -355,7 +349,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
@@ -364,7 +358,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(propsRestoredState(owner)).toBeRendered();
             });
 
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -372,7 +366,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(loadingStateNotRehydrated).toBeRendered();
 
@@ -383,20 +377,20 @@ describe("ReactRelayQueryRenderer", () => {
         });
     });
 
-    describe("rehydrate the environment when offline", () => {
-
-        describe("no initial state", () => {
-
+    describe('rehydrate the environment when offline', () => {
+        describe('no initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage() }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(new RecordSource({ storage: createPersistedStorage() }), {
+                    storage: createPersistedStorage(),
+                    defaultTTL: -1,
+                });
                 environment = createMockEnvironment({ store });
 
                 onlineGetter = jest.spyOn(window.navigator, 'onLine', 'get');
                 onlineGetter.mockReturnValue(false);
             });
 
-
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -404,7 +398,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
@@ -413,7 +407,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(loadingStateRehydrated).toBeRendered();
             });
 
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -421,7 +415,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(loadingStateNotRehydrated).toBeRendered();
 
@@ -430,14 +424,16 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(loadingStateRehydrated).toBeRendered();
             });
         });
-        describe("initial state", () => {
-
+        describe('initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), {
+                    storage: createPersistedStorage(),
+                    defaultTTL: -1,
+                });
                 environment = createMockEnvironment({ store });
             });
 
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -445,7 +441,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
@@ -454,7 +450,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(propsInitialState(owner, true)).toBeRendered();
             });
 
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -462,7 +458,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(propsInitialState(owner, false)).toBeRendered();
 
@@ -473,14 +469,16 @@ describe("ReactRelayQueryRenderer", () => {
             });
         });
 
-        describe("initial state is different from restored state", () => {
-
+        describe('initial state is different from restored state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState), initialState: { ...data } }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState), initialState: { ...data } }), {
+                    storage: createPersistedStorage(),
+                    defaultTTL: -1,
+                });
                 environment = createMockEnvironment({ store });
             });
 
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -488,7 +486,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
@@ -497,7 +495,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(propsRestoredState(owner)).toBeRendered();
             });
 
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -505,7 +503,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(propsInitialState(owner, false)).toBeRendered();
 
@@ -515,14 +513,16 @@ describe("ReactRelayQueryRenderer", () => {
             });
         });
 
-        describe(" no initial state, with restored state", () => {
-
+        describe(' no initial state, with restored state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState) }), { storage: createPersistedStorage(), defaultTTL: -1 });
+                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState) }), {
+                    storage: createPersistedStorage(),
+                    defaultTTL: -1,
+                });
                 environment = createMockEnvironment({ store });
             });
 
-            it("with useRestore", () => {
+            it('with useRestore', () => {
                 const instance = ReactTestRenderer.create(
                     <QueryRendererUseRestore
                         query={TestQuery}
@@ -530,7 +530,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
@@ -543,7 +543,7 @@ describe("ReactRelayQueryRenderer", () => {
             if the application is offline, the policy is still store-only and since it has not been modified, 
             the execute is not re-executed and the application is still in a loading state. (We want to avoid it, we want recover restored state)
             */
-            it("without useRestore", () => {
+            it('without useRestore', () => {
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -551,7 +551,7 @@ describe("ReactRelayQueryRenderer", () => {
                         environment={environment}
                         render={render}
                         variables={variables}
-                    />
+                    />,
                 );
                 expect(loadingStateNotRehydrated).toBeRendered();
 

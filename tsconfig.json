@@ -7,7 +7,6 @@
         "moduleResolution": "node",
         "noEmitOnError": true,
         "declaration": true,
-        "esModuleInterop": true,
         "lib": [
             "dom",
             "es6",
