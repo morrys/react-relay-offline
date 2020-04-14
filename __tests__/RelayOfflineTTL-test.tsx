@@ -1,62 +1,52 @@
 jest.useFakeTimers();
 
-jest.mock("scheduler", () => require.requireActual("scheduler/unstable_mock"));
+jest.mock('scheduler', () => require.requireActual('scheduler/unstable_mock'));
 
 import * as React from 'react';
-const Scheduler = require('scheduler')
-import { useQuery, RelayEnvironmentProvider, Store, RecordSource, useRestore } from "../src";
-import ReactTestRenderer from "react-test-renderer";
-import {
-    createOperationDescriptor,
-} from "relay-runtime";
+const Scheduler = require('scheduler');
+import { useQuery, RelayEnvironmentProvider, Store, RecordSource, useRestore } from '../src';
+import * as ReactTestRenderer from 'react-test-renderer';
+import { createOperationDescriptor } from 'relay-runtime';
 
-import {
-    generateAndCompile,
-    simpleClone
-} from "relay-test-utils-internal";
+import { generateAndCompile, simpleClone } from 'relay-test-utils-internal';
 import { createMockEnvironment } from './RelayModernEnvironmentMock';
 import { createPersistedStorage } from './Utils';
 
-const QueryRendererHook = props => {
-    const {
-        render,
-        query,
-        variables,
-        cacheConfig,
-        ttl
-    } = props;
+const QueryRendererHook = (props) => {
+    const { render, query, variables, cacheConfig, ttl } = props;
     const { cached, ...relays } = useQuery(query, variables, {
         networkCacheConfig: cacheConfig,
-        ttl
+        ttl,
     });
 
     return <React.Fragment>{render(relays)}</React.Fragment>;
 };
 
-
-const NOT_REHYDRATED = "NOT_REHYDRATED";
+const NOT_REHYDRATED = 'NOT_REHYDRATED';
 
 const QueryRendererUseRestore = (props): any => {
-
     const rehydrated = useRestore(props.environment);
     if (!rehydrated) {
         return NOT_REHYDRATED;
     }
 
-    return <RelayEnvironmentProvider environment={props.environment}>
-        <QueryRendererHook {...props} />
-    </RelayEnvironmentProvider>
+    return (
+        <RelayEnvironmentProvider environment={props.environment}>
+            <QueryRendererHook {...props} />
+        </RelayEnvironmentProvider>
+    );
 };
 
-function runAllTimersDelay(ttl) {
+function unmount(unmount, ttl) {
     const realDate = Date.now;
     const date = Date.now();
     Date.now = jest.fn(() => date + ttl);
-    jest.runAllTimers();
+    unmount();
     Date.now = realDate;
+    jest.runAllTimers();
 }
 
-describe("ReactRelayQueryRenderer", () => {
+describe('ReactRelayQueryRenderer', () => {
     let TestQuery;
 
     let cacheConfig;
@@ -66,27 +56,27 @@ describe("ReactRelayQueryRenderer", () => {
     let data;
     let initialData;
     let owner;
-    const variables = { id: "4" };
+    const variables = { id: '4' };
     const propsInitialState = (owner, rehydrated) => {
         return {
             error: null,
             props: {
                 node: {
-                    id: "4",
-                    name: "Zuck",
+                    id: '4',
+                    name: 'Zuck',
 
                     __fragments: {
-                        TestFragment: {}
+                        TestFragment: {},
                     },
 
                     __fragmentOwner: owner.request,
-                    __id: "4"
-                }
+                    __id: '4',
+                },
             },
             rehydrated,
             retry: expect.any(Function),
-        }
-    }
+        };
+    };
 
     const loadingStateRehydrated = {
         error: null,
@@ -121,7 +111,7 @@ describe("ReactRelayQueryRenderer", () => {
                 expect(calls.length).toBe(1);
                 expect(calls[0][0]).toEqual(readyState);
                 return { message: '', pass: true };
-            }
+            },
         });
         data = {
             '4': {
@@ -145,13 +135,12 @@ describe("ReactRelayQueryRenderer", () => {
         await Promise.resolve();
     });
 
-
-    describe("Time To Live", () => {
-
-
-        it("without TTL", async () => {
-
-            store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), { storage: createPersistedStorage(), defaultTTL: -1 });
+    describe('Time To Live', () => {
+        it('without TTL', async () => {
+            store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), {
+                storage: createPersistedStorage(),
+                defaultTTL: -1,
+            });
             environment = createMockEnvironment({ store });
             await environment.hydrate();
             const instanceA = ReactTestRenderer.create(
@@ -161,7 +150,7 @@ describe("ReactRelayQueryRenderer", () => {
                     environment={environment}
                     render={render}
                     variables={variables}
-                />
+                />,
             );
 
             render.mockClear();
@@ -173,9 +162,8 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             const dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceA.unmount();
+            unmount(instanceA.unmount, 1);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(1);
 
             render.mockClear();
             environment.mockClear();
@@ -186,14 +174,16 @@ describe("ReactRelayQueryRenderer", () => {
                     environment={environment}
                     render={render}
                     variables={variables}
-                />
+                />,
             );
             expect(loadingStateRehydrated).toBeRendered();
         });
 
-        it("with defaultTTL", async () => {
-
-            store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), { storage: createPersistedStorage(), defaultTTL: 100 });
+        it('with defaultTTL', async () => {
+            store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), {
+                storage: createPersistedStorage(),
+                defaultTTL: 100,
+            });
             environment = createMockEnvironment({ store });
             await environment.hydrate();
             const instanceA = ReactTestRenderer.create(
@@ -203,7 +193,7 @@ describe("ReactRelayQueryRenderer", () => {
                     environment={environment}
                     render={render}
                     variables={variables}
-                />
+                />,
             );
 
             render.mockClear();
@@ -215,8 +205,7 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             let dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceA.unmount();
-            runAllTimersDelay(1);
+            unmount(instanceA.unmount, 1);
             expect(dispose).toBeCalled();
 
             render.mockClear();
@@ -228,7 +217,7 @@ describe("ReactRelayQueryRenderer", () => {
                     environment={environment}
                     render={render}
                     variables={variables}
-                />
+                />,
             );
             expect(propsInitialState(owner, true)).toBeRendered();
 
@@ -241,9 +230,9 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceB.unmount();
+            unmount(instanceB.unmount, 200);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(200);
+            //runAllTimersDelay(200);
 
             render.mockClear();
             environment.mockClear();
@@ -254,15 +243,16 @@ describe("ReactRelayQueryRenderer", () => {
                     environment={environment}
                     render={render}
                     variables={variables}
-                />
+                />,
             );
             expect(loadingStateRehydrated).toBeRendered();
         });
 
-
-        it("with custom TTL", async () => {
-
-            store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), { storage: createPersistedStorage(), defaultTTL: 100 });
+        it('with custom TTL', async () => {
+            store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), {
+                storage: createPersistedStorage(),
+                defaultTTL: 100,
+            });
             environment = createMockEnvironment({ store });
             await environment.hydrate();
             const instanceA = ReactTestRenderer.create(
@@ -273,7 +263,7 @@ describe("ReactRelayQueryRenderer", () => {
                     render={render}
                     variables={variables}
                     ttl={500}
-                />
+                />,
             );
 
             render.mockClear();
@@ -286,7 +276,7 @@ describe("ReactRelayQueryRenderer", () => {
             let dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
             instanceA.unmount();
-            runAllTimersDelay(1);
+            unmount(instanceA.unmount, 1);
             expect(dispose).toBeCalled();
 
             render.mockClear();
@@ -299,7 +289,7 @@ describe("ReactRelayQueryRenderer", () => {
                     render={render}
                     variables={variables}
                     ttl={500}
-                />
+                />,
             );
             expect(propsInitialState(owner, true)).toBeRendered();
 
@@ -312,9 +302,9 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceB.unmount();
+            unmount(instanceB.unmount, 200);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(200);
+            //runAllTimersDelay(200);
 
             render.mockClear();
             environment.mockClear();
@@ -326,10 +316,9 @@ describe("ReactRelayQueryRenderer", () => {
                     render={render}
                     variables={variables}
                     ttl={500}
-                />
+                />,
             );
             expect(propsInitialState(owner, true)).toBeRendered();
-
 
             render.mockClear();
             ReactTestRenderer.act(() => {
@@ -340,9 +329,9 @@ describe("ReactRelayQueryRenderer", () => {
             expect(environment.retain.mock.calls.length).toBe(1);
             dispose = environment.retain.mock.dispose;
             expect(dispose).not.toBeCalled();
-            instanceC.unmount();
+            unmount(instanceC.unmount, 500);
             expect(dispose).toBeCalled();
-            runAllTimersDelay(500);
+            //runAllTimersDelay(500);
 
             render.mockClear();
             environment.mockClear();
@@ -354,10 +343,9 @@ describe("ReactRelayQueryRenderer", () => {
                     render={render}
                     variables={variables}
                     ttl={500}
-                />
+                />,
             );
             expect(loadingStateRehydrated).toBeRendered();
         });
-
     });
 });
