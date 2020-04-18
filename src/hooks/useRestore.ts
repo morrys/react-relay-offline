@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function useRestore(environment): boolean {
+export function useRestore(environment): boolean {
     const [rehydratate, setRehydratate] = useState(environment.isRehydrated());
 
     if (!rehydratate) {
@@ -8,5 +8,3 @@ function useRestore(environment): boolean {
     }
     return rehydratate;
 }
-
-export default useRestore;

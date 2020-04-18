@@ -6,7 +6,7 @@ import { CacheConfig } from 'relay-runtime';
 import { OfflineRenderProps } from '../RelayOfflineTypes';
 import { useMemoOperationDescriptor } from 'relay-hooks/lib/useQuery';
 
-const useQueryOffline = function <TOperationType extends OperationType>(
+export const useQueryOffline = function <TOperationType extends OperationType>(
     gqlQuery: GraphQLTaggedNode,
     variables: TOperationType['variables'],
     options: {
@@ -67,5 +67,3 @@ const useQueryOffline = function <TOperationType extends OperationType>(
         error: error,
     };
 };
-
-export default useQueryOffline;

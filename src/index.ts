@@ -48,10 +48,11 @@ export {
     RelayEnvironmentProvider,
 } from 'relay-hooks';
 
-export { default as QueryRenderer } from './QueryRendererOffline';
-export { default as useRestore } from './hooks/useRestore';
-export { default as useQuery } from './hooks/useQueryOffline';
+export { QueryRendererOffline as QueryRenderer } from './QueryRendererOffline';
+export { useRestore } from './hooks/useRestore';
+export { useQueryOffline as useQuery } from './hooks/useQueryOffline';
 export { default as fetchQuery } from './runtime/fetchQuery';
 export { Environment } from '@wora/relay-offline';
 export { Store, RecordSource } from '@wora/relay-store';
-export { NetInfo, useNetInfo, useIsConnected } from '@wora/detect-network';
+export { NetInfo } from '@wora/netinfo';
+export { useNetInfo, useIsConnected } from '@wora/detect-network';

@@ -5,7 +5,7 @@ import * as areEqual from 'fbjs/lib/areEqual';
 import { OfflineRecordCache } from '@wora/offline-first';
 import { Payload } from '@wora/relay-offline';
 
-function useOffline(): ReadonlyArray<OfflineRecordCache<Payload>> {
+export function useOffline(): ReadonlyArray<OfflineRecordCache<Payload>> {
     const ref = useRef();
     const { environment }: RelayContext = useContext(ReactRelayContext);
     const [state, setState] = useState<ReadonlyArray<OfflineRecordCache<Payload>>>(environment.getStoreOffline().getListMutation());
@@ -24,5 +24,3 @@ function useOffline(): ReadonlyArray<OfflineRecordCache<Payload>> {
 
     return state;
 }
-
-export default useOffline;
