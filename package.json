@@ -29,16 +29,16 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
-    "@wora/relay-offline": "^3.1.0",
+    "@wora/relay-offline": "^3.2.0",
     "@wora/netinfo": "^2.0.0",
     "@wora/detect-network": "^2.0.0",
     "@wora/cache-persist": "^2.1.0",
     "@wora/offline-first": "^2.1.0",
-    "@wora/relay-store": "^3.1.0",
+    "@wora/relay-store": "^3.2.0",
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "^3.3.0",
+    "relay-hooks": "^3.4.0",
     "tslib": "^1.11.1"
   },
   "peerDependencies": {
