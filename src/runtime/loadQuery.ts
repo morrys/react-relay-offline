@@ -1,30 +1,26 @@
-import { loadQuery as loadQueryHooks, loadLazyQuery as loadLazyQueryHooks, QueryOptions } from 'relay-hooks';
-import { OperationType, GraphQLTaggedNode } from 'relay-runtime';
-import { LoadQuery } from 'relay-hooks/lib/loadQuery';
+import { LoadQuery, RenderProps } from 'relay-hooks';
+import { internalLoadQuery } from 'relay-hooks/lib/loadQuery';
+import { QueryFetcher } from 'relay-hooks/lib/QueryFetcher';
+import { OperationType, OperationDescriptor } from 'relay-runtime';
+import { QueryOptionsOffline } from '../RelayOfflineTypes';
+import { Environment } from '@wora/relay-offline';
 
-const internalLoadQuery = <TOperationType extends OperationType = OperationType>(
-    loadQuery: LoadQuery<TOperationType>,
-): LoadQuery<TOperationType> => {
-    const originalNext = loadQuery.next;
-    // eslint-disable-next-line space-before-function-paren
-    loadQuery.next = function (
-        environment,
-        gqlQuery: GraphQLTaggedNode,
-        variables: TOperationType['variables'] = {},
-        options: QueryOptions = {},
-    ): Promise<void> {
-        if (!environment.isOnline()) {
-            options.fetchPolicy = 'store-only';
-        }
-        return originalNext.apply(this, [environment, gqlQuery, variables, options]);
-    };
-    return loadQuery;
+const queryExecute = <TOperationType extends OperationType = OperationType>(
+    queryFetcher: QueryFetcher<TOperationType>,
+    environment: Environment,
+    query: OperationDescriptor,
+    options: QueryOptionsOffline,
+): RenderProps<TOperationType> => {
+    if (!environment.isOnline()) {
+        options.fetchPolicy = 'store-only';
+    }
+    return queryFetcher.execute(environment, query, options, (environment, query) => environment.retain(query, { ttl: options.ttl }));
 };
 
-export const loadLazyQuery = <TOperationType extends OperationType = OperationType>(): LoadQuery<TOperationType> => {
-    return internalLoadQuery(loadLazyQueryHooks());
+export const loadLazyQuery = <TOperationType extends OperationType = OperationType>(): LoadQuery<TOperationType, Environment> => {
+    return internalLoadQuery(true, queryExecute);
 };
 
-export const loadQuery = <TOperationType extends OperationType = OperationType>(): LoadQuery<TOperationType> => {
-    return internalLoadQuery(loadQueryHooks());
+export const loadQuery = <TOperationType extends OperationType = OperationType>(): LoadQuery<TOperationType, Environment> => {
+    return internalLoadQuery(false, queryExecute);
 };

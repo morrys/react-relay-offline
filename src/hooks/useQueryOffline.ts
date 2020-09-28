@@ -1,23 +1,16 @@
 import { useState, useRef } from 'react';
-import { useRelayEnvironment, useQueryFetcher } from 'relay-hooks';
+import { useRelayEnvironment, useQueryFetcher, STORE_ONLY } from 'relay-hooks';
 import { OperationType, GraphQLTaggedNode } from 'relay-runtime';
-import { STORE_ONLY, FetchPolicy } from 'relay-hooks/lib//RelayHooksType';
-import { CacheConfig } from 'relay-runtime';
-import { OfflineRenderProps } from '../RelayOfflineTypes';
+import { OfflineRenderProps, QueryOptionsOffline } from '../RelayOfflineTypes';
 import { useMemoOperationDescriptor } from 'relay-hooks/lib/useQuery';
+import { Environment } from '@wora/relay-offline';
 
 export const useQueryOffline = function <TOperationType extends OperationType>(
     gqlQuery: GraphQLTaggedNode,
     variables: TOperationType['variables'],
-    options: {
-        fetchPolicy?: FetchPolicy;
-        networkCacheConfig?: CacheConfig;
-        ttl?: number;
-        skip?: boolean;
-        fetchKey?: string | number;
-    } = {},
+    options: QueryOptionsOffline = {},
 ): OfflineRenderProps<TOperationType> {
-    const environment = useRelayEnvironment();
+    const environment = useRelayEnvironment<Environment>();
     const ref = useRef<{ haveProps: boolean }>({
         haveProps: false,
     });
@@ -44,7 +37,7 @@ export const useQueryOffline = function <TOperationType extends OperationType>(
 
     const queryFetcher = useQueryFetcher();
 
-    const { fetchPolicy, networkCacheConfig, ttl, skip, fetchKey } = options;
+    const { fetchPolicy, networkCacheConfig, ttl, skip, fetchKey, fetchObserver } = options;
 
     const { props, error, ...others } = queryFetcher.execute(
         environment,
@@ -54,6 +47,7 @@ export const useQueryOffline = function <TOperationType extends OperationType>(
             fetchPolicy: rehydrated && environment.isOnline() ? fetchPolicy : STORE_ONLY,
             skip,
             fetchKey,
+            fetchObserver,
         },
         (environment, query) => environment.retain(query, { ttl }), // TODO new directive
     );

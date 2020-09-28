@@ -1,6 +1,7 @@
+import { Environment } from '@wora/relay-offline';
 import { useState } from 'react';
 
-export function useRestore(environment): boolean {
+export function useRestore(environment: Environment): boolean {
     const [rehydratate, setRehydratate] = useState(environment.isRehydrated());
 
     if (!rehydratate) {
