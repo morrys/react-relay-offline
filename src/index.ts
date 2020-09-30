@@ -50,6 +50,7 @@ export {
 
 export { QueryRendererOffline as QueryRenderer } from './QueryRendererOffline';
 export { useRestore } from './hooks/useRestore';
+export { loadQuery, loadLazyQuery } from './runtime/loadQuery';
 export { useQueryOffline as useQuery } from './hooks/useQueryOffline';
 export { useLazyLoadQueryOffline as useLazyLoadQuery } from './hooks/useLazyLoadQueryOffline';
 export { Environment, fetchQuery } from '@wora/relay-offline';
