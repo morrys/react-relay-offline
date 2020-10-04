@@ -57,3 +57,4 @@ export { Environment, fetchQuery } from '@wora/relay-offline';
 export { Store, RecordSource } from '@wora/relay-store';
 export { NetInfo } from '@wora/netinfo';
 export { useNetInfo, useIsConnected } from '@wora/detect-network';
+export * from './RelayOfflineTypes';
