@@ -23,12 +23,14 @@ export const useLazyLoadQueryOffline = function <TOperationType extends Operatio
 
     const { fetchPolicy, networkCacheConfig, ttl, skip, fetchKey, fetchObserver } = options;
 
+    const online = environment.isOnline();
+
     const { props, error, ...others } = queryFetcher.execute(
         environment,
         query,
         {
             networkCacheConfig,
-            fetchPolicy: rehydrated && environment.isOnline() ? fetchPolicy : STORE_ONLY,
+            fetchPolicy: rehydrated && online ? fetchPolicy : STORE_ONLY,
             skip,
             fetchKey,
             fetchObserver,
@@ -56,5 +58,6 @@ export const useLazyLoadQueryOffline = function <TOperationType extends Operatio
         props,
         rehydrated,
         error: error,
+        online,
     };
 };

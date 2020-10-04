@@ -184,6 +184,8 @@ describe('ReactRelayQueryRenderer', () => {
                     },
                 },
                 rehydrated: true,
+                online: true,
+                online: true,
                 retry: expect.any(Function),
             }).toBeRendered();
         });
@@ -242,7 +244,8 @@ describe('ReactRelayQueryRenderer', () => {
                         error: null,
                         props: null,
                         retry: expect.any(Function),
-                        rehydrated: true, // added
+                        rehydrated: true,
+                        online: true, // added
                     }).toBeRendered();
                     expect(environment.execute.mock.calls.length).toBe(1);
                     render.mockClear();
@@ -256,7 +259,8 @@ describe('ReactRelayQueryRenderer', () => {
                         error: null,
                         props: null,
                         retry: expect.any(Function),
-                        rehydrated: true, // added
+                        rehydrated: true,
+                        online: true, // added
                     }).toBeRendered();
                 });
             });
@@ -326,6 +330,7 @@ describe('ReactRelayQueryRenderer', () => {
                             },
                         },
                         rehydrated: true,
+                        online: true,
                         retry: expect.any(Function),
                     }).toBeRendered();
                     expect(environment.execute.mock.calls.length).toBe(1);
@@ -351,6 +356,7 @@ describe('ReactRelayQueryRenderer', () => {
                             },
                         },
                         rehydrated: true,
+                        online: true,
                         retry: expect.any(Function),
                     }).toBeRendered();
                 });
@@ -416,6 +422,7 @@ describe('ReactRelayQueryRenderer', () => {
                             },
                         },
                         rehydrated: true,
+                        online: true,
                         retry: expect.any(Function),
                     }).toBeRendered();
                     expect(fetch.mock.calls.length).toBe(1);
@@ -441,6 +448,7 @@ describe('ReactRelayQueryRenderer', () => {
                             },
                         },
                         rehydrated: true,
+                        online: true,
                         retry: expect.any(Function),
                     }).toBeRendered();
                 });
@@ -494,6 +502,7 @@ describe('ReactRelayQueryRenderer', () => {
                             },
                         },
                         rehydrated: true,
+                        online: true,
                         retry: expect.any(Function),
                     }).toBeRendered();
                     render.mockClear();
@@ -554,6 +563,7 @@ describe('ReactRelayQueryRenderer', () => {
                             },
                         },
                         rehydrated: true,
+                        online: true,
                         retry: expect.any(Function),
                     });
                 });
@@ -587,7 +597,8 @@ describe('ReactRelayQueryRenderer', () => {
                     error: null,
                     props: null,
                     retry: expect.any(Function),
-                    rehydrated: true, // added,
+                    rehydrated: true,
+                    online: true, // added,
                 }).toBeRendered();
             });
 
@@ -630,6 +641,7 @@ describe('ReactRelayQueryRenderer', () => {
                         },
                     },
                     rehydrated: true,
+                    online: true,
                     retry: expect.any(Function),
                 }).toBeRendered();
             });
@@ -670,6 +682,7 @@ describe('ReactRelayQueryRenderer', () => {
                         },
                     },
                     rehydrated: true,
+                    online: true,
                     retry: expect.any(Function),
                 }).toBeRendered();
             });
@@ -699,6 +712,7 @@ describe('ReactRelayQueryRenderer', () => {
                     error: error,
                     props: null,
                     rehydrated: true,
+                    online: true,
                     retry: expect.any(Function),
                 }).toBeRendered();
             });
@@ -770,6 +784,7 @@ describe('ReactRelayQueryRenderer', () => {
                     error: null,
                     props: null,
                     rehydrated: true,
+                    online: true,
                     retry: expect.any(Function),
                 };
                 expect(readyState).toBeRendered();
@@ -800,7 +815,8 @@ describe('ReactRelayQueryRenderer', () => {
                     error: null,
                     props: null,
                     retry: expect.any(Function),
-                    rehydrated: true, // added,
+                    rehydrated: true,
+                    online: true, // added,
                 }).toBeRendered();
             });
 
@@ -827,7 +843,8 @@ describe('ReactRelayQueryRenderer', () => {
                     error: null,
                     props: null,
                     retry: expect.any(Function),
-                    rehydrated: true, // added,
+                    rehydrated: true,
+                    online: true, // added,
                 }).toBeRendered();
             });
 
@@ -855,7 +872,8 @@ describe('ReactRelayQueryRenderer', () => {
                     error: null,
                     props: null,
                     retry: expect.any(Function),
-                    rehydrated: true, // added,
+                    rehydrated: true,
+                    online: true, // added,
                 }).toBeRendered();
             });
 
@@ -891,7 +909,8 @@ describe('ReactRelayQueryRenderer', () => {
                     error: null,
                     props: null,
                     retry: expect.any(Function),
-                    rehydrated: true, // added,
+                    rehydrated: true,
+                    online: true, // added,
                 }).toBeRendered();
             });
         });
@@ -920,6 +939,7 @@ describe('ReactRelayQueryRenderer', () => {
                 error,
                 props: null,
                 rehydrated: true,
+                online: true,
                 retry: expect.any(Function),
             }).toBeRendered();
         });
@@ -953,6 +973,7 @@ describe('ReactRelayQueryRenderer', () => {
                     },
                 },
                 rehydrated: true,
+                online: true,
                 retry: expect.any(Function),
             }).toBeRendered();
         });
@@ -1011,6 +1032,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 },
                             },
                             rehydrated: true,
+                            online: true,
                             retry: expect.any(Function),
                         },
                     ],
@@ -1032,6 +1054,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 },
                             },
                             rehydrated: true,
+                            online: true,
                             retry: expect.any(Function),
                         },
                     ],
@@ -1082,6 +1105,7 @@ describe('ReactRelayQueryRenderer', () => {
                     },
                 },
                 rehydrated: true,
+                online: true,
                 retry: expect.any(Function),
             }).toBeRendered();
         });
@@ -1157,7 +1181,8 @@ describe('ReactRelayQueryRenderer', () => {
                 error: null,
                 props: null,
                 retry: expect.any(Function),
-                rehydrated: true, // added,
+                rehydrated: true,
+                online: true, // added,
             }).toBeRendered();
         });
     });
@@ -1224,7 +1249,8 @@ describe('ReactRelayQueryRenderer', () => {
                 error: null,
                 props: null,
                 retry: expect.any(Function),
-                rehydrated: true, // added,
+                rehydrated: true,
+                online: true, // added,
             }).toBeRendered();
         });
 
@@ -1315,7 +1341,8 @@ describe('ReactRelayQueryRenderer', () => {
                 error: null,
                 props: null,
                 retry: expect.any(Function),
-                rehydrated: true, // added,
+                rehydrated: true,
+                online: true, // added,
             }).toBeRendered();
         });
 

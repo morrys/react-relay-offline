@@ -1,8 +1,7 @@
-import { LoadQuery, RenderProps } from 'relay-hooks';
 import { internalLoadQuery } from 'relay-hooks/lib/loadQuery';
 import { QueryFetcher } from 'relay-hooks/lib/QueryFetcher';
 import { OperationType, OperationDescriptor } from 'relay-runtime';
-import { QueryOptionsOffline } from '../RelayOfflineTypes';
+import { OfflineLoadQuery, OfflineRenderProps, QueryOptionsOffline } from '../RelayOfflineTypes';
 import { Environment } from '@wora/relay-offline';
 
 const queryExecute = <TOperationType extends OperationType = OperationType>(
@@ -10,17 +9,24 @@ const queryExecute = <TOperationType extends OperationType = OperationType>(
     environment: Environment,
     query: OperationDescriptor,
     options: QueryOptionsOffline,
-): RenderProps<TOperationType> => {
-    if (!environment.isOnline()) {
+): OfflineRenderProps<TOperationType> => {
+    const online = environment.isOnline();
+    const rehydrated = environment.isRehydrated();
+    if (!online) {
         options.fetchPolicy = 'store-only';
     }
-    return queryFetcher.execute(environment, query, options, (environment, query) => environment.retain(query, { ttl: options.ttl }));
+    const data = queryFetcher.execute(environment, query, options, (environment, query) => environment.retain(query, { ttl: options.ttl }));
+    return {
+        ...data,
+        online,
+        rehydrated,
+    };
 };
 
-export const loadLazyQuery = <TOperationType extends OperationType = OperationType>(): LoadQuery<TOperationType, Environment> => {
-    return internalLoadQuery(true, queryExecute);
+export const loadLazyQuery = <TOperationType extends OperationType = OperationType>(): OfflineLoadQuery<TOperationType, Environment> => {
+    return internalLoadQuery(true, queryExecute) as OfflineLoadQuery<TOperationType, Environment>;
 };
 
-export const loadQuery = <TOperationType extends OperationType = OperationType>(): LoadQuery<TOperationType, Environment> => {
-    return internalLoadQuery(false, queryExecute);
+export const loadQuery = <TOperationType extends OperationType = OperationType>(): OfflineLoadQuery<TOperationType, Environment> => {
+    return internalLoadQuery(false, queryExecute) as OfflineLoadQuery<TOperationType, Environment>;
 };

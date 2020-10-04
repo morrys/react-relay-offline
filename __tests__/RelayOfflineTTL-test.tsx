@@ -57,7 +57,7 @@ describe('ReactRelayQueryRenderer', () => {
     let initialData;
     let owner;
     const variables = { id: '4' };
-    const propsInitialState = (owner, rehydrated) => {
+    const propsInitialState = (owner, rehydrated, online = rehydrated) => {
         return {
             error: null,
             props: {
@@ -74,6 +74,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
             },
             rehydrated,
+            online,
             retry: expect.any(Function),
         };
     };
@@ -82,6 +83,7 @@ describe('ReactRelayQueryRenderer', () => {
         error: null,
         props: null,
         rehydrated: true,
+        online: true,
         retry: expect.any(Function),
         // @ts-ignore
     };

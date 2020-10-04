@@ -39,12 +39,14 @@ export const useQueryOffline = function <TOperationType extends OperationType>(
 
     const { fetchPolicy, networkCacheConfig, ttl, skip, fetchKey, fetchObserver } = options;
 
+    const online = environment.isOnline();
+
     const { props, error, ...others } = queryFetcher.execute(
         environment,
         query,
         {
             networkCacheConfig,
-            fetchPolicy: rehydrated && environment.isOnline() ? fetchPolicy : STORE_ONLY,
+            fetchPolicy: rehydrated && online ? fetchPolicy : STORE_ONLY,
             skip,
             fetchKey,
             fetchObserver,
@@ -59,5 +61,6 @@ export const useQueryOffline = function <TOperationType extends OperationType>(
         props,
         rehydrated,
         error: error,
+        online,
     };
 };
