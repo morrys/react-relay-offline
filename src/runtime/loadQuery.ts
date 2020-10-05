@@ -23,10 +23,10 @@ const queryExecute = <TOperationType extends OperationType = OperationType>(
     };
 };
 
-export const loadLazyQuery = <TOperationType extends OperationType = OperationType>(): OfflineLoadQuery<TOperationType, Environment> => {
-    return internalLoadQuery(true, queryExecute) as OfflineLoadQuery<TOperationType, Environment>;
+export const loadLazyQuery = (): OfflineLoadQuery => {
+    return internalLoadQuery(true, queryExecute) as OfflineLoadQuery;
 };
 
-export const loadQuery = <TOperationType extends OperationType = OperationType>(): OfflineLoadQuery<TOperationType, Environment> => {
-    return internalLoadQuery(false, queryExecute) as OfflineLoadQuery<TOperationType, Environment>;
+export const loadQuery = (): OfflineLoadQuery => {
+    return internalLoadQuery(false, queryExecute) as OfflineLoadQuery;
 };

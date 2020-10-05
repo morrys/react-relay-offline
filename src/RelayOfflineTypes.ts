@@ -1,4 +1,4 @@
-import { OperationType, CacheConfig, GraphQLTaggedNode, Observer, Snapshot, IEnvironment } from 'relay-runtime';
+import { OperationType, CacheConfig, GraphQLTaggedNode, Observer, Snapshot } from 'relay-runtime';
 import { FetchPolicy, RenderProps, QueryOptions, LoadQuery } from 'relay-hooks';
 import { Environment } from '@wora/relay-offline';
 
@@ -15,9 +15,16 @@ export interface OfflineRenderProps<T extends OperationType> extends RenderProps
     online: boolean;
 }
 
-export interface OfflineLoadQuery<TOperationType extends OperationType = OperationType, TEnvironment extends IEnvironment = IEnvironment>
-    extends LoadQuery<TOperationType, TEnvironment> {
-    getValue: (environment?: TEnvironment) => OfflineRenderProps<TOperationType> | Promise<any>;
+export interface OfflineLoadQuery extends LoadQuery {
+    getValue: <TOperationType extends OperationType = OperationType>(
+        environment?: Environment,
+    ) => OfflineRenderProps<TOperationType> | Promise<any>;
+    next: <TOperationType extends OperationType>(
+        environment: Environment,
+        gqlQuery: GraphQLTaggedNode,
+        variables?: TOperationType['variables'],
+        options?: QueryOptions,
+    ) => Promise<void>;
 }
 
 export interface QueryProps<T extends OperationType> {
