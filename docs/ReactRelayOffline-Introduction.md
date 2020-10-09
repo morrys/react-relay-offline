@@ -261,8 +261,11 @@ import { QueryRenderer } from 'react-relay-offline';
 
 ## useRestore & loading
 
-the **useRestore** hook allows you to manage the restore of data persisted in the storage.
-**To be used if relay components are used outside of the QueryRenderer** or **for web applications without SSR & react-native** (
+the **useRestore** hook allows you to manage the hydratation of persistent data in memory and to initialize the environment.
+
+**It must always be used before using environement in web applications without SSR & react legacy & react-native.**
+
+**Otherwise, for SSR and react concurrent applications the restore is natively managed by useQueryLazyLoad & useQuery.**
 
 ```
 const isRehydrated = useRestore(environment);
@@ -291,11 +294,11 @@ import { useNetInfo } from "react-relay-offline";
 import { NetInfo } from "react-relay-offline";
 ```
 
-## Hooks & useQuery
+## Supports Hooks from relay-hooks
 
 Now you can use hooks (useFragment, usePagination, useRefetch) from [relay-hooks](https://github.com/relay-tools/relay-hooks)
 
-while it is necessary to use `useQuery` of react-relay-offline to manage the offline.
+## useQuery
 
 ```ts
 import { useQuery } from "react-relay-offline";
@@ -306,9 +309,83 @@ const hooksProps = useQuery(query, variables, {
 });
 ```
 
+## useLazyLoadQuery
+
+```ts
+import { useQuery } from "react-relay-offline";
+const hooksProps = useLazyLoadQuery(query, variables, {
+  networkCacheConfig: cacheConfig,
+  fetchPolicy,
+  ttl
+});
+```
+
+## render-as-you-fetch & usePreloadedQuery
+
+### loadQuery
+
+* input parameters
+
+same as useQuery + environment
+
+* output parameters
+  * 
+    `next: <TOperationType extends OperationType>(
+        environment: Environment,
+        gqlQuery: GraphQLTaggedNode,
+        variables?: TOperationType['variables'],
+        options?: QueryOptions,
+    ) => Promise<void>`:  fetches data. A promise returns to allow the await in case of SSR
+  * `dispose: () => void`: cancel the subscription and dispose of the fetch
+  * `subscribe: (callback: (value: any) => any) => () => void`:  used by the usePreloadedQuery
+  * `getValue <TOperationType>(environment?: Environment,) => OfflineRenderProps<TOperationType> | Promise<any>`:  used by the usePreloadedQuery
+
+```ts
+import {graphql, loadQuery} from 'react-relay-offline';
+import {environment} from ''./environment';
+
+const query = graphql`
+  query AppQuery($id: ID!) {
+    user(id: $id) {
+      name
+    }
+  }
+`;
+
+const prefetch = loadQuery();
+prefetch.next(
+  environment,
+  query,
+  {id: '4'},
+  {fetchPolicy: 'store-or-network'},
+);
+// pass prefetch to usePreloadedQuery()
+```
+
+### loadLazyQuery
+
+**is the same as loadQuery but must be used with suspense**
+
+### render-as-you-fetch in SSR
+
+In SSR contexts, **not using the useRestore hook** it is necessary to manually invoke the hydrate but without using the await.
+
+This will allow the usePreloadedQuery hook to correctly retrieve the data from the store and once the hydration is done it will be react-relay-offline
+
+to notify any updated data in the store.
+
+```ts
+  if (!environment.isRehydrated() && ssr) {
+      environment.hydrate().then(() => {}).catch((error) => {});
+  }
+  prefetch.next(environment, QUERY_APP, variables, {
+         fetchPolicy: NETWORK_ONLY,
+  });
+```
+
 ## Requirement
 
-- Version >=6.0.0 of the react-relay library
+- Version >=8.0.0 of the react-relay library
 - When a new node is created by mutation the id must be generated in the browser to use it in the optimistic response
 
 ## License
