@@ -77,39 +77,20 @@ You then need to link the native parts of the library for the platforms you are 
 
 <a href="https://memorangapp.com" target="_blank"><img height=40px src="https://github.com/morrys/react-relay-offline/raw/master/docs/assets/memorang-logo.png" alt="Memorang">
 
-## React Web Example
+## react-relay-offline examples
 
-The [react-relay-offline-examples](https://github.com/morrys/react-relay-offline-example) repository contains an integration of react-relay-offline. To try it out:
+The [offline-examples](https://github.com/morrys/offline-examples) repository contains example projects on how to use react-relay-offline:
 
-```
-git clone https://github.com/morrys/react-relay-offline-example.git
-cd react-relay-offline-example/todo
-yarn
-yarn build
-yarn start
-```
+  * `nextjs-ssr-preload`: using the render-as-you-fetch pattern with loadQuery in SSR contexts
+  * `nextjs`: using the QueryRenderer in SSR contexts
+  * `react-native/todo-updater`: using QueryRender in an RN application
+  * `todo-updater`: using the QueryRender
+  * `suspense/cra`: using useLazyLoadQuery in a CRA
+  * `suspense/nextjs-ssr-preload`: using the render-as-you-fetch pattern with loadLazyQuery in react concurrent + SSR contexts
+  * `suspense/nextjs-ssr`: using useLazyLoadQuery in SSR contexts
 
-Then, just point your browser at `http://localhost:3000`.
+To try it out!
 
-or
-
-```
-git clone https://github.com/morrys/react-relay-offline-example.git
-cd react-relay-offline-example/todo-updater
-yarn
-yarn build
-yarn start
-```
-
-Then, just point your browser at `http://localhost:3000`.
-
-## React NextJS Offline SSR Example
-
-The [React NextJS Offline SSR Example](https://github.com/morrys/offline-examples/tree/master/relay/nextjs)
-
-## React Native Example
-
-The [react native offline example](https://github.com/morrys/offline-examples#react-native)
 
 ## Environment
 
