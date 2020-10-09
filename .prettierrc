@@ -4,5 +4,6 @@
   "trailingComma": "all",
   "arrowParens": "always",
   "printWidth": 140,
-  "parser": "typescript"
+  "parser": "typescript",
+  "endOfLine": "auto"
 }

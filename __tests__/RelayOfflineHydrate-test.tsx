@@ -90,7 +90,7 @@ describe('ReactRelayQueryRenderer', () => {
             'node(id:"4")': { __ref: '4' },
         },
     };
-    const propsInitialState = (owner, rehydrated) => {
+    const propsInitialState = (owner, rehydrated, online = rehydrated) => {
         return {
             error: null,
             props: {
@@ -107,10 +107,11 @@ describe('ReactRelayQueryRenderer', () => {
                 },
             },
             rehydrated,
+            online
             retry: expect.any(Function),
         };
     };
-    const propsRestoredState = (owner) => {
+    const propsRestoredState = (owner, online = true) => {
         return {
             error: null,
             props: {
@@ -127,6 +128,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
             },
             rehydrated: true,
+            online,
             retry: expect.any(Function),
         };
     };
@@ -135,6 +137,16 @@ describe('ReactRelayQueryRenderer', () => {
         error: null,
         props: null,
         rehydrated: true,
+        online: true,
+        retry: expect.any(Function),
+        // @ts-ignore
+    };
+
+    const loadingStateRehydratedOffline = {
+        error: null,
+        props: null,
+        rehydrated: true,
+        online: false,
         retry: expect.any(Function),
         // @ts-ignore
     };
@@ -143,6 +155,7 @@ describe('ReactRelayQueryRenderer', () => {
         error: null,
         props: null,
         rehydrated: false,
+        online: false,
         retry: expect.any(Function),
         // @ts-ignore
     };
@@ -404,7 +417,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydrated).toBeRendered();
+                expect(loadingStateRehydratedOffline).toBeRendered();
             });
 
             it('without useRestore', () => {
@@ -421,7 +434,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydrated).toBeRendered();
+                expect(loadingStateRehydratedOffline).toBeRendered();
             });
         });
         describe('initial state', () => {
@@ -447,7 +460,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsInitialState(owner, true)).toBeRendered();
+                expect(propsInitialState(owner, true, false)).toBeRendered();
             });
 
             it('without useRestore', () => {
@@ -492,7 +505,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner)).toBeRendered();
+                expect(propsRestoredState(owner, false)).toBeRendered();
             });
 
             it('without useRestore', () => {
@@ -509,7 +522,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner)).toBeRendered();
+                expect(propsRestoredState(owner, false)).toBeRendered();
             });
         });
 
@@ -536,7 +549,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner)).toBeRendered();
+                expect(propsRestoredState(owner, false)).toBeRendered();
             });
 
             /*
@@ -557,7 +570,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydrated).toBeRendered();
+                expect(loadingStateRehydratedOffline).toBeRendered();
             });
         });
     });

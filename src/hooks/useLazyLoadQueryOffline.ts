@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { useRelayEnvironment, useQueryFetcher, STORE_ONLY } from 'relay-hooks';
 import { OperationType, GraphQLTaggedNode } from 'relay-runtime';
 import { OfflineRenderProps, QueryOptionsOffline } from '../RelayOfflineTypes';
 import { useMemoOperationDescriptor } from 'relay-hooks/lib/useQuery';
 import { Environment } from '@wora/relay-offline';
 
-export const useQueryOffline = function <TOperationType extends OperationType>(
+export const useLazyLoadQueryOffline = function <TOperationType extends OperationType>(
     gqlQuery: GraphQLTaggedNode,
     variables: TOperationType['variables'],
     options: QueryOptionsOffline = {},
@@ -17,25 +17,9 @@ export const useQueryOffline = function <TOperationType extends OperationType>(
 
     const rehydrated = environment.isRehydrated();
 
-    const [, forceUpdate] = useState(null);
-
-    if (!rehydrated) {
-        environment
-            .hydrate()
-            .then(() => {
-                const { haveProps } = ref.current;
-                if (!haveProps) {
-                    forceUpdate(ref.current);
-                }
-            })
-            .catch((error) => {
-                throw error; //
-            });
-    }
-
     const query = useMemoOperationDescriptor(gqlQuery, variables);
 
-    const queryFetcher = useQueryFetcher();
+    const queryFetcher = useQueryFetcher(query);
 
     const { fetchPolicy, networkCacheConfig, ttl, skip, fetchKey, fetchObserver } = options;
 
@@ -56,6 +40,19 @@ export const useQueryOffline = function <TOperationType extends OperationType>(
     ref.current = {
         haveProps: !!props,
     };
+
+    if (!rehydrated) {
+        const promise = environment
+            .hydrate()
+            .then(() => undefined)
+            .catch((error) => {
+                throw error; //
+            });
+        const { haveProps } = ref.current;
+        if (!haveProps) {
+            throw promise;
+        }
+    }
     return {
         ...others,
         props,

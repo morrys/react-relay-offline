@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "keywords": [
     "graphql",
     "relay",
@@ -38,7 +38,7 @@
     "fbjs": "^1.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "^3.4.0",
+    "relay-hooks": "^3.7.0",
     "tslib": "^1.11.1"
   },
   "peerDependencies": {
@@ -53,6 +53,7 @@
     "@types/promise-polyfill": "^6.0.3",
     "@types/react": "16.8.14",
     "@types/react-dom": "16.8.4",
+    "@types/relay-runtime": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "2.24.0",
     "@typescript-eslint/parser": "2.24.0",
     "babel-jest": "24.9.0",
