@@ -259,13 +259,35 @@ import { QueryRenderer } from 'react-relay-offline';
         render={({ props, error, retry, cached }) => {
 ```
 
+## useQuery
+
+```ts
+import { useQuery } from "react-relay-offline";
+const hooksProps = useQuery(query, variables, {
+  networkCacheConfig: cacheConfig,
+  fetchPolicy,
+  ttl
+});
+```
+
+## useLazyLoadQuery
+
+```ts
+import { useQuery } from "react-relay-offline";
+const hooksProps = useLazyLoadQuery(query, variables, {
+  networkCacheConfig: cacheConfig,
+  fetchPolicy,
+  ttl
+});
+```
+
 ## useRestore & loading
 
 the **useRestore** hook allows you to manage the hydratation of persistent data in memory and to initialize the environment.
 
 **It must always be used before using environement in web applications without SSR & react legacy & react-native.**
 
-**Otherwise, for SSR and react concurrent applications the restore is natively managed by useQueryLazyLoad & useQuery.**
+**Otherwise, for SSR and react concurrent applications the restore is natively managed by QueryRenderer & useQueryLazyLoad & useQuery.**
 
 ```
 const isRehydrated = useRestore(environment);
@@ -297,28 +319,6 @@ import { NetInfo } from "react-relay-offline";
 ## Supports Hooks from relay-hooks
 
 Now you can use hooks (useFragment, usePagination, useRefetch) from [relay-hooks](https://github.com/relay-tools/relay-hooks)
-
-## useQuery
-
-```ts
-import { useQuery } from "react-relay-offline";
-const hooksProps = useQuery(query, variables, {
-  networkCacheConfig: cacheConfig,
-  fetchPolicy,
-  ttl
-});
-```
-
-## useLazyLoadQuery
-
-```ts
-import { useQuery } from "react-relay-offline";
-const hooksProps = useLazyLoadQuery(query, variables, {
-  networkCacheConfig: cacheConfig,
-  fetchPolicy,
-  ttl
-});
-```
 
 ## render-as-you-fetch & usePreloadedQuery
 
