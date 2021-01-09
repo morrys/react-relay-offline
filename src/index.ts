@@ -1,3 +1,4 @@
+export { applyOptimisticMutation, commitMutation, commitLocalUpdate, graphql, requestSubscription } from 'relay-runtime';
 export { useRestore } from './hooks/useRestore';
 export { loadQuery, loadLazyQuery } from './runtime/loadQuery';
 export { useQueryOffline as useQuery } from './hooks/useQueryOffline';
