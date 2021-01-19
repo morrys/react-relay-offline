@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prefer-const */
+/* eslint-disable max-len */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 jest.useFakeTimers();
 
 jest.mock('scheduler', () => require.requireActual('scheduler/unstable_mock'));
@@ -8,13 +13,14 @@ const Scheduler = require('scheduler');
 
 //import { ReactRelayContext } from "react-relay";
 
-import { useQuery, RelayEnvironmentProvider, NETWORK_ONLY, Store, RecordSource, Environment, useRestore } from '../src';
+import { useQuery, Store, RecordSource, useRestore } from '../src';
+import { RelayEnvironmentProvider } from 'relay-hooks';
 
 import * as ReactTestRenderer from 'react-test-renderer';
 
 //import readContext from "react-relay/lib/readContext";
 
-import { createOperationDescriptor, Network, Observable, REF_KEY, ROOT_ID, ROOT_TYPE } from 'relay-runtime';
+import { createOperationDescriptor } from 'relay-runtime';
 
 import { generateAndCompile, simpleClone } from 'relay-test-utils-internal';
 import { createMockEnvironment } from './RelayModernEnvironmentMock';
@@ -30,17 +36,17 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }*/
 
-const QueryRendererHook = (props) => {
-    const { render, query, variables, cacheConfig, fetchKey } = props;
-    const { cached, ...relays } = useQuery(query, variables, {
+const QueryRendererHook = (props: any) => {
+    const { render, query, variables, cacheConfig } = props;
+    const queryData = useQuery(query, variables, {
         networkCacheConfig: cacheConfig,
         //fetchKey
     });
 
-    return <React.Fragment>{render(relays)}</React.Fragment>;
+    return <React.Fragment>{render(queryData)}</React.Fragment>;
 };
 
-const ReactRelayQueryRenderer = (props) => (
+const ReactRelayQueryRenderer = (props: any) => (
     <RelayEnvironmentProvider environment={props.environment}>
         <QueryRendererHook {...props} />
     </RelayEnvironmentProvider>
@@ -48,7 +54,7 @@ const ReactRelayQueryRenderer = (props) => (
 
 const NOT_REHYDRATED = 'NOT_REHYDRATED';
 
-const QueryRendererUseRestore = (props): any => {
+const QueryRendererUseRestore = (props: any): any => {
     const rehydrated = useRestore(props.environment);
     if (!rehydrated) {
         return NOT_REHYDRATED;
@@ -61,8 +67,89 @@ const QueryRendererUseRestore = (props): any => {
     );
 };
 
-function sleep(ms) {
+/*function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}*/
+
+function expectToBeRendered(
+    renderSpy,
+    readyState: {
+        data: any;
+        error: Error | null;
+    },
+): void {
+    // Ensure useEffect is called before other timers
+
+    expect(renderSpy).toBeCalledTimes(2);
+
+    expect(renderSpy.mock.calls[0][0].isLoading).toEqual(true);
+    expect(renderSpy.mock.calls[0][0].error).toEqual(null);
+
+    const actualResult = renderSpy.mock.calls[1][0];
+    expect(renderSpy.mock.calls[1][0].isLoading).toEqual(false);
+
+    expect(actualResult.data).toEqual(readyState.data);
+    expect(actualResult.error).toEqual(readyState.error);
+    expect(actualResult.retry).toEqual(expect.any(Function));
+}
+
+function expectToBeLoading(renderSpy): void {
+    // Ensure useEffect is called before other timers
+
+    expect(renderSpy).toBeCalledTimes(1);
+
+    const actualResult = renderSpy.mock.calls[0][0];
+    expect(actualResult.isLoading).toEqual(true);
+    expect(actualResult.error).toEqual(null);
+    expect(actualResult.data).toEqual(null);
+}
+
+function expectToBeNotLoading(renderSpy): void {
+    // Ensure useEffect is called before other timers
+
+    expect(renderSpy).toBeCalledTimes(1);
+
+    const actualResult = renderSpy.mock.calls[0][0];
+    expect(actualResult.isLoading).toEqual(false);
+    expect(actualResult.error).toEqual(null);
+    expect(actualResult.data).toEqual(null);
+}
+
+function expectToBeError(renderSpy, error): void {
+    // Ensure useEffect is called before other timers
+
+    expect(renderSpy).toBeCalledTimes(1);
+
+    const actualResult = renderSpy.mock.calls[0][0];
+    expect(actualResult.isLoading).toEqual(false);
+    expect(actualResult.error).toEqual(error);
+    expect(actualResult.data).toEqual(null);
+}
+
+function expectHydrate(environment, rehydrated, online): void {
+    expect(environment.isOnline()).toEqual(online);
+    expect(environment.isRehydrated()).toEqual(rehydrated);
+}
+
+function expectToBeRenderedFirst(
+    renderSpy,
+    readyState: {
+        data: any;
+        error: Error | null;
+        isLoading?: boolean;
+    },
+): void {
+    // Ensure useEffect is called before other timers
+
+    expect(renderSpy).toBeCalledTimes(1);
+    const { isLoading = false } = readyState;
+
+    const actualResult = renderSpy.mock.calls[0][0];
+    expect(actualResult.isLoading).toEqual(isLoading);
+
+    expect(actualResult.data).toEqual(readyState.data);
+    expect(actualResult.error).toEqual(readyState.error);
+    expect(actualResult.retry).toEqual(expect.any(Function));
 }
 
 describe('ReactRelayQueryRenderer', () => {
@@ -75,6 +162,7 @@ describe('ReactRelayQueryRenderer', () => {
     let data;
     let initialData;
     let owner;
+    let ownerTTL;
     let onlineGetter;
     const variables = { id: '4' };
     const restoredState = {
@@ -90,10 +178,10 @@ describe('ReactRelayQueryRenderer', () => {
             'node(id:"4")': { __ref: '4' },
         },
     };
-    const propsInitialState = (owner, rehydrated, online = rehydrated) => {
+    const dataInitialState = (owner, isLoading = false, ttl = false) => {
         return {
             error: null,
-            props: {
+            data: {
                 node: {
                     id: '4',
                     name: 'Zuck',
@@ -102,19 +190,18 @@ describe('ReactRelayQueryRenderer', () => {
                         TestFragment: {},
                     },
 
-                    __fragmentOwner: owner.request,
+                    __fragmentOwner: ttl ? ownerTTL.request : owner.request,
                     __id: '4',
                 },
             },
-            rehydrated,
-            online
-            retry: expect.any(Function),
+            isLoading,
         };
     };
-    const propsRestoredState = (owner, online = true) => {
+
+    const dataRestoredState = (owner, isLoading = false, ttl = false) => {
         return {
             error: null,
-            props: {
+            data: {
                 node: {
                     id: '4',
                     name: 'ZUCK',
@@ -123,13 +210,11 @@ describe('ReactRelayQueryRenderer', () => {
                         TestFragment: {},
                     },
 
-                    __fragmentOwner: owner.request,
+                    __fragmentOwner: ttl ? ownerTTL.request : owner.request,
                     __id: '4',
                 },
             },
-            rehydrated: true,
-            online,
-            retry: expect.any(Function),
+            isLoading,
         };
     };
 
@@ -139,7 +224,6 @@ describe('ReactRelayQueryRenderer', () => {
         rehydrated: true,
         online: true,
         retry: expect.any(Function),
-        // @ts-ignore
     };
 
     const loadingStateRehydratedOffline = {
@@ -148,7 +232,6 @@ describe('ReactRelayQueryRenderer', () => {
         rehydrated: true,
         online: false,
         retry: expect.any(Function),
-        // @ts-ignore
     };
 
     const loadingStateNotRehydrated = {
@@ -157,7 +240,6 @@ describe('ReactRelayQueryRenderer', () => {
         rehydrated: false,
         online: false,
         retry: expect.any(Function),
-        // @ts-ignore
     };
 
     ({ TestQuery } = generateAndCompile(`
@@ -212,10 +294,13 @@ describe('ReactRelayQueryRenderer', () => {
     describe('rehydrate the environment when online', () => {
         describe('no initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage() }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage() }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = createMockEnvironment({ store });
             });
 
@@ -233,7 +318,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydrated).toBeRendered();
+                expectHydrate(environment, true, true);
             });
 
             it('without useRestore', () => {
@@ -246,19 +331,22 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(loadingStateNotRehydrated).toBeRendered();
+                expectHydrate(environment, false, false);
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydrated).toBeRendered();
+                expectHydrate(environment, true, true);
             });
         });
         describe('initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = createMockEnvironment({ store });
             });
 
@@ -276,7 +364,9 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsInitialState(owner, true)).toBeRendered();
+
+                expectHydrate(environment, true, true);
+                expectToBeRenderedFirst(render, dataInitialState(owner));
             });
 
             it('without useRestore', () => {
@@ -289,7 +379,8 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(propsInitialState(owner, false)).toBeRendered();
+                expectHydrate(environment, false, false);
+                expectToBeRenderedFirst(render, dataInitialState(owner));
 
                 render.mockClear();
                 jest.runAllTimers();
@@ -305,7 +396,8 @@ describe('ReactRelayQueryRenderer', () => {
                         storage: createPersistedStorage(restoredState),
                         initialState: { ...data },
                     }),
-                    { storage: createPersistedStorage(), defaultTTL: -1 },
+                    { storage: createPersistedStorage() },
+                    { queryCacheExpirationTime: null },
                 );
                 environment = createMockEnvironment({ store });
             });
@@ -323,7 +415,9 @@ describe('ReactRelayQueryRenderer', () => {
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner)).toBeRendered();
+
+                expectHydrate(environment, true, true);
+                expectToBeRenderedFirst(render, dataRestoredState(owner));
             });
 
             it('without useRestore', () => {
@@ -336,21 +430,27 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(propsInitialState(owner, false)).toBeRendered();
+
+                expectHydrate(environment, false, false);
+                expectToBeRenderedFirst(render, dataInitialState(owner));
 
                 render.mockClear();
                 jest.runAllTimers();
 
-                expect(propsRestoredState(owner)).toBeRendered();
+                expectHydrate(environment, true, true);
+                expectToBeRenderedFirst(render, dataRestoredState(owner));
             });
         });
 
         describe(' no initial state, with restored state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState) }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage(restoredState) }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = createMockEnvironment({ store });
             });
 
@@ -368,7 +468,9 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner)).toBeRendered();
+
+                expectHydrate(environment, true, true);
+                expectToBeRenderedFirst(render, dataRestoredState(owner));
             });
 
             it('without useRestore', () => {
@@ -381,11 +483,13 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(loadingStateNotRehydrated).toBeRendered();
+                expectHydrate(environment, false, false);
+                expectToBeNotLoading(render);
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner)).toBeRendered();
+                expectHydrate(environment, true, true);
+                expectToBeRenderedFirst(render, dataRestoredState(owner));
             });
         });
     });
@@ -393,10 +497,13 @@ describe('ReactRelayQueryRenderer', () => {
     describe('rehydrate the environment when offline', () => {
         describe('no initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage() }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage() }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = createMockEnvironment({ store });
 
                 onlineGetter = jest.spyOn(window.navigator, 'onLine', 'get');
@@ -417,7 +524,9 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydratedOffline).toBeRendered();
+
+                expectToBeNotLoading(render);
+                expectHydrate(environment, true, false);
             });
 
             it('without useRestore', () => {
@@ -430,19 +539,26 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(loadingStateNotRehydrated).toBeRendered();
+
+                expectToBeNotLoading(render);
+                expectHydrate(environment, false, false);
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydratedOffline).toBeRendered();
+
+                expectToBeNotLoading(render);
+                expectHydrate(environment, true, false);
             });
         });
         describe('initial state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = createMockEnvironment({ store });
             });
 
@@ -460,7 +576,10 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsInitialState(owner, true, false)).toBeRendered();
+
+                expectHydrate(environment, true, false);
+                expectToBeRenderedFirst(render, dataInitialState(owner));
+                //expect(propsInitialState(owner, true, false)).toBeRendered();
             });
 
             it('without useRestore', () => {
@@ -473,7 +592,8 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(propsInitialState(owner, false)).toBeRendered();
+                expectHydrate(environment, false, false);
+                expectToBeRenderedFirst(render, dataInitialState(owner));
 
                 render.mockClear();
                 jest.runAllTimers();
@@ -484,10 +604,13 @@ describe('ReactRelayQueryRenderer', () => {
 
         describe('initial state is different from restored state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState), initialState: { ...data } }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage(restoredState), initialState: { ...data } }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = createMockEnvironment({ store });
             });
 
@@ -505,7 +628,9 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner, false)).toBeRendered();
+
+                expectHydrate(environment, true, false);
+                expectToBeRenderedFirst(render, dataRestoredState(owner));
             });
 
             it('without useRestore', () => {
@@ -518,20 +643,27 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(propsInitialState(owner, false)).toBeRendered();
+
+                expectHydrate(environment, false, false);
+                expectToBeRenderedFirst(render, dataInitialState(owner));
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner, false)).toBeRendered();
+
+                expectHydrate(environment, true, false);
+                expectToBeRenderedFirst(render, dataRestoredState(owner));
             });
         });
 
         describe(' no initial state, with restored state', () => {
             beforeEach(async () => {
-                store = new Store(new RecordSource({ storage: createPersistedStorage(restoredState) }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage(restoredState) }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = createMockEnvironment({ store });
             });
 
@@ -549,7 +681,9 @@ describe('ReactRelayQueryRenderer', () => {
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(propsRestoredState(owner, false)).toBeRendered();
+
+                expectHydrate(environment, true, false);
+                expectToBeRenderedFirst(render, dataRestoredState(owner));
             });
 
             /*
@@ -566,11 +700,15 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect(loadingStateNotRehydrated).toBeRendered();
+
+                expectHydrate(environment, false, false);
+                expectToBeNotLoading(render);
 
                 render.mockClear();
                 jest.runAllTimers();
-                expect(loadingStateRehydratedOffline).toBeRendered();
+
+                expectHydrate(environment, true, false);
+                expectToBeNotLoading(render);
             });
         });
     });

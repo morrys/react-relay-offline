@@ -1,3 +1,8 @@
+/* eslint-disable max-len */
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -19,7 +24,8 @@ const Scheduler = require('scheduler');
 
 //import { ReactRelayContext } from "react-relay";
 
-import { useQuery, RelayEnvironmentProvider, NETWORK_ONLY, Store, RecordSource, Environment } from '../src';
+import { useQuery, Store, RecordSource, Environment } from '../src';
+import { RelayEnvironmentProvider, NETWORK_ONLY } from 'relay-hooks';
 
 import * as ReactTestRenderer from 'react-test-renderer';
 
@@ -28,41 +34,108 @@ import * as ReactTestRenderer from 'react-test-renderer';
 import { createOperationDescriptor, Network, Observable, ROOT_ID } from 'relay-runtime';
 
 import { ROOT_TYPE } from 'relay-runtime/lib/store/RelayStoreUtils';
-import { generateAndCompile, simpleClone } from 'relay-test-utils-internal';
+import { generateAndCompile } from 'relay-test-utils-internal';
 import { createMockEnvironment } from './RelayModernEnvironmentMock';
 import { createPersistedStorage } from './Utils';
-/*
-function expectToBeRendered(renderFn, readyState) {
-  // Ensure useEffect is called before other timers
-  ReactTestRenderer.act(() => {
-    jest.runAllImmediates();
-  });
-  expect(renderFn).toBeCalledTimes(1);
-  expect(renderFn.mock.calls[0][0]).toEqual(readyState);
-  renderFn.mockClear();
-}*/
 
-const QueryRendererHook = (props) => {
+function expectToBeRendered(
+    renderSpy,
+    readyState: {
+        data: any;
+        error: Error | null;
+    },
+): void {
+    // Ensure useEffect is called before other timers
+
+    ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+    });
+    expect(renderSpy).toBeCalledTimes(2);
+
+    expect(renderSpy.mock.calls[0][0].isLoading).toEqual(true);
+    expect(renderSpy.mock.calls[0][0].error).toEqual(null);
+
+    const actualResult = renderSpy.mock.calls[1][0];
+    expect(renderSpy.mock.calls[1][0].isLoading).toEqual(false);
+
+    expect(actualResult.data).toEqual(readyState.data);
+    expect(actualResult.error).toEqual(readyState.error);
+    expect(actualResult.retry).toEqual(expect.any(Function));
+}
+
+function expectToBeLoading(renderSpy): void {
+    // Ensure useEffect is called before other timers
+
+    ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+    });
+    expect(renderSpy).toBeCalledTimes(1);
+
+    const actualResult = renderSpy.mock.calls[0][0];
+    expect(actualResult.isLoading).toEqual(true);
+    expect(actualResult.error).toEqual(null);
+    expect(actualResult.data).toEqual(null);
+}
+
+function expectToBeError(renderSpy, error): void {
+    // Ensure useEffect is called before other timers
+
+    ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+    });
+    expect(renderSpy).toBeCalledTimes(1);
+
+    const actualResult = renderSpy.mock.calls[0][0];
+    expect(actualResult.isLoading).toEqual(false);
+    expect(actualResult.error).toEqual(error);
+    expect(actualResult.data).toEqual(null);
+}
+
+function expectToBeRenderedFirst(
+    renderSpy,
+    readyState: {
+        data: any;
+        error: Error | null;
+        isLoading?: boolean;
+    },
+): void {
+    // Ensure useEffect is called before other timers
+
+    ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+    });
+    expect(renderSpy).toBeCalledTimes(1);
+    const { isLoading = false } = readyState;
+
+    const actualResult = renderSpy.mock.calls[0][0];
+    expect(actualResult.isLoading).toEqual(isLoading);
+
+    expect(actualResult.data).toEqual(readyState.data);
+    expect(actualResult.error).toEqual(readyState.error);
+    expect(actualResult.retry).toEqual(expect.any(Function));
+}
+
+const QueryRendererHook = (props: any): JSX.Element => {
     const { render, fetchPolicy = NETWORK_ONLY, query, variables, cacheConfig, fetchKey, skip } = props;
-    const { cached, ...relays } = useQuery(query, variables, {
+    const queryData = useQuery(query, variables, {
         networkCacheConfig: cacheConfig,
         fetchPolicy,
         fetchKey,
         skip,
     });
 
-    return <React.Fragment>{render(relays)}</React.Fragment>;
+    return <React.Fragment>{render(queryData)}</React.Fragment>;
 };
 
-const ReactRelayQueryRenderer = (props) => (
+const ReactRelayQueryRenderer = (props: any): JSX.Element => (
     <RelayEnvironmentProvider environment={props.environment}>
         <QueryRendererHook {...props} />
     </RelayEnvironmentProvider>
 );
 
-function sleep(ms) {
+/*function sleep(ms): Promise<any> {
     return new Promise((resolve) => setTimeout(resolve, ms));
-}
+}*/
 
 describe('ReactRelayQueryRenderer', () => {
     let TestQuery;
@@ -90,9 +163,11 @@ describe('ReactRelayQueryRenderer', () => {
                 props: null,
             };
         }
+
         setProps(props) {
             this.setState({ props });
         }
+
         render() {
             const child: any = React.Children.only(this.props.children);
             if (this.state.props) {
@@ -105,14 +180,6 @@ describe('ReactRelayQueryRenderer', () => {
     beforeEach(async () => {
         Scheduler.unstable_clearYields();
         jest.resetModules();
-        expect.extend({
-            toBeRendered(readyState) {
-                const calls = render.mock.calls;
-                expect(calls.length).toBe(1);
-                expect(calls[0][0]).toEqual(readyState);
-                return { message: '', pass: true };
-            },
-        });
 
         environment = createMockEnvironment();
         store = environment.getStore();
@@ -169,9 +236,9 @@ describe('ReactRelayQueryRenderer', () => {
             render.mockClear();
             environment.mock.resolve(TestQuery, response);
             const owner = createOperationDescriptor(TestQuery, variables);
-            expect({
+            expectToBeRendered(render, {
                 error: null,
-                props: {
+                data: {
                     node: {
                         id: '4',
 
@@ -183,11 +250,7 @@ describe('ReactRelayQueryRenderer', () => {
                         __id: '4',
                     },
                 },
-                rehydrated: true,
-                online: true,
-                online: true,
-                retry: expect.any(Function),
-            }).toBeRendered();
+            });
         });
 
         it('fetches the query', () => {
@@ -240,13 +303,7 @@ describe('ReactRelayQueryRenderer', () => {
                     Scheduler.unstable_flushNumberOfYields(2);
                     expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
                     expect(renderer.toJSON()).toEqual(null);
-                    expect({
-                        error: null,
-                        props: null,
-                        retry: expect.any(Function),
-                        rehydrated: true,
-                        online: true, // added
-                    }).toBeRendered();
+                    expectToBeLoading(render);
                     expect(environment.execute.mock.calls.length).toBe(1);
                     render.mockClear();
 
@@ -255,13 +312,7 @@ describe('ReactRelayQueryRenderer', () => {
                         renderer.update(<Example />);
                     });
                     expect(environment.execute.mock.calls.length).toBe(1);
-                    expect({
-                        error: null,
-                        props: null,
-                        retry: expect.any(Function),
-                        rehydrated: true,
-                        online: true, // added
-                    }).toBeRendered();
+                    expectToBeLoading(render);
                 });
             });
 
@@ -315,9 +366,9 @@ describe('ReactRelayQueryRenderer', () => {
                     Scheduler.unstable_flushNumberOfYields(2);
                     expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
                     expect(renderer.toJSON()).toEqual(null);
-                    expect({
-                        error: null,
-                        props: {
+
+                    expectToBeRenderedFirst(render, {
+                        data: {
                             node: {
                                 id: '4',
 
@@ -329,10 +380,9 @@ describe('ReactRelayQueryRenderer', () => {
                                 __id: '4',
                             },
                         },
-                        rehydrated: true,
-                        online: true,
-                        retry: expect.any(Function),
-                    }).toBeRendered();
+                        error: null,
+                        isLoading: true,
+                    });
                     expect(environment.execute.mock.calls.length).toBe(1);
                     render.mockClear();
 
@@ -341,9 +391,9 @@ describe('ReactRelayQueryRenderer', () => {
                         renderer.update(<Example />);
                     });
                     expect(environment.execute.mock.calls.length).toBe(1);
-                    expect({
+                    expectToBeRenderedFirst(render, {
                         error: null,
-                        props: {
+                        data: {
                             node: {
                                 id: '4',
 
@@ -355,19 +405,20 @@ describe('ReactRelayQueryRenderer', () => {
                                 __id: '4',
                             },
                         },
-                        rehydrated: true,
-                        online: true,
-                        retry: expect.any(Function),
-                    }).toBeRendered();
+                        isLoading: true,
+                    });
                 });
             });
             describe('when fetch returns a response synchronously first time', () => {
                 it('fetches the query once, always renders snapshot returned by fetch', async () => {
                     const fetch = jest.fn().mockReturnValueOnce(response);
-                    store = new Store(new RecordSource({ storage: createPersistedStorage() }), {
-                        storage: createPersistedStorage(),
-                        defaultTTL: -1,
-                    });
+                    store = new Store(
+                        new RecordSource({ storage: createPersistedStorage() }),
+                        {
+                            storage: createPersistedStorage(),
+                        },
+                        { queryCacheExpirationTime: null },
+                    );
                     environment = new Environment({
                         network: Network.create(fetch),
                         store,
@@ -407,9 +458,9 @@ describe('ReactRelayQueryRenderer', () => {
                     Scheduler.unstable_flushNumberOfYields(2);
                     expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
                     expect(renderer.toJSON()).toEqual(null);
-                    expect({
+                    expectToBeRenderedFirst(render, {
                         error: null,
-                        props: {
+                        data: {
                             node: {
                                 id: '4',
 
@@ -421,10 +472,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __id: '4',
                             },
                         },
-                        rehydrated: true,
-                        online: true,
-                        retry: expect.any(Function),
-                    }).toBeRendered();
+                    });
                     expect(fetch.mock.calls.length).toBe(1);
                     render.mockClear();
 
@@ -433,9 +481,9 @@ describe('ReactRelayQueryRenderer', () => {
                         renderer.update(<Example />);
                     });
                     expect(fetch.mock.calls.length).toBe(1);
-                    expect({
+                    expectToBeRenderedFirst(render, {
                         error: null,
-                        props: {
+                        data: {
                             node: {
                                 id: '4',
 
@@ -447,10 +495,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __id: '4',
                             },
                         },
-                        rehydrated: true,
-                        online: true,
-                        retry: expect.any(Function),
-                    }).toBeRendered();
+                    });
                 });
             });
             describe('when variables change before first result has completed', () => {
@@ -458,8 +503,8 @@ describe('ReactRelayQueryRenderer', () => {
                     environment = createMockEnvironment();
                     await environment.hydrate();
                     let pendingRequests = [];
-                    jest.spyOn(environment, 'execute').mockImplementation((request) => {
-                        const nextRequest = { request };
+                    jest.spyOn(environment, 'execute').mockImplementation((request: any) => {
+                        const nextRequest: any = { request };
                         pendingRequests = pendingRequests.concat([nextRequest]);
                         return Observable.create((sink) => {
                             nextRequest.resolve = (resp) => {
@@ -487,9 +532,9 @@ describe('ReactRelayQueryRenderer', () => {
                     const firstRequest = pendingRequests[0];
                     const firstOwner = firstRequest.request.operation;
                     firstRequest.resolve(response);
-                    expect({
+                    expectToBeRendered(render, {
                         error: null,
-                        props: {
+                        data: {
                             node: {
                                 id: '4',
 
@@ -501,10 +546,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __id: '4',
                             },
                         },
-                        rehydrated: true,
-                        online: true,
-                        retry: expect.any(Function),
-                    }).toBeRendered();
+                    });
                     render.mockClear();
 
                     renderer.getInstance().setProps({
@@ -546,11 +588,11 @@ describe('ReactRelayQueryRenderer', () => {
                     // request
                     thirdRequest.resolve(thirdResponse);
                     secondRequest.resolve(secondResponse);
-                    expect(render.mock.calls.length).toEqual(3);
-                    const lastRender = render.mock.calls[2][0];
+                    expect(render.mock.calls.length).toEqual(4);
+                    const lastRender = render.mock.calls[3][0];
                     expect(lastRender).toEqual({
                         error: null,
-                        props: {
+                        data: {
                             node: {
                                 id: '6',
 
@@ -562,8 +604,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __id: '6',
                             },
                         },
-                        rehydrated: true,
-                        online: true,
+                        isLoading: false,
                         retry: expect.any(Function),
                     });
                 });
@@ -593,13 +634,8 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect({
-                    error: null,
-                    props: null,
-                    retry: expect.any(Function),
-                    rehydrated: true,
-                    online: true, // added,
-                }).toBeRendered();
+
+                expectToBeLoading(render);
             });
 
             it('if initial render set from store, skip loading state when data for query is already available', () => {
@@ -626,9 +662,10 @@ describe('ReactRelayQueryRenderer', () => {
                     />,
                 );
                 const owner = createOperationDescriptor(TestQuery, variables);
-                expect({
+                expectToBeRenderedFirst(render, {
                     error: null,
-                    props: {
+                    isLoading: true,
+                    data: {
                         node: {
                             id: '4',
 
@@ -640,18 +677,18 @@ describe('ReactRelayQueryRenderer', () => {
                             __id: '4',
                         },
                     },
-                    rehydrated: true,
-                    online: true,
-                    retry: expect.any(Function),
-                }).toBeRendered();
+                });
             });
 
             it('skip loading state when request could be resolved synchronously', async () => {
                 const fetch = () => response;
-                store = new Store(new RecordSource({ storage: createPersistedStorage() }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage() }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = new Environment({
                     network: Network.create(fetch),
                     store,
@@ -667,9 +704,9 @@ describe('ReactRelayQueryRenderer', () => {
                     />,
                 );
                 const owner = createOperationDescriptor(TestQuery, variables);
-                expect({
+                expectToBeRenderedFirst(render, {
                     error: null,
-                    props: {
+                    data: {
                         node: {
                             id: '4',
 
@@ -681,19 +718,19 @@ describe('ReactRelayQueryRenderer', () => {
                             __id: '4',
                         },
                     },
-                    rehydrated: true,
-                    online: true,
-                    retry: expect.any(Function),
-                }).toBeRendered();
+                });
             });
 
             it('skip loading state when request failed synchronously', async () => {
                 const error = new Error('Mock Network Error');
-                const fetch = () => error;
-                store = new Store(new RecordSource({ storage: createPersistedStorage() }), {
-                    storage: createPersistedStorage(),
-                    defaultTTL: -1,
-                });
+                const fetch: any = () => error;
+                store = new Store(
+                    new RecordSource({ storage: createPersistedStorage() }),
+                    {
+                        storage: createPersistedStorage(),
+                    },
+                    { queryCacheExpirationTime: null },
+                );
                 environment = new Environment({
                     network: Network.create(fetch),
                     store,
@@ -708,13 +745,7 @@ describe('ReactRelayQueryRenderer', () => {
                         variables={variables}
                     />,
                 );
-                expect({
-                    error: error,
-                    props: null,
-                    rehydrated: true,
-                    online: true,
-                    retry: expect.any(Function),
-                }).toBeRendered();
+                expectToBeError(render, error);
             });
         });
 
@@ -780,19 +811,13 @@ describe('ReactRelayQueryRenderer', () => {
                     variables,
                 });
                 // added
-                const readyState = {
-                    error: null,
-                    props: null,
-                    rehydrated: true,
-                    online: true,
-                    retry: expect.any(Function),
-                };
-                expect(readyState).toBeRendered();
+
+                expectToBeLoading(render);
                 expect(environment.execute).not.toBeCalled();
             });
 
             it('refetches if the `environment` prop changes', async () => {
-                expect.assertions(4);
+                expect.assertions(5);
                 environment.mock.resolve(TestQuery, {
                     data: {
                         node: null,
@@ -811,17 +836,12 @@ describe('ReactRelayQueryRenderer', () => {
                     variables,
                 });
                 expect(environment.mock.isLoading(TestQuery, variables, cacheConfig)).toBe(true);
-                expect({
-                    error: null,
-                    props: null,
-                    retry: expect.any(Function),
-                    rehydrated: true,
-                    online: true, // added,
-                }).toBeRendered();
+
+                expectToBeLoading(render);
             });
 
             it('refetches if the `variables` prop changes', () => {
-                expect.assertions(4);
+                expect.assertions(5);
                 environment.mock.resolve(TestQuery, {
                     data: {
                         node: null,
@@ -839,17 +859,11 @@ describe('ReactRelayQueryRenderer', () => {
                     variables,
                 });
                 expect(environment.mock.isLoading(TestQuery, variables, cacheConfig)).toBe(true);
-                expect({
-                    error: null,
-                    props: null,
-                    retry: expect.any(Function),
-                    rehydrated: true,
-                    online: true, // added,
-                }).toBeRendered();
+                expectToBeLoading(render);
             });
 
             it('refetches with default values if the `variables` prop changes', () => {
-                expect.assertions(4);
+                expect.assertions(5);
                 environment.mock.resolve(TestQuery, {
                     data: {
                         node: null,
@@ -868,17 +882,11 @@ describe('ReactRelayQueryRenderer', () => {
                     variables,
                 });
                 expect(environment.mock.isLoading(TestQuery, expectedVariables, cacheConfig)).toBe(true);
-                expect({
-                    error: null,
-                    props: null,
-                    retry: expect.any(Function),
-                    rehydrated: true,
-                    online: true, // added,
-                }).toBeRendered();
+                expectToBeLoading(render);
             });
 
             it('refetches if the `query` prop changes', () => {
-                expect.assertions(4);
+                expect.assertions(5);
                 environment.mock.resolve(TestQuery, {
                     data: {
                         node: null,
@@ -905,13 +913,7 @@ describe('ReactRelayQueryRenderer', () => {
                     variables,
                 });
                 expect(environment.mock.isLoading(NextQuery, variables, cacheConfig)).toBe(true);
-                expect({
-                    error: null,
-                    props: null,
-                    retry: expect.any(Function),
-                    rehydrated: true,
-                    online: true, // added,
-                }).toBeRendered();
+                expectToBeLoading(render);
             });
         });
     });
@@ -931,21 +933,15 @@ describe('ReactRelayQueryRenderer', () => {
         });
 
         it('renders the error and retry', () => {
-            expect.assertions(3);
+            expect.assertions(4);
             render.mockClear();
             const error = new Error('fail');
             environment.mock.reject(TestQuery, error);
-            expect({
-                error,
-                props: null,
-                rehydrated: true,
-                online: true,
-                retry: expect.any(Function),
-            }).toBeRendered();
+            expectToBeError(render, error);
         });
 
         it('refetch the query if `retry`', () => {
-            expect.assertions(4); // changed to 4
+            expect.assertions(8); // changed to 4
             render.mockClear();
             const error = new Error('network fails');
             environment.mock.reject(TestQuery, error);
@@ -958,9 +954,9 @@ describe('ReactRelayQueryRenderer', () => {
             render.mockClear();
             environment.mock.resolve(TestQuery, response);
             const owner = createOperationDescriptor(TestQuery, variables);
-            expect({
+            expectToBeRendered(render, {
                 error: null,
-                props: {
+                data: {
                     node: {
                         id: '4',
 
@@ -972,10 +968,7 @@ describe('ReactRelayQueryRenderer', () => {
                         __id: '4',
                     },
                 },
-                rehydrated: true,
-                online: true,
-                retry: expect.any(Function),
-            }).toBeRendered();
+            });
         });
     });
 
@@ -1008,57 +1001,43 @@ describe('ReactRelayQueryRenderer', () => {
                     }
                 }
                 const renderer = ReactTestRenderer.create(<Example />);
-                expect.assertions(3);
+                expect.assertions(15);
                 mockA.mockClear();
                 mockB.mockClear();
                 environment.mock.resolve(TestQuery, response);
                 const mockACalls = mockA.mock.calls;
                 const mockBCalls = mockB.mock.calls;
                 const owner = createOperationDescriptor(TestQuery, variables);
-                expect(mockACalls).toEqual([
-                    [
-                        {
-                            error: null,
-                            props: {
-                                node: {
-                                    id: '4',
+                expectToBeRendered(mockA, {
+                    error: null,
+                    data: {
+                        node: {
+                            id: '4',
 
-                                    __fragments: {
-                                        TestFragment: {},
-                                    },
-
-                                    __fragmentOwner: owner.request,
-                                    __id: '4',
-                                },
+                            __fragments: {
+                                TestFragment: {},
                             },
-                            rehydrated: true,
-                            online: true,
-                            retry: expect.any(Function),
+
+                            __fragmentOwner: owner.request,
+                            __id: '4',
                         },
-                    ],
-                ]);
-                expect(mockBCalls).toEqual([
-                    [
-                        {
-                            error: null,
-                            props: {
-                                node: {
-                                    id: '4',
+                    },
+                });
+                expectToBeRendered(mockB, {
+                    error: null,
+                    data: {
+                        node: {
+                            id: '4',
 
-                                    __fragments: {
-                                        TestFragment: {},
-                                    },
-
-                                    __fragmentOwner: owner.request,
-                                    __id: '4',
-                                },
+                            __fragments: {
+                                TestFragment: {},
                             },
-                            rehydrated: true,
-                            online: true,
-                            retry: expect.any(Function),
+
+                            __fragmentOwner: owner.request,
+                            __id: '4',
                         },
-                    ],
-                ]);
+                    },
+                });
                 expect(renderer.toJSON()).toEqual(['A', 'B']);
             });
         });
@@ -1086,13 +1065,14 @@ describe('ReactRelayQueryRenderer', () => {
         });
 
         it('renders the query results', () => {
-            expect.assertions(3);
+            expect.assertions(7);
             render.mockClear();
             environment.mock.resolve(TestQuery, response);
             const owner = createOperationDescriptor(TestQuery, variables);
-            expect({
+
+            expectToBeRendered(render, {
                 error: null,
-                props: {
+                data: {
                     node: {
                         id: '4',
 
@@ -1104,10 +1084,7 @@ describe('ReactRelayQueryRenderer', () => {
                         __id: '4',
                     },
                 },
-                rehydrated: true,
-                online: true,
-                retry: expect.any(Function),
-            }).toBeRendered();
+            });
         });
 
         it('subscribes to the root fragment', () => {
@@ -1177,13 +1154,7 @@ describe('ReactRelayQueryRenderer', () => {
         it('renders a pending state', () => {
             render.mockClear();
             renderer.getInstance().setProps(nextProps);
-            expect({
-                error: null,
-                props: null,
-                retry: expect.any(Function),
-                rehydrated: true,
-                online: true, // added,
-            }).toBeRendered();
+            expectToBeLoading(render);
         });
     });
 
@@ -1245,13 +1216,7 @@ describe('ReactRelayQueryRenderer', () => {
 
         it('renders the pending state', () => {
             renderer.getInstance().setProps(nextProps);
-            expect({
-                error: null,
-                props: null,
-                retry: expect.any(Function),
-                rehydrated: true,
-                online: true, // added,
-            }).toBeRendered();
+            expectToBeLoading(render);
         });
 
         it('publishes and notifies the store with changes', () => {
@@ -1337,13 +1302,8 @@ describe('ReactRelayQueryRenderer', () => {
         it('renders the pending and previous state', () => {
             environment.mockClear();
             renderer.getInstance().setProps(nextProps);
-            expect({
-                error: null,
-                props: null,
-                retry: expect.any(Function),
-                rehydrated: true,
-                online: true, // added,
-            }).toBeRendered();
+
+            expectToBeLoading(render);
         });
 
         it('publishes and notifies the store with changes', () => {
@@ -1432,18 +1392,19 @@ describe('ReactRelayQueryRenderer', () => {
         // @TODO T28041408 Test aborted mount using unstable_flushSync() rather than
         // throwing once the test renderer exposes such a method.
         it('should ignore data changes before mount', () => {
-            class ErrorBoundary extends React.Component {
+            class ErrorBoundary extends React.Component<any, any> {
                 state = { error: null };
                 componentDidCatch(error) {
                     this.setState({ error });
                 }
+
                 render() {
                     return this.state.error === null ? this.props.children : null;
                 }
             }
 
-            render.mockImplementation(({ props }) => {
-                const error = Error('Make mount fail intentionally');
+            render.mockImplementation(() => {
+                const error: any = Error('Make mount fail intentionally');
                 // Don't clutter the test console with React's error log
                 error.suppressReactErrorLogging = true;
                 throw error;
@@ -1517,7 +1478,7 @@ describe('ReactRelayQueryRenderer', () => {
             render.mockClear();
             environment.mock.resolve(TestQuery, response);
 
-            expect(render).toBeCalledTimes(1);
+            expect(render).toBeCalledTimes(2);
             const readyState = render.mock.calls[0][0];
             expect(readyState.retry).not.toBe(null);
             environment.mockClear();
@@ -1545,7 +1506,7 @@ describe('ReactRelayQueryRenderer', () => {
             render.mockClear();
             environment.mock.resolve(TestQuery, response);
 
-            expect(render).toBeCalledTimes(1);
+            expect(render).toBeCalledTimes(2);
             const readyState = render.mock.calls[0][0];
             expect(readyState.retry).not.toBe(null);
             environment.mockClear();

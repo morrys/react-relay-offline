@@ -1,66 +1,39 @@
-import { useState, useRef } from 'react';
-import { useRelayEnvironment, useQueryFetcher, STORE_ONLY } from 'relay-hooks';
+import { useQuery, useRelayEnvironment, STORE_ONLY, RenderProps } from 'relay-hooks';
 import { OperationType, GraphQLTaggedNode } from 'relay-runtime';
-import { OfflineRenderProps, QueryOptionsOffline } from '../RelayOfflineTypes';
-import { useMemoOperationDescriptor } from 'relay-hooks/lib/useQuery';
+import { QueryOptionsOffline } from '../RelayOfflineTypes';
+import { useForceUpdate } from 'relay-hooks/lib/useForceUpdate';
 import { Environment } from '@wora/relay-offline';
 
 export const useQueryOffline = function <TOperationType extends OperationType>(
     gqlQuery: GraphQLTaggedNode,
     variables: TOperationType['variables'],
     options: QueryOptionsOffline = {},
-): OfflineRenderProps<TOperationType> {
+): RenderProps<TOperationType> {
     const environment = useRelayEnvironment<Environment>();
-    const ref = useRef<{ haveProps: boolean }>({
-        haveProps: false,
-    });
 
     const rehydrated = environment.isRehydrated();
 
-    const [, forceUpdate] = useState(null);
+    const forceUpdate = useForceUpdate();
+
+    const online = environment.isOnline();
+
+    if (!rehydrated || !online) {
+        options.fetchPolicy = STORE_ONLY;
+    }
+
+    const queryResult = useQuery(gqlQuery, variables, options);
 
     if (!rehydrated) {
         environment
             .hydrate()
             .then(() => {
-                const { haveProps } = ref.current;
-                if (!haveProps) {
-                    forceUpdate(ref.current);
+                if (!queryResult.data) {
+                    forceUpdate();
                 }
             })
             .catch((error) => {
                 throw error; //
             });
     }
-
-    const query = useMemoOperationDescriptor(gqlQuery, variables);
-
-    const queryFetcher = useQueryFetcher();
-
-    const { fetchPolicy, networkCacheConfig, ttl, skip, fetchKey, fetchObserver } = options;
-
-    const online = environment.isOnline();
-
-    const { props, error, ...others } = queryFetcher.execute(
-        environment,
-        query,
-        {
-            networkCacheConfig,
-            fetchPolicy: rehydrated && online ? fetchPolicy : STORE_ONLY,
-            skip,
-            fetchKey,
-            fetchObserver,
-        },
-        (environment, query) => environment.retain(query, { ttl }), // TODO new directive
-    );
-    ref.current = {
-        haveProps: !!props,
-    };
-    return {
-        ...others,
-        props,
-        rehydrated,
-        error: error,
-        online,
-    };
+    return queryResult;
 };

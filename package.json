@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "keywords": [
     "graphql",
     "relay",
@@ -28,23 +28,22 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0",
-    "@wora/relay-offline": "^3.2.0",
-    "@wora/netinfo": "^2.0.0",
+    "@babel/runtime": "^7.7.2",
+    "@wora/relay-offline": "^4.0.0",
+    "@wora/netinfo": "^2.1.0",
     "@wora/detect-network": "^2.0.0",
     "@wora/cache-persist": "^2.1.0",
-    "@wora/offline-first": "^2.1.0",
-    "@wora/relay-store": "^3.2.0",
-    "fbjs": "^1.0.0",
+    "@wora/offline-first": "^2.3.0",
+    "@wora/relay-store": "^4.0.0",
+    "fbjs": "^3.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "^3.7.0",
+    "relay-hooks": "^4.0.0",
     "tslib": "^1.11.1"
   },
   "peerDependencies": {
-    "react": ">=16.9.0",
-    "react-relay": ">=8.0.0",
-    "relay-runtime": ">=8.0.0"
+    "react": "^16.9.0 || ^17.0.0",
+    "relay-runtime": "^10.1.0"
   },
   "devDependencies": {
     "@react-native-community/netinfo": "3.2.1",
@@ -53,7 +52,7 @@
     "@types/promise-polyfill": "^6.0.3",
     "@types/react": "16.8.14",
     "@types/react-dom": "16.8.4",
-    "@types/relay-runtime": "^9.0.0",
+    "@types/relay-runtime": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "2.24.0",
     "@typescript-eslint/parser": "2.24.0",
     "babel-jest": "24.9.0",
@@ -73,16 +72,15 @@
     "lerna": "^3.16.4",
     "prettier": "2.0.1",
     "promise-polyfill": "6.1.0",
-    "react": "16.10.2",
+    "react": "16.11.0",
+    "react-test-renderer": "16.11.0",
     "react-native": "0.59.9",
-    "react-relay": "^9.0.0",
-    "relay-runtime": "^9.0.0",
-    "react-test-renderer": "16.10.2",
-    "relay-test-utils-internal": "9.0.0",
-    "relay-test-utils": "9.0.0",
+    "relay-runtime": "^10.0.0",
+    "relay-test-utils-internal": "^10.0.0",
+    "relay-test-utils": "^10.0.0",
     "rimraf": "2.6.3",
     "ts-jest": "24.1.0",
     "typescript": "3.8.3",
-    "graphql": "14.4.2"
+    "graphql": "^15.0.0"
   }
 }
