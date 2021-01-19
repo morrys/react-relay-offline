@@ -209,12 +209,13 @@ const environment = new Environment({ network, store }, persistOfflineOptions);
 ```ts
 import { Store } from "react-relay-offline";
 import { CacheOptions } from "@wora/cache-persist";
-import { CacheOptionsStore } from "@wora/relay-store";
+import { StoreOptions } from "@wora/relay-store";
 
-const persistOptionsStore: CacheOptionsStore = { defaultTTL: 10 * 60 * 1000 }; // default
-const persistOptionsRecords: CacheOptions = {}; // default
+const persistOptionsStore: CacheOptions = { };
+const persistOptionsRecords: CacheOptions = {};
+const relayStoreOptions: StoreOptions = { queryCacheExpirationTime: 10 * 60 * 1000 }; // default
 const recordSource = new RecordSource(persistOptionsRecords);
-const store = new Store(recordSource, persistOptionsStore);
+const store = new Store(recordSource, persistOptionsStore, relayStoreOptions);
 const environment = new Environment({ network, store });
 ```
 
@@ -234,7 +235,7 @@ In addition to `query` (first argument) and `variables` (second argument), `useQ
 
 `fetchKey`: [Optional] A fetchKey can be passed to force a refetch of the current query and variables when the component re-renders, even if the variables didn't change, or even if the component isn't remounted (similarly to how passing a different key to a React component will cause it to remount). If the fetchKey is different from the one used in the previous render, the current query and variables will be refetched.
 
-`networkCacheConfig`: [Optional] Object containing cache config options for the network layer. Note the the network layer may contain an additional query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass {force: true} as the value for this option.
+`networkCacheConfig`: [Optional] Object containing cache config options for the network layer. Note the the network layer may contain an additional query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass {force: true} as the value for this option. **Added the TTL property to configure a specific ttl for the query.**
 
 `skip`: [Optional] If skip is true, the query will be skipped entirely.
 
