@@ -3,6 +3,7 @@ import { QueryOptionsOffline } from '../RelayOfflineTypes';
 import { QueryFetcher } from 'relay-hooks/lib/QueryFetcher';
 import { RenderProps, LoadQuery } from 'relay-hooks';
 
+const emptyFunction = (): void => undefined;
 export const internalLoadQuery = <TOperationType extends OperationType = OperationType>(promise = false): LoadQuery<TOperationType> => {
     let queryFetcher = new QueryFetcher<TOperationType>();
 
@@ -37,7 +38,9 @@ export const internalLoadQuery = <TOperationType extends OperationType = Operati
     const subscribe = (callback: () => any): (() => void) => {
         queryFetcher.setForceUpdate(callback);
         return (): void => {
-            queryFetcher.setForceUpdate(() => undefined);
+            if (queryFetcher.getForceUpdate() === callback) {
+                queryFetcher.setForceUpdate(emptyFunction);
+            }
         };
     };
     return {
