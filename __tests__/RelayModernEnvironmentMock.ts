@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
+/* eslint-disable @typescript-eslint/no-empty-interface */
+/* eslint-disable @typescript-eslint/interface-name-prefix */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -15,7 +19,7 @@
 import * as areEqual from 'fbjs/lib/areEqual';
 import * as invariant from 'fbjs/lib/invariant';
 
-const { QueryResponseCache, Observable, Network } = require('relay-runtime');
+import { QueryResponseCache, Observable, Network, EnvironmentConfig } from 'relay-runtime';
 
 import { Store, RecordSource, Environment } from '../src';
 import { createPersistedStorage } from './Utils';
@@ -51,14 +55,15 @@ function mockDisposableMethod(object: any, key: string) {
 
 function mockObservableMethod(object: any, key: string) {
     const fn = object[key].bind(object);
+    const subscriptions = [];
     object[key] = jest.fn((...args) =>
         fn(...args).do({
             start: (subscription) => {
-                object[key].mock.subscriptions.push(subscription);
+                subscriptions.push(subscription);
             },
         }),
     );
-    object[key].mock.subscriptions = [];
+    object[key].mock.subscriptions = subscriptions;
     const mockClear = object[key].mockClear.bind(object[key]);
     object[key].mockClear = () => {
         mockClear();
@@ -127,16 +132,18 @@ export interface RelayMockEnvironment extends MockEnvironment {}
  * - rejectMostRecentOperation(...) - should reject the most recent operation
  *   with a specific error
  */
-export function createMockEnvironment(config?: {
-    handlerProvider?: any;
-    missingFieldHandlers?: ReadonlyArray<any>;
-    operationTracker?: any;
-    operationLoader?: any;
-    store?: any;
-}): RelayMockEnvironment {
+export function createMockEnvironment(config?: Partial<EnvironmentConfig>): RelayMockEnvironment {
     const store =
         config?.store ??
-        new Store(new RecordSource({ storage: createPersistedStorage() }), { storage: createPersistedStorage(), defaultTTL: -1 });
+        new Store(
+            new RecordSource({ storage: createPersistedStorage() }),
+            {
+                storage: createPersistedStorage(),
+            },
+            {
+                queryCacheExpirationTime: -1,
+            },
+        );
     const cache = new QueryResponseCache({
         size: MAX_SIZE,
         ttl: MAX_TTL,
@@ -163,7 +170,9 @@ export function createMockEnvironment(config?: {
             return Observable.from(cachedPayload);
         }
 
-        const currentOperation = pendingOperations.find((op) => op.request.node.params === request && op.request.variables === variables);
+        const currentOperation = pendingOperations.find(
+            (op) => op.request.node.params === request && areEqual(op.request.variables, variables),
+        );
 
         // Handle network responses added by
         if (currentOperation != null && resolversQueue.length > 0) {
@@ -322,11 +331,6 @@ export function createMockEnvironment(config?: {
     // @ts-ignore
     const environment: RelayMockEnvironment = new Environment({
         configName: 'RelayModernMockEnvironment',
-        loggerProvider: {
-            getLogger() {
-                return null;
-            },
-        },
         network: Network.create(execute, execute),
         store,
         ...config,

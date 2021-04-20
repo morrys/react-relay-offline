@@ -31,7 +31,9 @@ const ReactTestRenderer = require('react-test-renderer');
 
 import { createOperationDescriptor, Environment, Network, Observable, RecordSource, Store, ROOT_ID } from 'relay-runtime';
 import { ROOT_TYPE } from 'relay-runtime/lib/store/RelayStoreUtils';
-import { createMockEnvironment, generateAndCompile } from 'relay-test-utils-internal';
+import { createMockEnvironment } from 'relay-test-utils-internal';
+
+import { generateAndCompile } from './TestCompiler';
 
 function expectToBeRendered(
     renderSpy,

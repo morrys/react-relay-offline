@@ -22,7 +22,8 @@ import * as ReactTestRenderer from 'react-test-renderer';
 
 import { createOperationDescriptor } from 'relay-runtime';
 
-import { generateAndCompile, simpleClone } from 'relay-test-utils-internal';
+import { simpleClone } from 'relay-test-utils-internal';
+import { generateAndCompile } from './TestCompiler';
 import { createMockEnvironment } from './RelayModernEnvironmentMock';
 import { createPersistedStorage } from './Utils';
 /*
