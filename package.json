@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "3.2.0",
+  "version": "4.0.0-rc.2",
   "keywords": [
     "graphql",
     "relay",
@@ -29,21 +29,21 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@wora/relay-offline": "^4.1.0",
-    "@wora/netinfo": "^2.1.0",
-    "@wora/detect-network": "^2.0.0",
-    "@wora/cache-persist": "^2.2.0",
-    "@wora/offline-first": "^2.4.0",
-    "@wora/relay-store": "^4.1.0",
+    "@wora/relay-offline": "^5.0.1",
+    "@wora/netinfo": "^2.1.1",
+    "@wora/detect-network": "^2.0.1",
+    "@wora/cache-persist": "^2.2.1",
+    "@wora/offline-first": "^2.4.1",
+    "@wora/relay-store": "^5.0.1",
     "fbjs": "^3.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "^4.1.1",
+    "relay-hooks": "^4.2.0",
     "tslib": "^1.11.1"
   },
   "peerDependencies": {
     "react": "^16.9.0 || ^17.0.0",
-    "relay-runtime": "^10.1.0"
+    "relay-runtime": "^11.0.2"
   },
   "devDependencies": {
     "@react-native-community/netinfo": "3.2.1",
@@ -52,7 +52,7 @@
     "@types/promise-polyfill": "^6.0.3",
     "@types/react": "16.8.14",
     "@types/react-dom": "16.8.4",
-    "@types/relay-runtime": "^10.0.0",
+    "@types/relay-runtime": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "2.24.0",
     "@typescript-eslint/parser": "2.24.0",
     "babel-jest": "24.9.0",
@@ -75,9 +75,9 @@
     "react": "16.11.0",
     "react-test-renderer": "16.11.0",
     "react-native": "0.59.9",
-    "relay-runtime": "^10.0.0",
-    "relay-test-utils-internal": "^10.0.0",
-    "relay-test-utils": "^10.0.0",
+    "relay-runtime": "^11.0.2",
+    "relay-test-utils-internal": "^11.0.2",
+    "relay-test-utils": "^11.0.2",
     "rimraf": "2.6.3",
     "ts-jest": "24.1.0",
     "typescript": "3.8.3",

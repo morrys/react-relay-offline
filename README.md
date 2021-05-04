@@ -280,10 +280,10 @@ const isRehydrated = useRestore(environment);
    }
 ```
 
-## fetchQuery
+## fetchQuery_DEPRECATED
 
 ```ts
-import { fetchQuery } from "react-relay-offline";
+import { fetchQuery_DEPRECATED } from "react-relay-offline";
 ```
 
 
@@ -364,7 +364,7 @@ to notify any updated data in the store.
 
 ## Requirement
 
-- Version >=10.1.0 of the relay-runtime library
+- Version >=11.0.2 of the relay-runtime library
 - When a new node is created by mutation the id must be generated in the browser to use it in the optimistic response
 
 ## License

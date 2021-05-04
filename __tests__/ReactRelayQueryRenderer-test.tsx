@@ -34,7 +34,8 @@ import * as ReactTestRenderer from 'react-test-renderer';
 import { createOperationDescriptor, Network, Observable, ROOT_ID } from 'relay-runtime';
 
 import { ROOT_TYPE } from 'relay-runtime/lib/store/RelayStoreUtils';
-import { generateAndCompile } from 'relay-test-utils-internal';
+
+import { generateAndCompile } from './TestCompiler';
 import { createMockEnvironment } from './RelayModernEnvironmentMock';
 import { createPersistedStorage } from './Utils';
 
