@@ -43,7 +43,7 @@ You then need to link the native parts of the library for the platforms you are 
 
 - management and utilities for network detection
 
-- automatic use of the polity **store-only** when the application is offline
+- automatic use of the policy **store-only** when the application is offline
 
 - optimization in store management and addition of **TTL** to queries in the store
 
