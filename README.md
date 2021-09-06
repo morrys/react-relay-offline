@@ -23,9 +23,7 @@ Install react-relay and react-relay-offline using yarn or npm:
 yarn add @react-native-community/netinfo react-relay react-relay-offline
 ```
 
-You then need to link the native parts of the library for the platforms you are using. The easiest way to link the library is using the CLI tool by running this command from the root of your project:
-
-`react-native link @react-native-community/netinfo`
+You then need to do some extra configurations to run netinfo package with React Native. Please check [@react-native-community/netinfo official README.md](https://github.com/react-native-netinfo/react-native-netinfo#using-react-native--060) to get the full step guide.
 
 ## Main Additional Features
 
