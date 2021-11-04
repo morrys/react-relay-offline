@@ -186,6 +186,7 @@ describe('ReactRelayQueryRenderer', () => {
                 node: {
                     id: '4',
                     name: 'Zuck',
+                    __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
                         TestFragment: {},
@@ -206,6 +207,7 @@ describe('ReactRelayQueryRenderer', () => {
                 node: {
                     id: '4',
                     name: 'ZUCK',
+                    __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
                         TestFragment: {},
