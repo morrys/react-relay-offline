@@ -23,9 +23,7 @@ import * as ReactTestRenderer from 'react-test-renderer';
 import { createOperationDescriptor } from 'relay-runtime';
 
 import { simpleClone } from 'relay-test-utils-internal';
-import { generateAndCompile } from './TestCompiler';
-import { createMockEnvironment } from './RelayModernEnvironmentMock';
-import { createPersistedStorage } from './Utils';
+import { generateAndCompile, createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
 /*
 function expectToBeRendered(renderFn, readyState) {
   // Ensure useEffect is called before other timers
@@ -298,9 +296,9 @@ describe('ReactRelayQueryRenderer', () => {
         describe('no initial state', () => {
             beforeEach(async () => {
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage() }),
+                    new RecordSource({ storage: createPersistedRecordSource() }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -344,9 +342,9 @@ describe('ReactRelayQueryRenderer', () => {
         describe('initial state', () => {
             beforeEach(async () => {
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }),
+                    new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -396,10 +394,10 @@ describe('ReactRelayQueryRenderer', () => {
             beforeEach(async () => {
                 store = new Store(
                     new RecordSource({
-                        storage: createPersistedStorage(restoredState),
+                        storage: createPersistedRecordSource(restoredState),
                         initialState: { ...data },
                     }),
-                    { storage: createPersistedStorage() },
+                    { storage: createPersistedStore() },
                     { queryCacheExpirationTime: null },
                 );
                 environment = createMockEnvironment({ store });
@@ -448,9 +446,9 @@ describe('ReactRelayQueryRenderer', () => {
         describe(' no initial state, with restored state', () => {
             beforeEach(async () => {
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage(restoredState) }),
+                    new RecordSource({ storage: createPersistedRecordSource(restoredState) }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -501,9 +499,9 @@ describe('ReactRelayQueryRenderer', () => {
         describe('no initial state', () => {
             beforeEach(async () => {
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage() }),
+                    new RecordSource({ storage: createPersistedRecordSource() }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -556,9 +554,9 @@ describe('ReactRelayQueryRenderer', () => {
         describe('initial state', () => {
             beforeEach(async () => {
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }),
+                    new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -608,9 +606,9 @@ describe('ReactRelayQueryRenderer', () => {
         describe('initial state is different from restored state', () => {
             beforeEach(async () => {
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage(restoredState), initialState: { ...data } }),
+                    new RecordSource({ storage: createPersistedRecordSource(restoredState), initialState: { ...data } }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -661,9 +659,9 @@ describe('ReactRelayQueryRenderer', () => {
         describe(' no initial state, with restored state', () => {
             beforeEach(async () => {
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage(restoredState) }),
+                    new RecordSource({ storage: createPersistedRecordSource(restoredState) }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );

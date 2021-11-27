@@ -20,7 +20,10 @@
   },
   "scripts": {
     "clean": "rimraf lib/*",
-    "compile": "npm run clean && tsc",
+    "precompile": "npm run clean",
+    "compile": " npm run compile-src && npm run compile-test",
+    "compile-test": "tsc --project ./tsconfig-test.json",
+    "compile-src": "tsc",
     "build": "npm run compile && npm run test",
     "format": "prettier --write \"src/**/*.{j,t}s*\"",
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
