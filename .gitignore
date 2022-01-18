@@ -1,6 +1,7 @@
 cache-persist
 node_modules
 lib
+test
 *.tgz
 coverage
 .DS_Store

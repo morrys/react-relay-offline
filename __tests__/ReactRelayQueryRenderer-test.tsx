@@ -35,9 +35,7 @@ import { createOperationDescriptor, Network, Observable, ROOT_ID } from 'relay-r
 
 import { ROOT_TYPE } from 'relay-runtime/lib/store/RelayStoreUtils';
 
-import { generateAndCompile } from './TestCompiler';
-import { createMockEnvironment } from './RelayModernEnvironmentMock';
-import { createPersistedStorage } from './Utils';
+import { generateAndCompile, createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
 
 function expectToBeRendered(
     renderSpy,
@@ -242,6 +240,7 @@ describe('ReactRelayQueryRenderer', () => {
                 data: {
                     node: {
                         id: '4',
+                        __isWithinUnmatchedTypeRefinement: false,
 
                         __fragments: {
                             TestFragment: {},
@@ -372,6 +371,7 @@ describe('ReactRelayQueryRenderer', () => {
                         data: {
                             node: {
                                 id: '4',
+                                __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
                                     TestFragment: {},
@@ -397,6 +397,7 @@ describe('ReactRelayQueryRenderer', () => {
                         data: {
                             node: {
                                 id: '4',
+                                __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
                                     TestFragment: {},
@@ -414,9 +415,9 @@ describe('ReactRelayQueryRenderer', () => {
                 it('fetches the query once, always renders snapshot returned by fetch', async () => {
                     const fetch = jest.fn().mockReturnValueOnce(response);
                     store = new Store(
-                        new RecordSource({ storage: createPersistedStorage() }),
+                        new RecordSource({ storage: createPersistedRecordSource() }),
                         {
-                            storage: createPersistedStorage(),
+                            storage: createPersistedStore(),
                         },
                         { queryCacheExpirationTime: null },
                     );
@@ -465,6 +466,7 @@ describe('ReactRelayQueryRenderer', () => {
                             node: {
                                 id: '4',
 
+                                __isWithinUnmatchedTypeRefinement: false,
                                 __fragments: {
                                     TestFragment: {},
                                 },
@@ -487,6 +489,7 @@ describe('ReactRelayQueryRenderer', () => {
                         data: {
                             node: {
                                 id: '4',
+                                __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
                                     TestFragment: {},
@@ -538,6 +541,7 @@ describe('ReactRelayQueryRenderer', () => {
                         data: {
                             node: {
                                 id: '4',
+                                __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
                                     TestFragment: {},
@@ -596,6 +600,7 @@ describe('ReactRelayQueryRenderer', () => {
                         data: {
                             node: {
                                 id: '6',
+                                __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
                                     TestFragment: {},
@@ -669,7 +674,7 @@ describe('ReactRelayQueryRenderer', () => {
                     data: {
                         node: {
                             id: '4',
-
+                            __isWithinUnmatchedTypeRefinement: false,
                             __fragments: {
                                 TestFragment: {},
                             },
@@ -684,9 +689,9 @@ describe('ReactRelayQueryRenderer', () => {
             it('skip loading state when request could be resolved synchronously', async () => {
                 const fetch = () => response;
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage() }),
+                    new RecordSource({ storage: createPersistedRecordSource() }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -710,6 +715,7 @@ describe('ReactRelayQueryRenderer', () => {
                     data: {
                         node: {
                             id: '4',
+                            __isWithinUnmatchedTypeRefinement: false,
 
                             __fragments: {
                                 TestFragment: {},
@@ -726,9 +732,9 @@ describe('ReactRelayQueryRenderer', () => {
                 const error = new Error('Mock Network Error');
                 const fetch: any = () => error;
                 store = new Store(
-                    new RecordSource({ storage: createPersistedStorage() }),
+                    new RecordSource({ storage: createPersistedRecordSource() }),
                     {
-                        storage: createPersistedStorage(),
+                        storage: createPersistedStore(),
                     },
                     { queryCacheExpirationTime: null },
                 );
@@ -960,6 +966,7 @@ describe('ReactRelayQueryRenderer', () => {
                 data: {
                     node: {
                         id: '4',
+                        __isWithinUnmatchedTypeRefinement: false,
 
                         __fragments: {
                             TestFragment: {},
@@ -1014,7 +1021,7 @@ describe('ReactRelayQueryRenderer', () => {
                     data: {
                         node: {
                             id: '4',
-
+                            __isWithinUnmatchedTypeRefinement: false,
                             __fragments: {
                                 TestFragment: {},
                             },
@@ -1029,6 +1036,7 @@ describe('ReactRelayQueryRenderer', () => {
                     data: {
                         node: {
                             id: '4',
+                            __isWithinUnmatchedTypeRefinement: false,
 
                             __fragments: {
                                 TestFragment: {},
@@ -1076,7 +1084,7 @@ describe('ReactRelayQueryRenderer', () => {
                 data: {
                     node: {
                         id: '4',
-
+                        __isWithinUnmatchedTypeRefinement: false,
                         __fragments: {
                             TestFragment: {},
                         },

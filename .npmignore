@@ -1,6 +1,8 @@
 src/
+src-test/
 *.tgz
 tsconfig.json
+tsconfig-test.json
 examples/
 website/
 docs/

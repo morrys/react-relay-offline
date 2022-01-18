@@ -33,7 +33,7 @@ import { createOperationDescriptor, Environment, Network, Observable, RecordSour
 import { ROOT_TYPE } from 'relay-runtime/lib/store/RelayStoreUtils';
 import { createMockEnvironment } from 'relay-test-utils-internal';
 
-import { generateAndCompile } from './TestCompiler';
+import { generateAndCompile } from '../src-test';
 
 function expectToBeRendered(
     renderSpy,

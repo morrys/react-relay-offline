@@ -15,9 +15,8 @@ import { createOperationDescriptor } from 'relay-runtime';
 
 import { simpleClone } from 'relay-test-utils-internal';
 
-import { generateAndCompile } from './TestCompiler';
-import { createMockEnvironment } from './RelayModernEnvironmentMock';
-import { createPersistedStorage } from './Utils';
+import { generateAndCompile } from '@wora/relay-offline/test';
+import { createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
 
 const QueryRendererHook = (props: any) => {
     const { render, query, variables, cacheConfig, ttl } = props;
@@ -156,6 +155,7 @@ describe('ReactRelayQueryRenderer', () => {
                 node: {
                     id: '4',
                     name: 'Zuck',
+                    __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
                         TestFragment: {},
@@ -222,9 +222,9 @@ describe('ReactRelayQueryRenderer', () => {
     describe('Time To Live', () => {
         it('without TTL', async () => {
             store = new Store(
-                new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }),
+                new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                 {
-                    storage: createPersistedStorage(),
+                    storage: createPersistedStore(),
                 },
                 { queryCacheExpirationTime: null },
             );
@@ -268,9 +268,9 @@ describe('ReactRelayQueryRenderer', () => {
 
         it('with defaultTTL', async () => {
             store = new Store(
-                new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }),
+                new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                 {
-                    storage: createPersistedStorage(),
+                    storage: createPersistedStore(),
                 },
                 { queryCacheExpirationTime: 100 },
             );
@@ -340,9 +340,9 @@ describe('ReactRelayQueryRenderer', () => {
 
         it('with custom TTL', async () => {
             store = new Store(
-                new RecordSource({ storage: createPersistedStorage(), initialState: { ...data } }),
+                new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                 {
-                    storage: createPersistedStorage(),
+                    storage: createPersistedStore(),
                 },
                 { queryCacheExpirationTime: 100 },
             );

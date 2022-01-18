@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "keywords": [
     "graphql",
     "relay",
@@ -20,7 +20,10 @@
   },
   "scripts": {
     "clean": "rimraf lib/*",
-    "compile": "npm run clean && tsc",
+    "precompile": "npm run clean",
+    "compile": " npm run compile-src && npm run compile-test",
+    "compile-test": "tsc --project ./tsconfig-test.json",
+    "compile-src": "tsc",
     "build": "npm run compile && npm run test",
     "format": "prettier --write \"src/**/*.{j,t}s*\"",
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
@@ -29,21 +32,21 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@wora/relay-offline": "^5.0.1",
+    "@wora/relay-offline": "6.0.0",
     "@wora/netinfo": "^2.1.1",
     "@wora/detect-network": "^2.0.1",
     "@wora/cache-persist": "^2.2.1",
     "@wora/offline-first": "^2.4.1",
-    "@wora/relay-store": "^5.0.1",
+    "@wora/relay-store": "6.0.0",
     "fbjs": "^3.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "^4.2.0",
+    "relay-hooks": "^6.0.0",
     "tslib": "^1.11.1"
   },
   "peerDependencies": {
     "react": "^16.9.0 || ^17.0.0",
-    "relay-runtime": "^11.0.2"
+    "relay-runtime": "^12.0.0"
   },
   "devDependencies": {
     "@react-native-community/netinfo": "3.2.1",
@@ -75,9 +78,9 @@
     "react": "16.11.0",
     "react-test-renderer": "16.11.0",
     "react-native": "0.59.9",
-    "relay-runtime": "^11.0.2",
-    "relay-test-utils-internal": "^11.0.2",
-    "relay-test-utils": "^11.0.2",
+    "relay-runtime": "^12.0.0",
+    "relay-test-utils-internal": "^12.0.0",
+    "relay-test-utils": "^12.0.0",
     "rimraf": "2.6.3",
     "ts-jest": "24.1.0",
     "typescript": "3.8.3",
