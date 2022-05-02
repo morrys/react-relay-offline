@@ -41,7 +41,7 @@
     "fbjs": "^3.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "^6.0.0",
+    "relay-hooks": "^7.0.0",
     "tslib": "^1.11.1"
   },
   "peerDependencies": {
