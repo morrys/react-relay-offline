@@ -5,3 +5,4 @@ test
 *.tgz
 coverage
 .DS_Store
+.idea

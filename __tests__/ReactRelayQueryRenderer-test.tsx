@@ -14,9 +14,8 @@
  */
 
 'use strict';
-jest.useFakeTimers();
 
-jest.mock('scheduler', () => require.requireActual('scheduler/unstable_mock'));
+jest.mock('scheduler', () => jest.requireActual('scheduler/unstable_mock'));
 
 import * as React from 'react';
 //import * as Scheduler from 'scheduler';
@@ -31,11 +30,21 @@ import * as ReactTestRenderer from 'react-test-renderer';
 
 //import readContext from "react-relay/lib/readContext";
 
-import { createOperationDescriptor, Network, Observable, ROOT_ID } from 'relay-runtime';
+import { createOperationDescriptor, graphql, Network, Observable, ROOT_ID } from 'relay-runtime';
 
 import { ROOT_TYPE } from 'relay-runtime/lib/store/RelayStoreUtils';
 
-import { generateAndCompile, createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
+import { createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
+
+const NextQueryGenerated = graphql`
+query ReactRelayQueryRendererTestNextQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      name
+    }
+  }
+}
+`;
 
 function expectToBeRendered(
     renderSpy,
@@ -176,28 +185,30 @@ describe('ReactRelayQueryRenderer', () => {
         }
     }
 
-    beforeEach(async () => {
+    beforeEach(() => {
         Scheduler.unstable_clearYields();
         jest.resetModules();
 
         environment = createMockEnvironment();
         store = environment.getStore();
-        ({ TestQuery } = generateAndCompile(`
-      query TestQuery($id: ID = "<default>") {
-        node(id: $id) {
-          id
-          ...TestFragment
-        }
-      }
-
-      fragment TestFragment on User {
+        const frag = graphql`
+      fragment ReactRelayQueryRendererTestFragment on User {
         name
       }
-    `));
+    `;
+        TestQuery = graphql`
+      query ReactRelayQueryRendererTestQuery($id: ID = "<default>") {
+        node(id: $id) {
+          id
+          ...ReactRelayQueryRendererTestFragment
+        }
+      }
+    `;
 
         render = jest.fn(() => <div />);
         variables = { id: '4' };
-        await environment.hydrate();
+        environment.hydrate();
+        jest.runAllTimers();
     });
 
     afterEach(async () => {
@@ -243,7 +254,7 @@ describe('ReactRelayQueryRenderer', () => {
                         __isWithinUnmatchedTypeRefinement: false,
 
                         __fragments: {
-                            TestFragment: {},
+                            ReactRelayQueryRendererTestFragment: {},
                         },
 
                         __fragmentOwner: owner.request,
@@ -374,7 +385,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
-                                    TestFragment: {},
+                                    ReactRelayQueryRendererTestFragment: {},
                                 },
 
                                 __fragmentOwner: owner.request,
@@ -400,7 +411,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
-                                    TestFragment: {},
+                                    ReactRelayQueryRendererTestFragment: {},
                                 },
 
                                 __fragmentOwner: owner.request,
@@ -412,7 +423,7 @@ describe('ReactRelayQueryRenderer', () => {
                 });
             });
             describe('when fetch returns a response synchronously first time', () => {
-                it('fetches the query once, always renders snapshot returned by fetch', async () => {
+                it('fetches the query once, always renders snapshot returned by fetch', () => {
                     const fetch = jest.fn().mockReturnValueOnce(response);
                     store = new Store(
                         new RecordSource({ storage: createPersistedRecordSource() }),
@@ -425,7 +436,8 @@ describe('ReactRelayQueryRenderer', () => {
                         network: Network.create(fetch),
                         store,
                     });
-                    await environment.hydrate();
+                    environment.hydrate();
+                    jest.runAllTimers();
                     function Child(props) {
                         // NOTE the unstable_yieldValue method will move to the static renderer.
                         // When React sync runs we need to update this.
@@ -468,7 +480,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                                 __isWithinUnmatchedTypeRefinement: false,
                                 __fragments: {
-                                    TestFragment: {},
+                                    ReactRelayQueryRendererTestFragment: {},
                                 },
 
                                 __fragmentOwner: owner.request,
@@ -492,7 +504,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
-                                    TestFragment: {},
+                                    ReactRelayQueryRendererTestFragment: {},
                                 },
 
                                 __fragmentOwner: owner.request,
@@ -503,9 +515,10 @@ describe('ReactRelayQueryRenderer', () => {
                 });
             });
             describe('when variables change before first result has completed', () => {
-                it('correctly renders data for new variables', async () => {
+                it('correctly renders data for new variables', () => {
                     environment = createMockEnvironment();
-                    await environment.hydrate();
+                    environment.hydrate();
+                    jest.runAllTimers();
                     let pendingRequests = [];
                     jest.spyOn(environment, 'execute').mockImplementation((request: any) => {
                         const nextRequest: any = { request };
@@ -544,7 +557,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
-                                    TestFragment: {},
+                                    ReactRelayQueryRendererTestFragment: {},
                                 },
 
                                 __fragmentOwner: firstOwner.request,
@@ -603,7 +616,7 @@ describe('ReactRelayQueryRenderer', () => {
                                 __isWithinUnmatchedTypeRefinement: false,
 
                                 __fragments: {
-                                    TestFragment: {},
+                                    ReactRelayQueryRendererTestFragment: {},
                                 },
 
                                 __fragmentOwner: thirdOwner.request,
@@ -676,7 +689,7 @@ describe('ReactRelayQueryRenderer', () => {
                             id: '4',
                             __isWithinUnmatchedTypeRefinement: false,
                             __fragments: {
-                                TestFragment: {},
+                                ReactRelayQueryRendererTestFragment: {},
                             },
 
                             __fragmentOwner: owner.request,
@@ -686,7 +699,7 @@ describe('ReactRelayQueryRenderer', () => {
                 });
             });
 
-            it('skip loading state when request could be resolved synchronously', async () => {
+            it('skip loading state when request could be resolved synchronously', () => {
                 const fetch = () => response;
                 store = new Store(
                     new RecordSource({ storage: createPersistedRecordSource() }),
@@ -699,7 +712,8 @@ describe('ReactRelayQueryRenderer', () => {
                     network: Network.create(fetch),
                     store,
                 });
-                await environment.hydrate();
+                environment.hydrate();
+                jest.runAllTimers();
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -718,7 +732,7 @@ describe('ReactRelayQueryRenderer', () => {
                             __isWithinUnmatchedTypeRefinement: false,
 
                             __fragments: {
-                                TestFragment: {},
+                                ReactRelayQueryRendererTestFragment: {},
                             },
 
                             __fragmentOwner: owner.request,
@@ -728,7 +742,7 @@ describe('ReactRelayQueryRenderer', () => {
                 });
             });
 
-            it('skip loading state when request failed synchronously', async () => {
+            it('skip loading state when request failed synchronously', () => {
                 const error = new Error('Mock Network Error');
                 const fetch: any = () => error;
                 store = new Store(
@@ -742,7 +756,8 @@ describe('ReactRelayQueryRenderer', () => {
                     network: Network.create(fetch),
                     store,
                 });
-                await environment.hydrate();
+                environment.hydrate();
+                jest.runAllTimers();
                 ReactTestRenderer.create(
                     <ReactRelayQueryRenderer
                         query={TestQuery}
@@ -823,7 +838,7 @@ describe('ReactRelayQueryRenderer', () => {
                 expect(environment.execute).not.toBeCalled();
             });
 
-            it('refetches if the `environment` prop changes', async () => {
+            it('refetches if the `environment` prop changes', () => {
                 expect.assertions(5);
                 environment.mock.resolve(TestQuery, {
                     data: {
@@ -835,7 +850,8 @@ describe('ReactRelayQueryRenderer', () => {
                 // Update with a different environment
                 environment.mockClear();
                 environment = createMockEnvironment();
-                await environment.hydrate();
+                environment.hydrate();
+                jest.runAllTimers();
                 renderer.getInstance().setProps({
                     environment,
                     query: TestQuery,
@@ -903,15 +919,7 @@ describe('ReactRelayQueryRenderer', () => {
                 render.mockClear();
 
                 // Update with a different query
-                const { NextQuery } = generateAndCompile(`
-      query NextQuery($id: ID!) {
-        node(id: $id) {
-          ... on User {
-            name
-          }
-        }
-      }
-    `);
+                const NextQuery = NextQueryGenerated;
                 renderer.getInstance().setProps({
                     cacheConfig,
                     environment,
@@ -969,7 +977,7 @@ describe('ReactRelayQueryRenderer', () => {
                         __isWithinUnmatchedTypeRefinement: false,
 
                         __fragments: {
-                            TestFragment: {},
+                            ReactRelayQueryRendererTestFragment: {},
                         },
 
                         __fragmentOwner: owner.request,
@@ -1023,7 +1031,7 @@ describe('ReactRelayQueryRenderer', () => {
                             id: '4',
                             __isWithinUnmatchedTypeRefinement: false,
                             __fragments: {
-                                TestFragment: {},
+                                ReactRelayQueryRendererTestFragment: {},
                             },
 
                             __fragmentOwner: owner.request,
@@ -1039,7 +1047,7 @@ describe('ReactRelayQueryRenderer', () => {
                             __isWithinUnmatchedTypeRefinement: false,
 
                             __fragments: {
-                                TestFragment: {},
+                                ReactRelayQueryRendererTestFragment: {},
                             },
 
                             __fragmentOwner: owner.request,
@@ -1086,7 +1094,7 @@ describe('ReactRelayQueryRenderer', () => {
                         id: '4',
                         __isWithinUnmatchedTypeRefinement: false,
                         __fragments: {
-                            TestFragment: {},
+                            ReactRelayQueryRendererTestFragment: {},
                         },
 
                         __fragmentOwner: owner.request,
@@ -1111,15 +1119,7 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
+            NextQuery = NextQueryGenerated;
 
             variables = { id: '4' };
             renderer = ReactTestRenderer.create(
@@ -1174,15 +1174,7 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
+            NextQuery = NextQueryGenerated;
 
             variables = { id: '4' };
             renderer = ReactTestRenderer.create(
@@ -1244,15 +1236,7 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
+            NextQuery = NextQueryGenerated;
 
             renderer = ReactTestRenderer.create(
                 <PropsSetter>
@@ -1372,15 +1356,7 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
+            NextQuery = NextQueryGenerated;
 
             renderer = ReactTestRenderer.create(
                 <PropsSetter>

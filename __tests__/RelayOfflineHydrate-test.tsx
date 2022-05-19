@@ -3,9 +3,8 @@
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-jest.useFakeTimers();
 
-jest.mock('scheduler', () => require.requireActual('scheduler/unstable_mock'));
+jest.mock('scheduler', () => jest.requireActual('scheduler/unstable_mock'));
 
 import * as React from 'react';
 //import * as Scheduler from 'scheduler';
@@ -20,10 +19,10 @@ import * as ReactTestRenderer from 'react-test-renderer';
 
 //import readContext from "react-relay/lib/readContext";
 
-import { createOperationDescriptor } from 'relay-runtime';
+import { createOperationDescriptor, graphql } from 'relay-runtime';
 
 import { simpleClone } from 'relay-test-utils-internal';
-import { generateAndCompile, createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
+import { createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
 /*
 function expectToBeRendered(renderFn, readyState) {
   // Ensure useEffect is called before other timers
@@ -187,7 +186,7 @@ describe('ReactRelayQueryRenderer', () => {
                     __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
-                        TestFragment: {},
+                        RelayOfflineHydrateTestFragment: {},
                     },
 
                     __fragmentOwner: ttl ? ownerTTL.request : owner.request,
@@ -208,7 +207,7 @@ describe('ReactRelayQueryRenderer', () => {
                     __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
-                        TestFragment: {},
+                        RelayOfflineHydrateTestFragment: {},
                     },
 
                     __fragmentOwner: ttl ? ownerTTL.request : owner.request,
@@ -243,19 +242,20 @@ describe('ReactRelayQueryRenderer', () => {
         retry: expect.any(Function),
     };
 
-    ({ TestQuery } = generateAndCompile(`
-                query TestQuery($id: ID = "<default>") {
+    const frag =  graphql`
+    fragment RelayOfflineHydrateTestFragment on User {
+        name
+    }`
+
+    TestQuery = graphql`
+                query RelayOfflineHydrateTestQuery($id: ID = "<default>") {
                     node(id: $id) {
                     id
                     name
-                    ...TestFragment
+                    ...RelayOfflineHydrateTestFragment
                     }
                 }
-
-                fragment TestFragment on User {
-                    name
-                }
-                `));
+                `;
 
     owner = createOperationDescriptor(TestQuery, variables);
 
