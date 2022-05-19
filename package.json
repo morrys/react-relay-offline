@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "keywords": [
     "graphql",
     "relay",
@@ -52,11 +52,11 @@
     "fbjs": "^3.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
-    "relay-hooks": "^7.0.0",
+    "relay-hooks": "^7.1.0",
     "tslib": "^1.11.1"
   },
   "peerDependencies": {
-    "react": "^16.9.0 || ^17.0.0",
+    "react": "^16.9.0 || ^17 || ^18",
     "relay-runtime": "^13.0.0"
   },
   "devDependencies": {
