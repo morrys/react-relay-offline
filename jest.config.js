@@ -8,6 +8,9 @@ module.exports = {
     globals: {
         __DEV__: true,
         'ts-jest': {
+            astTransformers: {
+                before: ['ts-relay-plugin'],
+            },
             diagnostics: {
                 warnOnly: true,
             },
@@ -31,4 +34,5 @@ module.exports = {
         },
     },
     setupFiles: ['./scripts/setup.ts'],
+    timers: 'fake',
 };

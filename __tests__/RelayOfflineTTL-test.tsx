@@ -2,20 +2,18 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
-jest.useFakeTimers();
 
-jest.mock('scheduler', () => require.requireActual('scheduler/unstable_mock'));
+jest.mock('scheduler', () => jest.requireActual('scheduler/unstable_mock'));
 
 import * as React from 'react';
 const Scheduler = require('scheduler');
 import { useQuery, Store, RecordSource, useRestore } from '../src';
 import { RelayEnvironmentProvider } from 'relay-hooks';
 import * as ReactTestRenderer from 'react-test-renderer';
-import { createOperationDescriptor } from 'relay-runtime';
+import { createOperationDescriptor, graphql } from 'relay-runtime';
 
 import { simpleClone } from 'relay-test-utils-internal';
 
-import { generateAndCompile } from '@wora/relay-offline/test';
 import { createMockEnvironment, createPersistedStore, createPersistedRecordSource } from '../src-test';
 
 const QueryRendererHook = (props: any) => {
@@ -158,7 +156,7 @@ describe('ReactRelayQueryRenderer', () => {
                     __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
-                        TestFragment: {},
+                        RelayOfflineTTLTestFragment: {},
                     },
 
                     __fragmentOwner: ttl ? ownerTTL.request : owner.request,
@@ -169,24 +167,26 @@ describe('ReactRelayQueryRenderer', () => {
         };
     };
 
-    ({ TestQuery } = generateAndCompile(`
-                query TestQuery($id: ID = "<default>") {
+    const frag = graphql`
+                fragment RelayOfflineTTLTestFragment on User {
+                    name
+                }
+                `;
+
+                TestQuery = graphql`
+                query RelayOfflineTTLTestQuery($id: ID = "<default>") {
                     node(id: $id) {
                     id
                     name
-                    ...TestFragment
+                    ...RelayOfflineTTLTestFragment
                     }
                 }
-
-                fragment TestFragment on User {
-                    name
-                }
-                `));
+                `;
 
     owner = createOperationDescriptor(TestQuery, variables);
     ownerTTL = createOperationDescriptor(TestQuery, variables, { ttl: 500 } as any);
 
-    beforeEach(async () => {
+    beforeEach(() => {
         Scheduler.unstable_clearYields();
         jest.resetModules();
         expect.extend({
@@ -220,7 +220,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     describe('Time To Live', () => {
-        it('without TTL', async () => {
+        it('without TTL', () => {
             store = new Store(
                 new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                 {
@@ -229,7 +229,8 @@ describe('ReactRelayQueryRenderer', () => {
                 { queryCacheExpirationTime: null },
             );
             environment = createMockEnvironment({ store });
-            await environment.hydrate();
+            environment.hydrate();
+            jest.runAllTimers();
             const instanceA = ReactTestRenderer.create(
                 <QueryRendererUseRestore
                     query={TestQuery}
@@ -266,7 +267,7 @@ describe('ReactRelayQueryRenderer', () => {
             expectToBeLoading(render);
         });
 
-        it('with defaultTTL', async () => {
+        it('with defaultTTL', () => {
             store = new Store(
                 new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                 {
@@ -275,7 +276,8 @@ describe('ReactRelayQueryRenderer', () => {
                 { queryCacheExpirationTime: 100 },
             );
             environment = createMockEnvironment({ store });
-            await environment.hydrate();
+            environment.hydrate();
+            jest.runAllTimers()
             const instanceA = ReactTestRenderer.create(
                 <QueryRendererUseRestore
                     query={TestQuery}
@@ -338,7 +340,7 @@ describe('ReactRelayQueryRenderer', () => {
             expectToBeLoading(render);
         });
 
-        it('with custom TTL', async () => {
+        it('with custom TTL', () => {
             store = new Store(
                 new RecordSource({ storage: createPersistedRecordSource(), initialState: { ...data } }),
                 {
@@ -347,7 +349,8 @@ describe('ReactRelayQueryRenderer', () => {
                 { queryCacheExpirationTime: 100 },
             );
             environment = createMockEnvironment({ store });
-            await environment.hydrate();
+            environment.hydrate();
+            jest.runAllTimers();
             const instanceA = ReactTestRenderer.create(
                 <QueryRendererUseRestore
                     query={TestQuery}

@@ -29,11 +29,9 @@ const ReactTestRenderer = require('react-test-renderer');
 
 //import readContext from "react-relay/lib/readContext";
 
-import { createOperationDescriptor, Environment, Network, Observable, RecordSource, Store, ROOT_ID } from 'relay-runtime';
+import { createOperationDescriptor, Environment, Network, Observable, RecordSource, Store, ROOT_ID, graphql } from 'relay-runtime';
 import { ROOT_TYPE } from 'relay-runtime/lib/store/RelayStoreUtils';
 import { createMockEnvironment } from 'relay-test-utils-internal';
-
-import { generateAndCompile } from '../src-test';
 
 function expectToBeRendered(
     renderSpy,
@@ -123,6 +121,16 @@ const QueryRendererHook = (props: any) => {
 
     return <React.Fragment>{render(queryData)}</React.Fragment>;
 };
+
+const NextQueryGenerated = graphql`
+        query relayNextQuery($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              name
+            }
+          }
+        }
+      `;
 
 const ReactRelayQueryRenderer = (props: any) => (
     <RelayEnvironmentProvider environment={props.environment}>
@@ -1047,15 +1055,7 @@ describe('ReactRelayQueryRenderer', () => {
                 render.mockClear();
 
                 // Update with a different query
-                const { NextQuery } = generateAndCompile(`
-      query NextQuery($id: ID!) {
-        node(id: $id) {
-          ... on User {
-            name
-          }
-        }
-      }
-    `);
+                const NextQuery = NextQueryGenerated;
                 renderer.getInstance().setProps({
                     cacheConfig,
                     environment,
@@ -1293,15 +1293,15 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
+            NextQuery = graphql`
+        query relayNext2Query($id: ID!) {
           node(id: $id) {
             ... on User {
               name
             }
           }
         }
-      `));
+      `;
 
             variables = { id: '4' };
             renderer = ReactTestRenderer.create(
@@ -1384,15 +1384,7 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
+            NextQuery = NextQueryGenerated;
 
             variables = { id: '4' };
             renderer = ReactTestRenderer.create(
@@ -1454,15 +1446,7 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
+            NextQuery = NextQueryGenerated;
 
             renderer = ReactTestRenderer.create(
                 <PropsSetter>
@@ -1581,15 +1565,7 @@ describe('ReactRelayQueryRenderer', () => {
         let nextProps;
 
         beforeEach(() => {
-            ({ NextQuery } = generateAndCompile(`
-        query NextQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `));
+            NextQuery  = NextQueryGenerated;
 
             renderer = ReactTestRenderer.create(
                 <PropsSetter>
