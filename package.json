@@ -83,7 +83,7 @@
     "idb": "^4.0.0",
     "jest": "^26.0.0",
     "jest-junit": "8.0.0",
-    "lerna": "^3.16.4",
+    "lerna": "^6.4.1",
     "prettier": "2.0.1",
     "promise-polyfill": "6.1.0",
     "react": "16.11.0",
