@@ -88,7 +88,7 @@
     "promise-polyfill": "6.1.0",
     "react": "16.11.0",
     "react-test-renderer": "16.11.0",
-    "react-native": "0.59.9",
+    "react-native": "0.71.3",
     "relay-runtime": "^13.0.0",
     "relay-compiler": "^13.0.0",
     "relay-test-utils-internal": "^13.0.0",
