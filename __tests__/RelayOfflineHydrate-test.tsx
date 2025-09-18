@@ -183,7 +183,6 @@ describe('ReactRelayQueryRenderer', () => {
                 node: {
                     id: '4',
                     name: 'Zuck',
-                    __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
                         RelayOfflineHydrateTestFragment: {},
@@ -204,7 +203,6 @@ describe('ReactRelayQueryRenderer', () => {
                 node: {
                     id: '4',
                     name: 'ZUCK',
-                    __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
                         RelayOfflineHydrateTestFragment: {},
@@ -242,20 +240,21 @@ describe('ReactRelayQueryRenderer', () => {
         retry: expect.any(Function),
     };
 
-    const frag =  graphql`
-    fragment RelayOfflineHydrateTestFragment on User {
-        name
-    }`
+    const frag = graphql`
+        fragment RelayOfflineHydrateTestFragment on User {
+            name
+        }
+    `;
 
     TestQuery = graphql`
-                query RelayOfflineHydrateTestQuery($id: ID = "<default>") {
-                    node(id: $id) {
-                    id
-                    name
-                    ...RelayOfflineHydrateTestFragment
-                    }
-                }
-                `;
+        query RelayOfflineHydrateTestQuery($id: ID = "<default>") {
+            node(id: $id) {
+                id
+                name
+                ...RelayOfflineHydrateTestFragment
+            }
+        }
+    `;
 
     owner = createOperationDescriptor(TestQuery, variables);
 
@@ -306,15 +305,19 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
                 render.mockClear();
@@ -323,15 +326,17 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expectHydrate(environment, false, false);
 
                 render.mockClear();
@@ -352,15 +357,19 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
                 render.mockClear();
@@ -371,15 +380,17 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expectHydrate(environment, false, false);
                 expectToBeRenderedFirst(render, dataInitialState(owner));
 
@@ -404,15 +415,18 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
                 render.mockClear();
                 jest.runAllTimers();
@@ -422,15 +436,17 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
 
                 expectHydrate(environment, false, false);
                 expectToBeRenderedFirst(render, dataInitialState(owner));
@@ -456,15 +472,19 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
                 render.mockClear();
@@ -475,15 +495,17 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expectHydrate(environment, false, false);
                 expectToBeNotLoading(render);
 
@@ -512,15 +534,18 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
                 render.mockClear();
@@ -531,15 +556,17 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
 
                 expectToBeNotLoading(render);
                 expectHydrate(environment, false, false);
@@ -564,15 +591,19 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
                 render.mockClear();
@@ -584,15 +615,17 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expectHydrate(environment, false, false);
                 expectToBeRenderedFirst(render, dataInitialState(owner));
 
@@ -616,15 +649,19 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
                 render.mockClear();
@@ -635,15 +672,17 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
 
                 expectHydrate(environment, false, false);
                 expectToBeRenderedFirst(render, dataInitialState(owner));
@@ -669,15 +708,19 @@ describe('ReactRelayQueryRenderer', () => {
             });
 
             it('with useRestore', () => {
-                const instance = ReactTestRenderer.create(
-                    <QueryRendererUseRestore
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                let instance;
+
+                ReactTestRenderer.act(() => {
+                    instance = ReactTestRenderer.create(
+                        <QueryRendererUseRestore
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
                 expect(instance.toJSON()).toEqual(NOT_REHYDRATED);
 
                 render.mockClear();
@@ -692,15 +735,17 @@ describe('ReactRelayQueryRenderer', () => {
             the execute is not re-executed and the application is still in a loading state. (We want to avoid it, we want recover restored state)
             */
             it('without useRestore', () => {
-                ReactTestRenderer.create(
-                    <ReactRelayQueryRenderer
-                        query={TestQuery}
-                        cacheConfig={cacheConfig}
-                        environment={environment}
-                        render={render}
-                        variables={variables}
-                    />,
-                );
+                ReactTestRenderer.act(() => {
+                    ReactTestRenderer.create(
+                        <ReactRelayQueryRenderer
+                            query={TestQuery}
+                            cacheConfig={cacheConfig}
+                            environment={environment}
+                            render={render}
+                            variables={variables}
+                        />,
+                    );
+                });
 
                 expectHydrate(environment, false, false);
                 expectToBeNotLoading(render);
