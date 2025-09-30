@@ -1,6 +1,6 @@
 {
   "name": "react-relay-offline",
-  "version": "6.0.0",
+  "version": "7.0.0-rc.1",
   "keywords": [
     "graphql",
     "relay",
@@ -43,12 +43,12 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@wora/relay-offline": "^7.0.0",
+    "@wora/relay-offline": "8.0.0-rc.1",
     "@wora/netinfo": "^2.1.1",
     "@wora/detect-network": "^2.0.1",
     "@wora/cache-persist": "^2.2.1",
     "@wora/offline-first": "^2.4.1",
-    "@wora/relay-store": "^7.0.0",
+    "@wora/relay-store": "8.0.0-rc.1",
     "fbjs": "^3.0.0",
     "nullthrows": "^1.1.0",
     "uuid": "3.3.2",
@@ -66,7 +66,7 @@
     "@types/promise-polyfill": "^6.0.3",
     "@types/react": "16.8.14",
     "@types/react-dom": "16.8.4",
-    "@types/relay-runtime": "19.0.2",
+    "@types/relay-runtime": "19.0.3",
     "@typescript-eslint/eslint-plugin": "2.24.0",
     "@typescript-eslint/parser": "2.24.0",
     "babel-jest": "^26.0.0",
