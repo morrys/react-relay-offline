@@ -153,7 +153,6 @@ describe('ReactRelayQueryRenderer', () => {
                 node: {
                     id: '4',
                     name: 'Zuck',
-                    __isWithinUnmatchedTypeRefinement: false,
 
                     __fragments: {
                         RelayOfflineTTLTestFragment: {},
@@ -168,20 +167,20 @@ describe('ReactRelayQueryRenderer', () => {
     };
 
     const frag = graphql`
-                fragment RelayOfflineTTLTestFragment on User {
-                    name
-                }
-                `;
+        fragment RelayOfflineTTLTestFragment on User {
+            name
+        }
+    `;
 
-                TestQuery = graphql`
-                query RelayOfflineTTLTestQuery($id: ID = "<default>") {
-                    node(id: $id) {
-                    id
-                    name
-                    ...RelayOfflineTTLTestFragment
-                    }
-                }
-                `;
+    TestQuery = graphql`
+        query RelayOfflineTTLTestQuery($id: ID = "<default>") {
+            node(id: $id) {
+                id
+                name
+                ...RelayOfflineTTLTestFragment
+            }
+        }
+    `;
 
     owner = createOperationDescriptor(TestQuery, variables);
     ownerTTL = createOperationDescriptor(TestQuery, variables, { ttl: 500 } as any);
@@ -277,7 +276,7 @@ describe('ReactRelayQueryRenderer', () => {
             );
             environment = createMockEnvironment({ store });
             environment.hydrate();
-            jest.runAllTimers()
+            jest.runAllTimers();
             const instanceA = ReactTestRenderer.create(
                 <QueryRendererUseRestore
                     query={TestQuery}
