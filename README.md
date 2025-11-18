@@ -71,10 +71,6 @@ You then need to do some extra configurations to run netinfo package with React 
 
 - **Please sponsor me**
 
-### Sponsors
-
-<a href="https://memorangapp.com" target="_blank"><img height=40px src="https://github.com/morrys/react-relay-offline/raw/master/docs/assets/memorang-logo.png" alt="Memorang">
-
 ## react-relay-offline examples
 
 The [offline-examples](https://github.com/morrys/offline-examples) repository contains example projects on how to use react-relay-offline:
